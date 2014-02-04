@@ -24,3 +24,7 @@ class Compilation(object):
 
         os.remove(source_file)
 
+    def __del__(self):
+        if os.path.isfile(self.exec_file):
+            os.remove(self.exec_file)
+
