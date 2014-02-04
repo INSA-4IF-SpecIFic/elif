@@ -10,7 +10,8 @@ $(document).ready(function(){
     $('.btn-submit').click(function() {
         params = {code: editor.getValue()};
         apiCall('/compile', 'POST', params, function(data) {
-            notification.error(data.stderr);
+            $('.output').addClass('error');
+            $('.output').html(preprocessText(data.stderr));
         });
     });
 

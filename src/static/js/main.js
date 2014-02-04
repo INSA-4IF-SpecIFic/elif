@@ -1,5 +1,7 @@
-/* Handlebars */
-
+/* Misc */
+var preprocessText = function(msg) {
+    return msg.replace(/\n/g,'<br/>').replace(/ /g, '&nbsp;');
+}
 
 /* API related */
 var apiCall = function(path, method, data, callback) {
@@ -17,7 +19,8 @@ var apiCall = function(path, method, data, callback) {
 /* Notification zone */
 notification = {
     show: function(cls, msg) {
-        $('#notification-bar').attr('class', cls).stop().text(msg).fadeIn(500).delay(2000).fadeOut(500);
+        msg = preprocessText(msg);
+        $('#notification-bar').attr('class', cls).stop().html(msg).show().fadeIn(500).delay(2000).fadeOut(500);
     },
     error: function(msg) {
         this.show('error', msg);

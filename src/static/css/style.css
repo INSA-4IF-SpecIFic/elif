@@ -115,3 +115,20 @@ body {
   width: 90%;
   margin: 0 auto;
 }
+
+/* Compilation / Execution output */
+.output {
+  font-family: "Ubuntu Mono", monospace;
+  display: block;
+  padding: 5px;
+  margin: 10px;
+  background: #E9E2CF;
+  border: 1px solid #C5BEAA;
+  color: #535045;
+}
+
+.output.error {
+  background: #C01B3A;
+  border: 1px solid #881C30;
+  color: #FCEDF0;
+}
