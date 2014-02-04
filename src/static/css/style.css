@@ -96,7 +96,7 @@ body {
   box-shadow: -1px 1px 0 rgba(0, 0, 0, 0.2);
 }
 
-.btn-submit:hover {
+.btn-submit:hover, .btn-submit:focus, .btn-submit:active {
   color: #FFF;
   background: #2350C8;
 }

@@ -9,17 +9,21 @@ app = Flask(__name__)
 def hello():
     return render_template('index.html')
 
-@app.route('/compile')
+
+@app.route('/compile', methods=['POST'])
 def compile():
-    code = request.args.get('code')
+    code = request.json['code']
+
     comp = Compilation(code)
     result = {'stderr': comp.stderr, 'stdout': 'lol'}
     return json.dumps(result)
 
-@app.route('/post_compile', methods=['POST'])
-def post_compile():
-    code = request.form.get('code', 'Pas de code')
-    return code
+@app.route('/get_compile')
+def get_compile():
+    code = request.args.get('code')
+    comp = Compilation(code)
+    result = {'stderr': comp.stderr, 'stdout': 'lol'}
+    return json.dumps(result)
 
 def post_test():
     r = requests.post('http://localhost:5000/post_compile', data={'code':'lol'})

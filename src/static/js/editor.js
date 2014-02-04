@@ -6,4 +6,12 @@ $(document).ready(function(){
     editor.setShowPrintMargin(false);
     editor.getSession().setMode("ace/mode/c_cpp");
 
+    /* Binding the submit button */
+    $('.btn-submit').click(function() {
+        params = {code: editor.getValue()};
+        apiCall('/compile', 'POST', params, function(data) {
+            notification.error(data.stderr);
+        });
+    });
+
 });
