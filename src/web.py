@@ -14,8 +14,12 @@ def hello():
 def compile():
     code = request.json['code']
 
+    result = dict()
     comp = Compilation(code)
-    result = {'stderr': comp.stderr, 'stdout': 'lol'}
+    result['compilation'] = dict(stderr=comp.stderr, stdout=comp.stdout)
+    if not comp.stderr:
+        comp.run()
+        result['execution'] = dict(stderr=comp.stderr, stdout=comp.stdout)
     return json.dumps(result)
 
 @app.route('/get_compile')

@@ -10,8 +10,21 @@ $(document).ready(function(){
     $('.btn-submit').click(function() {
         params = {code: editor.getValue()};
         apiCall('/compile', 'POST', params, function(data) {
-            $('.output').addClass('error');
-            $('.output').html(preprocessText(data.stderr));
+            if (data.compilation.stderr) {
+                $('.output').attr('class', 'output');
+                $('.output').addClass('error');
+                $('.output').html(preprocessText(data.compilation.stderr));
+                $('.output').fadeIn(500);
+            }
+            else if (data.execution.stdout) {
+                $('.output').attr('class', 'output');
+                $('.output').addClass('execution');
+                $('.output').html(preprocessText(data.execution.stdout));
+                $('.output').fadeIn(500);
+            }
+            else {
+                $('.output').hide();
+            }
         });
     });
 

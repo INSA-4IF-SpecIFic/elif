@@ -86,7 +86,7 @@ body {
 .code-area {
   display: block;
   width: 100%;
-  height: 80%;
+  height: 60%;
   font-size: 14px;
 }
 
@@ -112,12 +112,15 @@ body {
 
 .exercise .description img {
   display: block;
-  width: 90%;
+  width: 80%;
   margin: 0 auto;
 }
 
 /* Compilation / Execution output */
 .output {
+  /* hidden by default */
+  display: none;
+
   font-family: "Ubuntu Mono", monospace;
   display: block;
   padding: 5px;
@@ -128,6 +131,12 @@ body {
 }
 
 .output.error {
+  background: #C01B3A;
+  border: 1px solid #881C30;
+  color: #FCEDF0;
+}
+
+.output.executed {
   background: #C01B3A;
   border: 1px solid #881C30;
   color: #FCEDF0;
