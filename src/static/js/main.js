@@ -1,4 +1,6 @@
 /* Misc */
+var markdown = new Showdown.converter();
+
 var preprocessText = function(msg) {
     return msg.replace(/\n/g,'<br/>').replace(/ /g, '&nbsp;');
 }

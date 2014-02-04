@@ -6,6 +6,11 @@ $(document).ready(function(){
     editor.setShowPrintMargin(false);
     editor.getSession().setMode("ace/mode/c_cpp");
 
+    /* Formatting the markdown description */
+    var description_markdown = $('.description').text();
+    var description_html = markdown.makeHtml(description_markdown);
+    $('.description').html(description_html);
+
     /* Binding the submit button */
     $('.btn-submit').click(function() {
         params = {code: editor.getValue()};
