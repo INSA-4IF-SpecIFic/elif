@@ -12,18 +12,22 @@ class Compilation(object):
             f.write(code)
 
         process_arguments = ['g++', '-x', 'c++', '-o', self.dest_file, self.source_file]
+        process = subprocess.Popen(process_arguments, stderr=subprocess.PIPE)
+        process.wait()
 
-        self.process = subprocess.Popen(process_arguments) #, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.process.wait()
+        self.stderr = ''
+
+        for l in process.stderr:
+            self.stderr += l
+
+        print self.stderr
 
     @property
     def return_code(self):
         return self.process.returncode
 
 if __name__ == "__main__":
-    code = "int main() { return 0; }\n"
+    code = "int main() { return a; }\n"
 
     comp = Compilation(code)
-
-    print comp.return_code
 
