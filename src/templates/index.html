@@ -7,16 +7,16 @@
 
 {% include "header.html" %}
 
-<div class="row container">
+<div class="exercise">
     <div class="col-md-10">
         <!-- Text editor -->
         <form action="/compile" method="get">
-            <div name="code" id="editor" class="code-area"></div>
-            <input type="submit" value="Tester" />
+            <div id="editor" class="code-area"></div>
+            <button class="btn btn-submit pull-right" type="submit">Tester</button>
         </form>
     </div>
 
-    <div class="col-md-2">
+    <div class="col-md-2 description">
         <p>
             Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
             tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -25,13 +25,15 @@
             cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
             proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
         </p>
+
+        <img src="/static/img/cat.jpeg" class="img-thumbnail" />
     </div>
 </div>
 {% endblock body %}
 
 
 {% block javascript %}
-<script src="static/js/ace/ace.js"></script>
-<script src="static/js/editor.js"></script>
+<script src="/static/js/ace/ace.js"></script>
+<script src="/static/js/editor.js"></script>
 
 {% endblock %}
