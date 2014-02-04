@@ -15,6 +15,7 @@ class Compilation(object):
         process = subprocess.Popen(process_arguments, stderr=subprocess.PIPE)
         process.wait()
 
+        self.return_code = process.returncode
         self.stderr = ''
 
         for l in process.stderr:
@@ -22,9 +23,6 @@ class Compilation(object):
 
         print self.stderr
 
-    @property
-    def return_code(self):
-        return self.process.returncode
 
 if __name__ == "__main__":
     code = "int main() { return a; }\n"
