@@ -32,8 +32,27 @@ def test_basic_run():
     test_run("int main() { return 0; }", 0)
     test_run("int main() { return 255; }", 255)
 
+def test_stdout():
+    code = '\n'.join([
+        '#include <stdio.h>',
+        'int main() {',
+        'printf("hello world\\n");',
+        'return 0;',
+        '}'
+    ])
+
+    comp = Compilation(code)
+    assert comp.return_code == 0
+
+    comp.run()
+    assert comp.return_code == 0
+
+    assert comp.stdout == "hello world\n"
+
+
 if __name__ == "__main__":
     test_basic_compilation()
     test_executable_file()
     test_basic_run()
+    test_stdout()
 
