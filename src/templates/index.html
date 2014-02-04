@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block style %}
+{% endblock %}
+
+{% block body %}
+
+{% include "header.html" %}
+
+<div class="row container">
+    <div class="col-md-10">
+        <form action="/compile" method="get">
+            <textarea name="code" class="code-area"></textarea>
+            <input type="submit" value="Tester" />
+        </form>
+    </div>
+</div>
+{% endblock body %}
+
+
+{% block javascript %}
+{% endblock %}
