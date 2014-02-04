@@ -25,14 +25,8 @@ class Compilation(object):
         process.wait()
 
         self.return_code = process.returncode
-
-        self.stdout = ''
-        for l in process.stdout:
-            self.stdout += l
-
-        self.stderr = ''
-        for l in process.stderr:
-            self.stderr += l
+        self.stdout = process.stdout.read()
+        self.stderr = process.stderr.read()
 
         return self.return_code
 
