@@ -18,6 +18,10 @@
     font-style: normal;
 }
 
+body {
+  font: "OpenSans Regular";
+}
+
 /* Notification area */
 #notification-bar {
     display: none;
@@ -56,10 +60,29 @@
 
 /* Main structure */
 .container {
+}
 
+/* Header */
+.header {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+
+  background: #32477E;
+  color: #FFF;
+  font-weight: bold;
+  text-shadow: -1px 1px 0px rgba(0, 0, 0, 0.5);
+}
+
+.header .sitename {
+  font-size: 20px;
+  margin: 5px 10px;
 }
 
 /* Code input */
 .code-area {
-
+  display: block;
+  width: 100%;
+  height: 80%;
+  font-size: 14px;
 }
