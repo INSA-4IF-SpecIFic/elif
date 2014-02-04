@@ -5,7 +5,14 @@ from compilation import Compilation
 def test_code(code, return_code):
     comp = Compilation(code)
 
-    assert return_code == comp.return_code
+    assert comp.return_code == return_code
+
+def test_run(code, return_code):
+    comp = Compilation(code)
+    assert comp.return_code == 0
+
+    comp.run()
+    assert comp.return_code == return_code
 
 def test_basic_compilation():
     test_code("int main() { return 0; }\n", 0)
@@ -21,8 +28,12 @@ def test_executable_file():
     del comp
     assert not os.path.isfile(exec_file)
 
+def test_basic_run():
+    test_run("int main() { return 0; }", 0)
+    test_run("int main() { return 255; }", 255)
 
 if __name__ == "__main__":
     test_basic_compilation()
     test_executable_file()
+    test_basic_run()
 
