@@ -24,6 +24,7 @@ def test_executable_file():
 
     exec_file = comp.exec_file
     assert os.path.isfile(exec_file)
+    assert os.access(exec_file, os.X_OK)
 
     del comp
     assert not os.path.isfile(exec_file)
