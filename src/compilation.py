@@ -23,9 +23,3 @@ class Compilation(object):
 
         print self.stderr
 
-
-if __name__ == "__main__":
-    code = "int main() { return a; }\n"
-
-    comp = Compilation(code)
-
