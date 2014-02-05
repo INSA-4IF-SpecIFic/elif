@@ -109,7 +109,7 @@ class Sandbox(object):
     def root_path(self, path):
         return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
 
-    def process(self, cmd):
+    def process(self, cmd, stdout=None, stderr=None):
         chroot_cmd = list()
         chroot_cmd.extend(['sudo', 'chroot', self.root_directory])
         chroot_cmd.append(self.root_path(cmd[0]))
@@ -117,7 +117,7 @@ class Sandbox(object):
 
         self.fetches_dependencies(cmd[0])
 
-        return subprocess.Popen(chroot_cmd)
+        return subprocess.Popen(chroot_cmd, stdout=stdout, stderr=stderr)
 
 
 if __name__ == "__main__":
