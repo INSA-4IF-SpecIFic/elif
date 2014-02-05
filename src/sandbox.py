@@ -51,15 +51,19 @@ class Sandbox(object):
         self._clean()
 
     def _build(self):
-        if not os.path.isdir(self.root_directory):
-            os.makedirs(self.root_directory)
-
-        os.makedirs(self.tmp_directory)
-        os.makedirs(self.root_directory + "bin/")
+        self._ensure_directory('./')
+        self._ensure_directory('./tmp/')
+        self._ensure_directory('./bin/')
+        self._ensure_directory('./usr/lib/')
 
         # ---- dyld is very important
-        os.makedirs(self.root_directory + "usr/lib/")
         shutil.copy2("/usr/lib/dyld", "{}usr/lib/".format(self.root_directory))
+
+    def _ensure_directory(self, directory):
+        directory = self.root_directory + directory
+
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
 
     def _clean(self):
         if os.path.isdir(self.root_directory):
