@@ -2,12 +2,12 @@
 import os
 from compilation import Compilation
 
-def test_code(code, return_code):
+def tutil_code(code, return_code):
     comp = Compilation(code)
 
     assert comp.return_code == return_code
 
-def test_run(code, return_code):
+def tutil_run(code, return_code):
     comp = Compilation(code)
     assert comp.return_code == 0
 
@@ -15,9 +15,9 @@ def test_run(code, return_code):
     assert comp.return_code == return_code
 
 def test_basic_compilation():
-    test_code("int main() { return 0; }\n", 0)
-    test_code("int main() { return }\n", 1)
-    test_code("int hello() { return 0; }\n", 1)
+    tutil_code("int main() { return 0; }\n", 0)
+    tutil_code("int main() { return }\n", 1)
+    tutil_code("int hello() { return 0; }\n", 1)
 
 def test_executable_file():
     comp = Compilation("int main() { return 0; }\n")
@@ -30,8 +30,8 @@ def test_executable_file():
     assert not os.path.isfile(exec_file)
 
 def test_basic_run():
-    test_run("int main() { return 0; }", 0)
-    test_run("int main() { return 255; }", 255)
+    tutil_run("int main() { return 0; }", 0)
+    tutil_run("int main() { return 255; }", 255)
 
 def test_stdout():
     code = '\n'.join([
