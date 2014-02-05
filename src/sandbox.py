@@ -106,6 +106,14 @@ class Sandbox(object):
 
         return True
 
+    def fetch_bin(self, bin_path_src):
+        bin_path_src = os.path.abspath(bin_path_src)
+        bin_path_dest = self.root_directory[:-1] + bin_path_src
+
+        shutil.copy(bin_path_src, bin_path_dest)
+
+        return self.fetches_dependencies(bin_path_src)
+
     def root_path(self, path):
         return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
 
