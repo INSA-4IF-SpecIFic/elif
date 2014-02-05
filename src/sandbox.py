@@ -43,12 +43,9 @@ class Sandbox(object):
         else:
             self.root_directory = root_directory
 
-        print "initializing sandbox ({})".format(self.root_directory)
-
         self._build()
 
     def __del__(self):
-        print "cleaning sandbox ({})".format(self.root_directory)
         self._clean()
 
     def _build(self):
@@ -94,8 +91,6 @@ class Sandbox(object):
             dep_dest = "{}{}".format(self.root_directory[:-1], dep_src)
             dep_dest_dir = os.path.dirname(dep_dest)
 
-            print "{} -> {}".format(dep_src, dep_dest)
-
             if os.path.isfile(dep_dest):
                 continue
 
@@ -131,8 +126,7 @@ class Sandbox(object):
 if __name__ == "__main__":
     s = Sandbox("./.sandbox/")
 
-    shutil.copy("/bin/ls", s.root_directory + "bin/")
-
+    s.fetch_bin('/bin/ls')
     p = s.process(['.sandbox/bin/ls', '-l', '/'])
     p.wait()
 
