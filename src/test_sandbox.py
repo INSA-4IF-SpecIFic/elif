@@ -18,9 +18,13 @@ def test_basic_ls():
     s.fetch_bin("/bin/ls")
     p = s.process([s.root_directory + "bin/ls", "/"], stdout=subprocess.PIPE)
     p.wait()
-    stdout = p.stdout.read()
 
+    assert p.returncode == 0
+
+    stdout = p.stdout.read()
     assert "bin" in stdout
+    assert "tmp" in stdout
+    assert "usr" in stdout
     del s
 
 def test_jail_security():
