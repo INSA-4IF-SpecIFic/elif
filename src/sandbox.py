@@ -1,9 +1,10 @@
 
 import os
+import sys
+import platform
 import subprocess
 import tempfile
 import shutil
-import sys
 
 
 def lib_dependencies(binary_path, deps=None):
@@ -56,8 +57,12 @@ class Sandbox(object):
         self._ensure_directory('./bin/')
         self._ensure_directory('./usr/lib/')
 
-        # ---- dyld is very important
-        shutil.copy2("/usr/lib/dyld", "{}usr/lib/".format(self.root_directory))
+        os_name = platform.system()
+
+        """ Mac OS X specific environment """
+        if os_name == "Darwin":
+            shutil.copy2("/usr/lib/dyld", "{}usr/lib/dyld".format(self.root_directory))
+            self.fetches_dependencies("{}usr/lib/dyld".format(self.root_directory))
 
     def _ensure_directory(self, directory):
         directory = self.root_directory + directory
@@ -111,8 +116,6 @@ class Sandbox(object):
         chroot_cmd.extend(cmd[1:])
 
         self.fetches_dependencies(cmd[0])
-
-        print chroot_cmd
 
         return subprocess.Popen(chroot_cmd)
 
