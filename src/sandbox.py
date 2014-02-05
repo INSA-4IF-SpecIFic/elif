@@ -36,13 +36,17 @@ def lib_dependencies(binary_path, deps=None):
 
 class Sandbox(object):
     # root_directory
+    # cpu_time_limit
+    # memory_limit
 
-    def __init__(self, root_directory = None):
+    def __init__(self, root_directory = None, cpu_time_limit=None, memory_limit=None):
         if not root_directory:
             self.root_directory = tempfile.mkdtemp(suffix='.sandbox', prefix='elif_') + "/"
         else:
             self.root_directory = root_directory
 
+        self.cpu_time_limit = cpu_time_limit
+        self.memory_limit = memory_limit
         self._build()
 
     def __del__(self):
@@ -114,17 +118,30 @@ class Sandbox(object):
 
     def process(self, cmd, stdout=None, stderr=None):
         chroot_cmd = list()
-        chroot_cmd.extend(['sudo', 'chroot', self.root_directory])
+        chroot_cmd.append('sudo')
+
+        if self.cpu_time_limit or self.memory_limit:
+            chroot_cmd.extend(['perl', os.path.join(os.path.dirname(__file__), '../timeout/timeout'), '--no-info-on-success', '--confess'])
+
+            if self.cpu_time_limit:
+                chroot_cmd.extend(['-t', str(self.cpu_time_limit)])
+
+            if self.memory_limit:
+                chroot_cmd.extend(['-m', str(self.memory_limit)])
+
+        chroot_cmd.extend(['chroot', self.root_directory])
         chroot_cmd.append(self.root_path(cmd[0]))
         chroot_cmd.extend(cmd[1:])
 
         self.fetches_dependencies(cmd[0])
 
+        print chroot_cmd
+
         return subprocess.Popen(chroot_cmd, stdout=stdout, stderr=stderr)
 
 
 if __name__ == "__main__":
-    s = Sandbox("./.sandbox/")
+    s = Sandbox("./.sandbox/", cpu_time_limit=1)
 
     s.fetch_bin('/bin/ls')
     p = s.process(['.sandbox/bin/ls', '-l', '/'])

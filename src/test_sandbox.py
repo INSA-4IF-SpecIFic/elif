@@ -37,3 +37,13 @@ def test_jail_security():
     assert p.returncode != 0
     del s
 
+def test_limits_syntax():
+    s = Sandbox(cpu_time_limit=1, memory_limit=1024)
+
+    s.fetch_bin("/bin/ls")
+    p = s.process([s.root_directory + "bin/ls", "/"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p.wait()
+
+    assert p.returncode == 0
+    del s
+
