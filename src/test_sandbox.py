@@ -44,6 +44,18 @@ def test_limits_syntax():
     p = s.process([s.root_directory + "bin/ls", "/"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     p.wait()
 
+    # make sure that the timeout do not print FINISHED CPU 0.00 MEM 0 MAXMEM -1 STALE 0
     assert p.returncode == 0
+    assert 'FINISHED' not in p.stdout.read()
+    assert 'FINISHED' not in p.stderr.read()
+
+    p = s.process([s.root_directory + "bin/ls", os.path.abspath(__file__)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p.wait()
+
+    # make sure that the timeout do not print FINISHED CPU 0.00 MEM 0 MAXMEM -1 STALE 0
+    assert p.returncode != 0
+    assert 'FINISHED' not in p.stdout.read()
+    assert 'FINISHED' not in p.stderr.read()
+
     del s
 
