@@ -22,6 +22,11 @@ body {
   font: "OpenSans Regular";
 }
 
+.row {
+  margin: 0px 0px 0px -15px;
+}
+
+
 /* Notification area */
 #notification-bar {
     display: none;
@@ -114,6 +119,13 @@ body {
   display: block;
   width: 80%;
   margin: 0 auto;
+
+
+  /* Image thumbnail */
+  padding: 6px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 /* Compilation / Execution output */
