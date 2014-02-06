@@ -1,9 +1,7 @@
 #!/bin/sh
 
-echo "hello"
-
 while :
 do
-    echo "" > /dev/null
+    echo "hello"
 done
 

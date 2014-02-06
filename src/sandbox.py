@@ -2,6 +2,7 @@
 import os
 import sys
 import platform
+import resource
 import subprocess
 import tempfile
 import shutil
@@ -117,27 +118,22 @@ class Sandbox(object):
         return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
 
     def process(self, cmd, stdout=None, stderr=None):
-        chroot_cmd = list()
-        chroot_cmd.append('sudo')
-
-        if self.cpu_time_limit or self.memory_limit:
-            chroot_cmd.extend(['perl', os.path.join(os.path.dirname(__file__), '../timeout/timeout'), '--no-info-on-success', '--confess'])
+        def subprocess_limits():
+            os.chroot(self.root_directory)
 
             if self.cpu_time_limit:
-                chroot_cmd.extend(['-t', str(self.cpu_time_limit)])
+                resource.setrlimit(resource.RLIMIT_CPU, (self.cpu_time_limit, self.cpu_time_limit))
 
             if self.memory_limit:
-                chroot_cmd.extend(['-m', str(self.memory_limit)])
+                resource.setrlimit(resource.RLIMIT_CPU, (self.memory_limit, self.memory_limit))
 
-        chroot_cmd.extend(['chroot', self.root_directory])
+        chroot_cmd = list()
         chroot_cmd.append(self.root_path(cmd[0]))
         chroot_cmd.extend(cmd[1:])
 
         self.fetches_dependencies(cmd[0])
 
-        print chroot_cmd
-
-        return subprocess.Popen(chroot_cmd, stdout=stdout, stderr=stderr)
+        return subprocess.Popen(chroot_cmd, stdout=stdout, stderr=stderr, preexec_fn=subprocess_limits)
 
 
 if __name__ == "__main__":

@@ -37,25 +37,18 @@ def test_jail_security():
     assert p.returncode != 0
     del s
 
-def test_limits_syntax():
-    s = Sandbox(cpu_time_limit=1, memory_limit=1024)
+def test_infinte_loop():
+    s = Sandbox(cpu_time_limit=1)
 
-    s.fetch_bin("/bin/ls")
-    p = s.process([s.root_directory + "bin/ls", "/"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    s.fetch_bin("/bin/sh")
+    shutil.copy(os.path.join(os.path.dirname(__file__), "test_scripts/sandbox_infinite.sh"), s.root_directory + "sandbox_infinite.sh")
+
+    p = s.process([s.root_directory + "bin/sh", "/sandbox_infinite.sh"])
     p.wait()
 
-    # make sure that the timeout do not print FINISHED CPU 0.00 MEM 0 MAXMEM -1 STALE 0
-    assert p.returncode == 0
-    assert 'FINISHED' not in p.stdout.read()
-    assert 'FINISHED' not in p.stderr.read()
-
-    p = s.process([s.root_directory + "bin/ls", os.path.abspath(__file__)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    p.wait()
-
-    # make sure that the timeout do not print FINISHED CPU 0.00 MEM 0 MAXMEM -1 STALE 0
     assert p.returncode != 0
-    assert 'FINISHED' not in p.stdout.read()
-    assert 'FINISHED' not in p.stderr.read()
-
     del s
+
+if __name__ == "__main__":
+    test_infinte_loop()
 
