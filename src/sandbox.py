@@ -35,6 +35,31 @@ def lib_dependencies(binary_path, deps=None):
     return deps
 
 
+class RunTimeContext(object):
+    # parameters: dict()
+
+    def __init__(self, parameters=dict(), inherited=list()):
+        self.parameters = dict(parameters)
+        self.inherited = list(inherited)
+
+    def __setitem__(self, key, value):
+        self.parameters[key] = value
+
+    def __getitem__(self, key):
+        if key in self.parameters:
+            return self.parameters[key]
+
+        value = None
+
+        for p in self.inherited:
+            tmp = p[key]
+
+            if tmp != None:
+                value = tmp
+
+        return value
+
+
 class Sandbox(object):
     # root_directory
     # cpu_time_limit

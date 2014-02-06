@@ -2,7 +2,7 @@
 import os
 import shutil
 import subprocess
-from sandbox import Sandbox
+from sandbox import Sandbox, RunTimeContext
 
 def test_root_dir():
     s = Sandbox()
@@ -49,6 +49,22 @@ def test_infinte_loop():
     assert p.returncode != 0
     del s
 
+def test_run_time_context():
+    r0 = RunTimeContext({'hello': True})
+    r1 = RunTimeContext(inherited=[r0])
+
+    assert r0['hello'] == True
+    assert r1['hello'] == True
+
+    r0['hello'] = False
+    assert r0['hello'] == False
+    assert r1['hello'] == False
+
+    r1['world'] = True
+    assert r0['world'] == None
+    assert r1['world'] == True
+
+
 if __name__ == "__main__":
-    test_infinte_loop()
+    pass
 
