@@ -43,21 +43,50 @@ class RunTimeContext(object):
         self.inherited = list(inherited)
 
     def __setitem__(self, key, value):
+        assert key in RunTimeContext.params
+        assert type(value) == type(RunTimeContext.params[key])
+
         self.parameters[key] = value
 
     def __getitem__(self, key):
-        if key in self.parameters:
-            return self.parameters[key]
+        assert key in RunTimeContext.params
 
-        value = None
+        def getitem_rec(self, key):
+            if key in self.parameters:
+                return self.parameters[key]
 
-        for p in self.inherited:
-            tmp = p[key]
+            value = None
 
-            if tmp != None:
-                value = tmp
+            for p in self.inherited:
+                tmp = getitem_rec(p, key)
+
+                if tmp != None:
+                    value = tmp
+
+            return value
+
+        value = getitem_rec(self, key)
+
+        if value == None:
+            return RunTimeContext.default_values[key]
 
         return value
+
+    params = {
+        'max_cpu_time': resource.RLIMIT_CPU, # in seconds
+        'max_heap_size': resource.RLIMIT_DATA, # in bytes
+        'max_stack_size': resource.RLIMIT_STACK, # in bytes
+        'max_processes': resource.RLIMIT_NPROC,
+        'max_opened_file': resource.RLIMIT_NOFILE
+    }
+
+    default_values = {
+        'max_cpu_time': 10,
+        'max_heap_size': 16 * 1024 * 1024,
+        'max_stack_size': 32 * 1024,
+        'max_processes': 0,
+        'max_opened_file': 0
+    }
 
 
 class Sandbox(object):

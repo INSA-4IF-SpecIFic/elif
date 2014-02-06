@@ -50,19 +50,19 @@ def test_infinte_loop():
     del s
 
 def test_run_time_context():
-    r0 = RunTimeContext({'hello': True})
+    r0 = RunTimeContext({'max_cpu_time': 1})
     r1 = RunTimeContext(inherited=[r0])
 
-    assert r0['hello'] == True
-    assert r1['hello'] == True
+    assert r0['max_cpu_time'] == 1
+    assert r1['max_cpu_time'] == 1
 
-    r0['hello'] = False
-    assert r0['hello'] == False
-    assert r1['hello'] == False
+    r0['max_cpu_time'] = 2
+    assert r0['max_cpu_time'] == 2
+    assert r1['max_cpu_time'] == 2
 
-    r1['world'] = True
-    assert r0['world'] == None
-    assert r1['world'] == True
+    r1['max_heap_size'] = 2
+    assert r0['max_heap_size'] == RunTimeContext.default_values['max_heap_size']
+    assert r1['max_heap_size'] == 2
 
 
 if __name__ == "__main__":
