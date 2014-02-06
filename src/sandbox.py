@@ -77,7 +77,6 @@ class RunTimeContext(object):
         'max_heap_size': resource.RLIMIT_DATA, # in bytes
         'max_stack_size': resource.RLIMIT_STACK, # in bytes
         'max_processes': resource.RLIMIT_NPROC,
-        'max_opened_file': resource.RLIMIT_NOFILE
     }
 
     default_values = {
@@ -85,23 +84,18 @@ class RunTimeContext(object):
         'max_heap_size': 16 * 1024 * 1024,
         'max_stack_size': 32 * 1024,
         'max_processes': 0,
-        'max_opened_file': 0
     }
 
 
 class Sandbox(object):
     # root_directory
-    # cpu_time_limit
-    # memory_limit
 
-    def __init__(self, root_directory = None, cpu_time_limit=None, memory_limit=None):
+    def __init__(self, root_directory = None):
         if not root_directory:
             self.root_directory = tempfile.mkdtemp(suffix='.sandbox', prefix='elif_') + "/"
         else:
             self.root_directory = root_directory
 
-        self.cpu_time_limit = cpu_time_limit
-        self.memory_limit = memory_limit
         self._build()
 
     def __del__(self):
@@ -171,15 +165,16 @@ class Sandbox(object):
     def root_path(self, path):
         return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
 
-    def process(self, cmd, stdout=None, stderr=None):
+    def process(self, cmd, profile=None, stdout=None, stderr=None):
+        if profile == None:
+            profile = RunTimeContext()
+
         def subprocess_limits():
             os.chroot(self.root_directory)
 
-            if self.cpu_time_limit:
-                resource.setrlimit(resource.RLIMIT_CPU, (self.cpu_time_limit, self.cpu_time_limit))
-
-            if self.memory_limit:
-                resource.setrlimit(resource.RLIMIT_CPU, (self.memory_limit, self.memory_limit))
+            for key, name in RunTimeContext.params.items():
+                value = profile[key]
+                resource.setrlimit(name, (value, value))
 
         chroot_cmd = list()
         chroot_cmd.append(self.root_path(cmd[0]))
