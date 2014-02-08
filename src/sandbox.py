@@ -9,6 +9,8 @@ import shutil
 
 
 def lib_dependencies_osx(binary_path, deps):
+    """Get executable's dynamic libraries list (Mac OS X specific code)"""
+
     otool = subprocess.Popen(['otool', '-L', binary_path], stdout=subprocess.PIPE)
     otool.wait()
 
@@ -32,6 +34,8 @@ def lib_dependencies_osx(binary_path, deps):
     return deps
 
 def lib_dependencies_linux(binary_path, deps):
+    """Get executable's dynamic libraries list (Linux specific code)"""
+
     otool = subprocess.Popen(['ldd', binary_path], stdout=subprocess.PIPE)
     otool.wait()
 
@@ -55,6 +59,8 @@ def lib_dependencies_linux(binary_path, deps):
     return deps
 
 def lib_dependencies(binary_path):
+    """Get executable's dynamic libraries list"""
+
     deps = list()
 
     if platform.system() == "Darwin":
@@ -67,6 +73,7 @@ def lib_dependencies(binary_path):
 
 
 class Profile(object):
+    """Contains all Sandbox's execution constants"""
     # parameters: dict()
 
     def __init__(self, parameters=dict(), inherited=list()):
@@ -119,6 +126,7 @@ class Profile(object):
 
 
 class Sandbox(object):
+    """Sandbox object to execute code in a chroot jail (must be executed as root)"""
     # root_directory
 
     def __init__(self, root_directory = None):
@@ -156,6 +164,8 @@ class Sandbox(object):
             shutil.rmtree(self.root_directory)
 
     def recover(self):
+        """Recover the sandbox from scratch"""
+
         self._clean()
         self._build()
 
@@ -165,10 +175,14 @@ class Sandbox(object):
         return "{}tmp/".format(self.root_directory)
 
     def mktemp(prefix, suffix):
+        """Creates a temp file name in the /tmp/ directory of the sand (See documentation of tempfile.mktemp)"""
+
         return tempfile.mktemp(prefix=prefix, suffix=suffix, dir=self.tmp_directory)
 
 
     def fetches_dependencies(self, executable_path):
+        """Fetches binary file's dependencies"""
+
         dependencies = lib_dependencies(executable_path)
 
         for dep_src in dependencies:
@@ -186,6 +200,8 @@ class Sandbox(object):
         return True
 
     def fetch_bin(self, bin_path_src):
+        """Fetches a binary file and its dependencies"""
+
         bin_path_src = os.path.abspath(bin_path_src)
         bin_path_dest = self.root_directory[:-1] + bin_path_src
 
@@ -197,6 +213,8 @@ class Sandbox(object):
         return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
 
     def process(self, cmd, profile=None, stdout=None, stderr=None):
+        """Processes a sub process and returns a subprocess.Popen"""
+
         if profile == None:
             profile = Profile()
 
