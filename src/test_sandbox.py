@@ -16,7 +16,7 @@ def test_basic_ls():
     s = Sandbox()
 
     s.fetch_bin("/bin/ls")
-    p = s.process([s.root_directory + "bin/ls", "/"], stdout=subprocess.PIPE)
+    p = s.process(["/bin/ls", "/"], stdout=subprocess.PIPE)
 
     assert p.returncode == 0
 
@@ -30,11 +30,11 @@ def test_jail_security():
     s = Sandbox()
 
     s.fetch_bin("/bin/cat")
-    p = s.process([s.root_directory + "bin/cat", "/bin/cat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = s.process(["/bin/cat", "/bin/cat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     assert p.returncode == 0
 
     s.fetch_bin("/bin/cat")
-    p = s.process([s.root_directory + "bin/cat", os.path.abspath(__file__)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = s.process(["/bin/cat", os.path.abspath(__file__)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     assert p.returncode != 0
 
     del s
@@ -46,7 +46,7 @@ def test_infinte_loop():
     s.fetch_bin("/bin/sh")
     shutil.copy(os.path.join(os.path.dirname(__file__), "test_scripts/sandbox_infinite.sh"), s.root_directory + "sandbox_infinite.sh")
 
-    p = s.process([s.root_directory + "bin/sh", "/sandbox_infinite.sh"], profile=profile)
+    p = s.process(["/bin/sh", "/sandbox_infinite.sh"], profile=profile)
 
     assert p.returncode != 0
     del s

@@ -225,13 +225,9 @@ class Sandbox(object):
                 value = profile[key]
                 resource.setrlimit(name, (value, value))
 
-        chroot_cmd = list()
-        chroot_cmd.append(self.root_path(cmd[0]))
-        chroot_cmd.extend(cmd[1:])
-
         self.fetches_dependencies(cmd[0])
 
-        process = subprocess.Popen(chroot_cmd, stdin=stdin, stdout=stdout, stderr=stderr, preexec_fn=subprocess_limits)
+        process = subprocess.Popen(cmd, stdin=stdin, stdout=stdout, stderr=stderr, preexec_fn=subprocess_limits)
         process.wait()
 
         return process
