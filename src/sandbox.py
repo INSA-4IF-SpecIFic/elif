@@ -212,8 +212,8 @@ class Sandbox(object):
     def root_path(self, path):
         return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
 
-    def process(self, cmd, profile=None, stdout=None, stderr=None):
-        """Processes a sub process and returns a subprocess.Popen"""
+    def process(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
+        """Processes a sub process, wait for its end and then returns the subprocess.Popen"""
 
         if profile == None:
             profile = Profile()
@@ -231,7 +231,10 @@ class Sandbox(object):
 
         self.fetches_dependencies(cmd[0])
 
-        return subprocess.Popen(chroot_cmd, stdout=stdout, stderr=stderr, preexec_fn=subprocess_limits)
+        process = subprocess.Popen(chroot_cmd, stdin=stdin, stdout=stdout, stderr=stderr, preexec_fn=subprocess_limits)
+        process.wait()
+
+        return process
 
 
 if __name__ == "__main__":
