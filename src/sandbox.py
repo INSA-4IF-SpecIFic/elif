@@ -8,10 +8,7 @@ import tempfile
 import shutil
 
 
-def lib_dependencies(binary_path, deps=None):
-    if deps == None:
-        deps = list()
-
+def lib_dependencies_osx(binary_path, deps):
     otool = subprocess.Popen(['otool', '-L', binary_path], stdout=subprocess.PIPE)
     otool.wait()
 
@@ -30,7 +27,41 @@ def lib_dependencies(binary_path, deps=None):
             continue
 
         deps.append(dep)
-        lib_dependencies(dep, deps)
+        lib_dependencies_osx(dep, deps)
+
+    return deps
+
+def lib_dependencies_linux(binary_path, deps):
+    otool = subprocess.Popen(['ldd', binary_path], stdout=subprocess.PIPE)
+    otool.wait()
+
+    for l in otool.stdout:
+        l = l.strip()
+        l = l.split(' ')
+
+        for dep in l:
+            if dep == '':
+                continue
+
+            if dep[0] != '/':
+                continue
+
+            if dep not in deps:
+                deps.append(dep)
+                lib_dependencies_linux(dep, deps)
+
+            break
+
+    return deps
+
+def lib_dependencies(binary_path):
+    deps = list()
+
+    if platform.system() == "Darwin":
+        lib_dependencies_osx(binary_path, deps)
+
+    else:
+        lib_dependencies_linux(binary_path, deps)
 
     return deps
 
