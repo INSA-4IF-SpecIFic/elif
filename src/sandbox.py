@@ -156,43 +156,11 @@ class Sandbox(object):
 
         return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
 
-    def __del__(self):
-        self._clean()
-
-    def _build(self):
-        self._ensure_directory('./')
-        self._ensure_directory('./tmp/')
-        self._ensure_directory('./bin/')
-        self._ensure_directory('./usr/lib/')
-
-        os_name = platform.system()
-
-        """ Mac OS X specific environment """
-        if os_name == "Darwin":
-            self.clone_bin("/usr/lib/dyld")
-
-    def _ensure_directory(self, directory):
-        directory = self.root_directory + directory
-
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
-
-    def _clean(self):
-        if os.path.isdir(self.root_directory):
-            shutil.rmtree(self.root_directory)
-
     def recover(self):
         """Recover the sandbox from scratch"""
 
         self._clean()
         self._build()
-
-
-    @property
-    def tmp_directory(self):
-        """Returns the sandbox's /tmp/ directory in the main basis"""
-
-        return "{}tmp/".format(self.root_directory)
 
     def mktemp(prefix, suffix):
         """Allocates a temporary file name in the /tmp/ directory of the sand box and return its path
@@ -201,7 +169,6 @@ class Sandbox(object):
         """
 
         return tempfile.mktemp(prefix=prefix, suffix=suffix, dir=self.tmp_directory)
-
 
     def clone_bin_dependencies(self, executable_path):
         """Clone binary file's dependencies
@@ -262,6 +229,37 @@ class Sandbox(object):
         process.wait()
 
         return process
+
+    @property
+    def tmp_directory(self):
+        """Returns the sandbox's /tmp/ directory in the main basis"""
+
+        return "{}tmp/".format(self.root_directory)
+
+    def __del__(self):
+        self._clean()
+
+    def _build(self):
+        self._ensure_directory('./')
+        self._ensure_directory('./tmp/')
+        self._ensure_directory('./bin/')
+        self._ensure_directory('./usr/lib/')
+
+        os_name = platform.system()
+
+        """ Mac OS X specific environment """
+        if os_name == "Darwin":
+            self.clone_bin("/usr/lib/dyld")
+
+    def _ensure_directory(self, directory):
+        directory = self.root_directory + directory
+
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+
+    def _clean(self):
+        if os.path.isdir(self.root_directory):
+            shutil.rmtree(self.root_directory)
 
 
 if __name__ == "__main__":
