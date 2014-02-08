@@ -33,13 +33,13 @@ class Compilation(object):
 
         return self.return_code
 
-    def run(self, params=list()):
+    def run(self, params=list(), stdin=None):
         assert self.return_code == 0
 
         cmd = [self.sandbox.to_sandbox_basis(self.exec_file)]
         cmd.extend(params)
 
-        process = self.sandbox.process(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = self.sandbox.process(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         self.return_code = process.returncode
         self.stdout = process.stdout.read()
