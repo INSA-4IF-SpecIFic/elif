@@ -9,6 +9,8 @@ import shutil
 
 
 def lib_dependencies_osx(binary_path, deps):
+    """Get executable's dynamic libraries list (Mac OS X specific code)"""
+
     otool = subprocess.Popen(['otool', '-L', binary_path], stdout=subprocess.PIPE)
     otool.wait()
 
@@ -32,6 +34,8 @@ def lib_dependencies_osx(binary_path, deps):
     return deps
 
 def lib_dependencies_linux(binary_path, deps):
+    """Get executable's dynamic libraries list (Linux specific code)"""
+
     otool = subprocess.Popen(['ldd', binary_path], stdout=subprocess.PIPE)
     otool.wait()
 
@@ -55,6 +59,8 @@ def lib_dependencies_linux(binary_path, deps):
     return deps
 
 def lib_dependencies(binary_path):
+    """Get executable's dynamic libraries list"""
+
     deps = list()
 
     if platform.system() == "Darwin":
@@ -66,7 +72,8 @@ def lib_dependencies(binary_path):
     return deps
 
 
-class RunTimeContext(object):
+class Profile(object):
+    """Contains all Sandbox's execution constants"""
     # parameters: dict()
 
     def __init__(self, parameters=dict(), inherited=list()):
@@ -74,13 +81,13 @@ class RunTimeContext(object):
         self.inherited = list(inherited)
 
     def __setitem__(self, key, value):
-        assert key in RunTimeContext.params
-        assert type(value) == type(RunTimeContext.params[key])
+        assert key in Profile.params
+        assert type(value) == type(Profile.params[key])
 
         self.parameters[key] = value
 
     def __getitem__(self, key):
-        assert key in RunTimeContext.params
+        assert key in Profile.params
 
         def getitem_rec(self, key):
             if key in self.parameters:
@@ -99,7 +106,7 @@ class RunTimeContext(object):
         value = getitem_rec(self, key)
 
         if value == None:
-            return RunTimeContext.default_values[key]
+            return Profile.default_values[key]
 
         return value
 
@@ -119,7 +126,16 @@ class RunTimeContext(object):
 
 
 class Sandbox(object):
-    # root_directory
+    """Sandbox object to execute code in a chroot jail (must be executed as root)
+
+    Important: A chroot jail is actually a technic to change the root directory before executing sub processes. Therefore
+    the use of Sandbox is very tricky, two you have then two root basises:
+        - the main basis: the very one of your computer
+        - the sandbox basis: the one of the sand box
+
+    Members:
+        root_directory (in the main basis)
+    """
 
     def __init__(self, root_directory = None):
         if not root_directory:
@@ -129,50 +145,42 @@ class Sandbox(object):
 
         self._build()
 
-    def __del__(self):
-        self._clean()
+    def to_main_basis(self, path):
+        """Converts absolute path from the sandbox's basis to the main basis"""
 
-    def _build(self):
-        self._ensure_directory('./')
-        self._ensure_directory('./tmp/')
-        self._ensure_directory('./bin/')
-        self._ensure_directory('./usr/lib/')
+        assert path[0] == '/'
+        return self.root_directory[:-1] + path
 
-        os_name = platform.system()
+    def to_sandbox_basis(self, path):
+        """Converts absolute path from the main basis to the sandbox's basis"""
 
-        """ Mac OS X specific environment """
-        if os_name == "Darwin":
-            shutil.copy2("/usr/lib/dyld", "{}usr/lib/dyld".format(self.root_directory))
-            self.fetches_dependencies("{}usr/lib/dyld".format(self.root_directory))
-
-    def _ensure_directory(self, directory):
-        directory = self.root_directory + directory
-
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
-
-    def _clean(self):
-        if os.path.isdir(self.root_directory):
-            shutil.rmtree(self.root_directory)
+        return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
 
     def recover(self):
+        """Recover the sandbox from scratch"""
+
         self._clean()
         self._build()
 
+    def mktemp(self, prefix='tmp', suffix=''):
+        """Allocates a temporary file name in the /tmp/ directory of the sand box and return its path
 
-    @property
-    def tmp_directory(self):
-        return "{}tmp/".format(self.root_directory)
+        Important: the returned path is in the main basis
+        """
 
-    def mktemp(prefix, suffix):
         return tempfile.mktemp(prefix=prefix, suffix=suffix, dir=self.tmp_directory)
 
+    def clone_bin_dependencies(self, executable_path):
+        """Clone binary file's dependencies
 
-    def fetches_dependencies(self, executable_path):
+        Important:
+            - <executable_path> must be in the main basis
+        """
+
         dependencies = lib_dependencies(executable_path)
 
         for dep_src in dependencies:
-            dep_dest = "{}{}".format(self.root_directory[:-1], dep_src)
+            dep_dest = self.to_main_basis(dep_src)
             dep_dest_dir = os.path.dirname(dep_dest)
 
             if os.path.isfile(dep_dest):
@@ -185,35 +193,70 @@ class Sandbox(object):
 
         return True
 
-    def fetch_bin(self, bin_path_src):
+    def clone_bin(self, bin_path_src):
+        """Clones a binary file and its dependencies to the sandbox
+
+        Important:
+            - <bin_path_src> must be in the main basis
+        """
+
         bin_path_src = os.path.abspath(bin_path_src)
-        bin_path_dest = self.root_directory[:-1] + bin_path_src
+        bin_path_dest = self.to_main_basis(bin_path_src)
 
         shutil.copy(bin_path_src, bin_path_dest)
 
-        return self.fetches_dependencies(bin_path_src)
+        return self.clone_bin_dependencies(bin_path_src)
 
-    def root_path(self, path):
-        return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
+    def process(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
+        """Processes a sub process, wait for its end and then returns the subprocess.Popen
 
-    def process(self, cmd, profile=None, stdout=None, stderr=None):
+        Caution: all paths in the <cmd> parameter must be in the sandbox basis
+        """
+
         if profile == None:
-            profile = RunTimeContext()
+            profile = Profile()
 
         def subprocess_limits():
             os.chroot(self.root_directory)
 
-            for key, name in RunTimeContext.params.items():
+            for key, name in Profile.params.items():
                 value = profile[key]
                 resource.setrlimit(name, (value, value))
 
-        chroot_cmd = list()
-        chroot_cmd.append(self.root_path(cmd[0]))
-        chroot_cmd.extend(cmd[1:])
+        process = subprocess.Popen(cmd, stdin=stdin, stdout=stdout, stderr=stderr, preexec_fn=subprocess_limits)
+        process.wait()
 
-        self.fetches_dependencies(cmd[0])
+        return process
 
-        return subprocess.Popen(chroot_cmd, stdout=stdout, stderr=stderr, preexec_fn=subprocess_limits)
+    @property
+    def tmp_directory(self):
+        """Returns the sandbox's /tmp/ directory in the main basis"""
+
+        return "{}tmp/".format(self.root_directory)
+
+    def __del__(self):
+        self._clean()
+
+    def _build(self):
+        self._ensure_directory('/')
+        self._ensure_directory('/tmp/')
+        self._ensure_directory('/bin/')
+        self._ensure_directory('/usr/lib/')
+
+        if platform.system() == "Darwin":
+            """ Mac OS X specific environment """
+
+            self.clone_bin("/usr/lib/dyld")
+
+    def _ensure_directory(self, directory):
+        directory = self.to_main_basis(directory)
+
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+
+    def _clean(self):
+        if os.path.isdir(self.root_directory):
+            shutil.rmtree(self.root_directory)
 
 
 if __name__ == "__main__":
