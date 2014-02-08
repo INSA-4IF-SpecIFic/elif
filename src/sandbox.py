@@ -162,7 +162,7 @@ class Sandbox(object):
         self._clean()
         self._build()
 
-    def mktemp(prefix, suffix):
+    def mktemp(self, prefix='tmp', suffix=''):
         """Allocates a temporary file name in the /tmp/ directory of the sand box and return its path
 
         Important: the returned path is in the main basis
