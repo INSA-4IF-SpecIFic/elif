@@ -126,8 +126,16 @@ class Profile(object):
 
 
 class Sandbox(object):
-    """Sandbox object to execute code in a chroot jail (must be executed as root)"""
-    # root_directory
+    """Sandbox object to execute code in a chroot jail (must be executed as root)
+
+    Important: A chroot jail is actually a technic to change the root directory before executing sub processes. Therefore
+    the use of Sandbox is very tricky, two you have then two root basises:
+        - the main basis: the very one of your computer
+        - the sandbox basis: the one of the sand box
+
+    Members:
+        root_directory (in the main basis)
+    """
 
     def __init__(self, root_directory = None):
         if not root_directory:
@@ -136,6 +144,17 @@ class Sandbox(object):
             self.root_directory = root_directory
 
         self._build()
+
+    def to_main_basis(self, path):
+        """Converts absolute path from the sandbox's basis to the main basis"""
+
+        assert path[0] == '/'
+        return self.root_directory[:-1] + path
+
+    def to_sandbox_basis(self, path):
+        """Converts absolute path from the main basis to the sandbox's basis"""
+
+        return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
 
     def __del__(self):
         self._clean()
@@ -172,21 +191,30 @@ class Sandbox(object):
 
     @property
     def tmp_directory(self):
+        """Returns the sandbox's /tmp/ directory in the main basis"""
+
         return "{}tmp/".format(self.root_directory)
 
     def mktemp(prefix, suffix):
-        """Creates a temp file name in the /tmp/ directory of the sand (See documentation of tempfile.mktemp)"""
+        """Allocates a temporary file name in the /tmp/ directory of the sand box and return its path
+
+        Important: the returned path is in the main basis
+        """
 
         return tempfile.mktemp(prefix=prefix, suffix=suffix, dir=self.tmp_directory)
 
 
     def fetches_dependencies(self, executable_path):
-        """Fetches binary file's dependencies"""
+        """Fetches binary file's dependencies
+
+        Important:
+            - <executable_path> must be in the main_basis
+        """
 
         dependencies = lib_dependencies(executable_path)
 
         for dep_src in dependencies:
-            dep_dest = "{}{}".format(self.root_directory[:-1], dep_src)
+            dep_dest = self.to_main_basis(dep_src)
             dep_dest_dir = os.path.dirname(dep_dest)
 
             if os.path.isfile(dep_dest):
@@ -200,20 +228,24 @@ class Sandbox(object):
         return True
 
     def fetch_bin(self, bin_path_src):
-        """Fetches a binary file and its dependencies"""
+        """Fetches a binary file and its dependencies
+
+        Important:
+            - <bin_path_src> must be in the main_basis
+        """
 
         bin_path_src = os.path.abspath(bin_path_src)
-        bin_path_dest = self.root_directory[:-1] + bin_path_src
+        bin_path_dest = self.to_main_basis(bin_path_src)
 
         shutil.copy(bin_path_src, bin_path_dest)
 
         return self.fetches_dependencies(bin_path_src)
 
-    def root_path(self, path):
-        return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
-
     def process(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
-        """Processes a sub process, wait for its end and then returns the subprocess.Popen"""
+        """Processes a sub process, wait for its end and then returns the subprocess.Popen
+
+        Caution: all paths in the <cmd> parameter must be in the sandbox basis
+        """
 
         if profile == None:
             profile = Profile()

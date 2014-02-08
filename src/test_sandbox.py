@@ -12,6 +12,24 @@ def test_root_dir():
     del s
     assert not os.path.isdir(root_dir)
 
+def test_basises():
+    s = Sandbox()
+    sandbox_basis = '/bin/ls'
+
+    main_basis = s.to_main_basis(sandbox_basis)
+
+    assert main_basis == s.root_directory[:-1] + sandbox_basis
+    assert s.to_sandbox_basis(main_basis) == sandbox_basis
+
+    try:
+        s.to_main_basis('bin/ls')
+
+    except AssertionError:
+        assert True
+
+    else:
+        assert False
+
 def test_basic_ls():
     s = Sandbox()
 
