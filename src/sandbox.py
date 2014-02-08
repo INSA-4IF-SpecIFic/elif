@@ -138,6 +138,8 @@ class Sandbox(object):
     """
 
     def __init__(self, root_directory = None):
+        assert os.getuid() == 0  # must be root to instantiate a Sandbox
+
         if not root_directory:
             self.root_directory = tempfile.mkdtemp(suffix='.sandbox', prefix='elif_') + "/"
         else:
