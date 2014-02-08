@@ -48,10 +48,10 @@ def test_exercice_test_job():
     greedy_app.fetch_and_process()
 
     exercise_test.reload()
-    assert exercise_test.info['compilation'] == 'OK'
-    assert exercise_test.info['test 0'] == 'PASSED'
-    assert exercise_test.info['test 1'] == 'FAILED'
-    assert exercise_test.info['test 2'] == 'RETURNED(1)'
+    assert exercise_test.compilation_successful
+    assert exercise_test.test_results[0] == 'PASSED'
+    assert exercise_test.test_results[1] == 'FAILED'
+    assert exercise_test.test_results[2] == 'RETURNED(1)'
 
 if __name__ == '__main__':
     test_exercice_test_job()

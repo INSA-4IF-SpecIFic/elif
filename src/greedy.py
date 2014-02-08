@@ -16,7 +16,7 @@ class Greedy(object):
     def fetch_and_process(self):
         count = 0
 
-        for j in job.Job.objects(proceed=False):
+        for j in job.Job.objects(processed=False):
             j.process(self.sandbox)
             j.proceed = True
             j.save()
