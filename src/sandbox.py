@@ -40,14 +40,16 @@ def lib_dependencies_linux(binary_path, deps):
         l = l.split(' ')
 
         for dep in l:
+            if dep == '':
+                continue
+
             if dep[0] != '/':
                 continue
 
-            if dep in deps:
-                continue
+            if dep not in deps:
+                deps.append(dep)
+                lib_dependencies_linux(dep, deps)
 
-            deps.append(dep)
-            lib_dependencies_linux(dep, deps)
             break
 
     return deps
