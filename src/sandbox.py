@@ -225,7 +225,17 @@ class Sandbox(object):
                 value = profile[key]
                 resource.setrlimit(name, (value, value))
 
-        process = subprocess.Popen(cmd, stdin=stdin, stdout=stdout, stderr=stderr, preexec_fn=subprocess_limits)
+        stdin_param = None
+
+        if isinstance(stdin, str):
+            stdin_param = subprocess.PIPE
+
+        process = subprocess.Popen(cmd, stdin=stdin_param, stdout=stdout, stderr=stderr, preexec_fn=subprocess_limits)
+
+        if isinstance(stdin, str):
+            process.stdin.write(stdin)
+            process.stdin.close()
+
         process.wait()
 
         return process
