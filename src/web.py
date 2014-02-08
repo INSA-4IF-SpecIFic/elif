@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import requests
+import sandbox
 from compilation import Compilation
 import json
 
@@ -13,9 +14,12 @@ def hello():
 @app.route('/compile', methods=['POST'])
 def compile():
     code = request.json['code']
-
     result = dict()
-    comp = Compilation(code)
+
+    # TODO: can't use sandbox.Sandbox because of Flask, need to implement the jobs queue in another process
+    comp_sandbox = sandbox.VirtualSandbox()
+
+    comp = Compilation(comp_sandbox, code)
     result['compilation'] = dict(stderr=comp.stderr, stdout=comp.stdout)
     if not comp.stderr:
         comp.run()
