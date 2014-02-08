@@ -240,19 +240,18 @@ class Sandbox(object):
         self._clean()
 
     def _build(self):
-        self._ensure_directory('./')
-        self._ensure_directory('./tmp/')
-        self._ensure_directory('./bin/')
-        self._ensure_directory('./usr/lib/')
+        self._ensure_directory('/')
+        self._ensure_directory('/tmp/')
+        self._ensure_directory('/bin/')
+        self._ensure_directory('/usr/lib/')
 
-        os_name = platform.system()
+        if platform.system() == "Darwin":
+            """ Mac OS X specific environment """
 
-        """ Mac OS X specific environment """
-        if os_name == "Darwin":
             self.clone_bin("/usr/lib/dyld")
 
     def _ensure_directory(self, directory):
-        directory = self.root_directory + directory
+        directory = self.to_main_basis(directory)
 
         if not os.path.isdir(directory):
             os.makedirs(directory)
