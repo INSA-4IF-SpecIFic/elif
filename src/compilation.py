@@ -5,14 +5,17 @@ import tempfile
 
 class Compilation(object):
 
-    def __init__(self, code, compilor_cmd='g++'):
+    def __init__(self, sandbox, code, compilor_cmd='g++'):
+        self.sandbox = sandbox
+
         source_file = tempfile.mktemp(suffix='.cpp', prefix='elif_code_')
-        self.exec_file = tempfile.mktemp(prefix='elif_exec_')
+        self.exec_file = self.sandbox.mktemp(prefix='exec_')
 
         with open(source_file, 'w') as f:
             f.write(code)
 
-        self._launch_process([compilor_cmd, '-x', 'c++', '-o', self.exec_file, source_file])
+        if self._launch_process([compilor_cmd, '-x', 'c++', '-o', self.exec_file, source_file]) == 0:
+            self.sandbox.clone_bin_dependencies(self.exec_file)
 
         os.remove(source_file)
 
@@ -33,8 +36,14 @@ class Compilation(object):
     def run(self, params=list()):
         assert self.return_code == 0
 
-        run_cmd = [self.exec_file]
-        run_cmd.extend(params)
+        cmd = [self.sandbox.to_sandbox_basis(self.exec_file)]
+        cmd.extend(params)
 
-        return self._launch_process(run_cmd)
+        process = self.sandbox.process(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        self.return_code = process.returncode
+        self.stdout = process.stdout.read()
+        self.stderr = process.stderr.read()
+
+        return process.returncode
 
