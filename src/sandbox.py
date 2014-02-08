@@ -169,8 +169,7 @@ class Sandbox(object):
 
         """ Mac OS X specific environment """
         if os_name == "Darwin":
-            shutil.copy2("/usr/lib/dyld", "{}usr/lib/dyld".format(self.root_directory))
-            self.fetches_dependencies("{}usr/lib/dyld".format(self.root_directory))
+            self.clone_bin("/usr/lib/dyld")
 
     def _ensure_directory(self, directory):
         directory = self.root_directory + directory
@@ -204,11 +203,11 @@ class Sandbox(object):
         return tempfile.mktemp(prefix=prefix, suffix=suffix, dir=self.tmp_directory)
 
 
-    def fetches_dependencies(self, executable_path):
-        """Fetches binary file's dependencies
+    def clone_bin_dependencies(self, executable_path):
+        """Clone binary file's dependencies
 
         Important:
-            - <executable_path> must be in the main_basis
+            - <executable_path> must be in the main basis
         """
 
         dependencies = lib_dependencies(executable_path)
@@ -227,11 +226,11 @@ class Sandbox(object):
 
         return True
 
-    def fetch_bin(self, bin_path_src):
-        """Fetches a binary file and its dependencies
+    def clone_bin(self, bin_path_src):
+        """Clones a binary file and its dependencies to the sandbox
 
         Important:
-            - <bin_path_src> must be in the main_basis
+            - <bin_path_src> must be in the main basis
         """
 
         bin_path_src = os.path.abspath(bin_path_src)
@@ -239,7 +238,7 @@ class Sandbox(object):
 
         shutil.copy(bin_path_src, bin_path_dest)
 
-        return self.fetches_dependencies(bin_path_src)
+        return self.clone_bin_dependencies(bin_path_src)
 
     def process(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
         """Processes a sub process, wait for its end and then returns the subprocess.Popen
@@ -257,7 +256,7 @@ class Sandbox(object):
                 value = profile[key]
                 resource.setrlimit(name, (value, value))
 
-        self.fetches_dependencies(cmd[0])
+        self.clone_bin_dependencies(cmd[0])
 
         process = subprocess.Popen(cmd, stdin=stdin, stdout=stdout, stderr=stderr, preexec_fn=subprocess_limits)
         process.wait()

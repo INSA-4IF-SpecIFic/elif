@@ -33,7 +33,7 @@ def test_basises():
 def test_basic_ls():
     s = Sandbox()
 
-    s.fetch_bin("/bin/ls")
+    s.clone_bin("/bin/ls")
     p = s.process(["/bin/ls", "/"], stdout=subprocess.PIPE)
 
     assert p.returncode == 0
@@ -47,11 +47,11 @@ def test_basic_ls():
 def test_jail_security():
     s = Sandbox()
 
-    s.fetch_bin("/bin/cat")
+    s.clone_bin("/bin/cat")
     p = s.process(["/bin/cat", "/bin/cat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     assert p.returncode == 0
 
-    s.fetch_bin("/bin/cat")
+    s.clone_bin("/bin/cat")
     p = s.process(["/bin/cat", os.path.abspath(__file__)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     assert p.returncode != 0
 
@@ -61,7 +61,7 @@ def test_infinte_loop():
     profile = Profile({'max_cpu_time': 1})
     s = Sandbox()
 
-    s.fetch_bin("/bin/sh")
+    s.clone_bin("/bin/sh")
     shutil.copy(os.path.join(os.path.dirname(__file__), "test_scripts/sandbox_infinite.sh"), s.root_directory + "sandbox_infinite.sh")
 
     p = s.process(["/bin/sh", "/sandbox_infinite.sh"], profile=profile)
