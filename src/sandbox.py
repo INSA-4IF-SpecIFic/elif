@@ -223,8 +223,6 @@ class Sandbox(object):
                 value = profile[key]
                 resource.setrlimit(name, (value, value))
 
-        self.clone_bin_dependencies(cmd[0])
-
         process = subprocess.Popen(cmd, stdin=stdin, stdout=stdout, stderr=stderr, preexec_fn=subprocess_limits)
         process.wait()
 
