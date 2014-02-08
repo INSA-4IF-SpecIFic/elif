@@ -66,7 +66,7 @@ def lib_dependencies(binary_path):
     return deps
 
 
-class RunTimeContext(object):
+class Profile(object):
     # parameters: dict()
 
     def __init__(self, parameters=dict(), inherited=list()):
@@ -74,13 +74,13 @@ class RunTimeContext(object):
         self.inherited = list(inherited)
 
     def __setitem__(self, key, value):
-        assert key in RunTimeContext.params
-        assert type(value) == type(RunTimeContext.params[key])
+        assert key in Profile.params
+        assert type(value) == type(Profile.params[key])
 
         self.parameters[key] = value
 
     def __getitem__(self, key):
-        assert key in RunTimeContext.params
+        assert key in Profile.params
 
         def getitem_rec(self, key):
             if key in self.parameters:
@@ -99,7 +99,7 @@ class RunTimeContext(object):
         value = getitem_rec(self, key)
 
         if value == None:
-            return RunTimeContext.default_values[key]
+            return Profile.default_values[key]
 
         return value
 
@@ -198,12 +198,12 @@ class Sandbox(object):
 
     def process(self, cmd, profile=None, stdout=None, stderr=None):
         if profile == None:
-            profile = RunTimeContext()
+            profile = Profile()
 
         def subprocess_limits():
             os.chroot(self.root_directory)
 
-            for key, name in RunTimeContext.params.items():
+            for key, name in Profile.params.items():
                 value = profile[key]
                 resource.setrlimit(name, (value, value))
 

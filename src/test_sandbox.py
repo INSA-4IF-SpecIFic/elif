@@ -2,7 +2,7 @@
 import os
 import shutil
 import subprocess
-from sandbox import Sandbox, RunTimeContext
+from sandbox import Sandbox, Profile
 
 def test_root_dir():
     s = Sandbox()
@@ -43,7 +43,7 @@ def test_jail_security():
     del s
 
 def test_infinte_loop():
-    profile = RunTimeContext({'max_cpu_time': 1})
+    profile = Profile({'max_cpu_time': 1})
     s = Sandbox()
 
     s.fetch_bin("/bin/sh")
@@ -56,8 +56,8 @@ def test_infinte_loop():
     del s
 
 def test_run_time_context():
-    r0 = RunTimeContext({'max_cpu_time': 1})
-    r1 = RunTimeContext(inherited=[r0])
+    r0 = Profile({'max_cpu_time': 1})
+    r1 = Profile(inherited=[r0])
 
     assert r0['max_cpu_time'] == 1
     assert r1['max_cpu_time'] == 1
@@ -67,7 +67,7 @@ def test_run_time_context():
     assert r1['max_cpu_time'] == 2
 
     r1['max_heap_size'] = 2
-    assert r0['max_heap_size'] == RunTimeContext.default_values['max_heap_size']
+    assert r0['max_heap_size'] == Profile.default_values['max_heap_size']
     assert r1['max_heap_size'] == 2
 
 
