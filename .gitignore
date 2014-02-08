@@ -43,3 +43,6 @@
 
 #Windows!!!!
 Thumbs.db
+
+#mongo DB
+*.mongo
