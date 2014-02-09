@@ -1,47 +1,33 @@
 {% extends "base.html" %}
 
 {% block style %}
+<link href="/static/css/index.css" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
 
 {% include "header.html" %}
 
-<div class="exercise row">
-    <div class="col-md-8">
-        <!-- Text editor -->
-        <div id="editor" class="code-area"></div>
-        <button class="btn btn-submit pull-right">Test</button>
-    </div>
+<h2>Exercises</h2>
 
-    <div class="col-md-4 description">
-### Exercise blah blah 2
+<ul class="exercises">
+    {% for exercise in exercises %}
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua.
+    <li>
+        <a href="/exercise/{{exercise.id}}">
+            <span class="title">{{exercise.title}}</span>
+        </a>
 
-* Ut enim ad minim veniam, quis nostrud exercitation ullamco
-* Laboris nisi ut aliquip ex ea commodo consequat
-* Duis aute irure dolor in reprehenderit in voluptate velit esse
+        <p class="description">
+            {{exercise.description}}
+        </p>
+    </li>
 
-Dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-![Deal with it, humans !](/static/img/cat.jpeg "Deal with it, humans !")
-    </div>
-
-</div>
-
-
-<div class="output">
-LOL
-</div>
+    {% endfor %}
+</ul>
 
 {% endblock body %}
 
 
 {% block javascript %}
-<script src="/static/js/ace/ace.js"></script>
-<script src="/static/js/editor.js"></script>
-
 {% endblock %}

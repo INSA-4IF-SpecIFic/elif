@@ -1,0 +1,64 @@
+/* Code input */
+.code-area {
+  height: 80%;
+}
+
+.btn-submit {
+  color: #FFF;
+  background: #32477E;
+  box-shadow: -1px 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.btn-submit:hover, .btn-submit:focus, .btn-submit:active {
+  color: #FFF;
+  background: #2350C8;
+}
+
+/* Exercise description */
+/*
+.exercise .description::before {
+  content: "Description";
+  color: #AAA;
+  display: block;
+  margin: 7px 5px;
+  font-weight: bold;
+}
+*/
+.exercise .description img {
+  display: block;
+  width: 80%;
+  margin: 0 auto;
+
+
+  /* Image thumbnail */
+  padding: 6px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Compilation / Execution output */
+.output {
+  /* hidden by default */
+  display: none;
+
+  font-family: "Ubuntu Mono", monospace;
+  display: block;
+  padding: 5px;
+  margin: 10px;
+  background: #E9E2CF;
+  border: 1px solid #C5BEAA;
+  color: #535045;
+}
+
+.output.error {
+  background: #C01B3A;
+  border: 1px solid #881C30;
+  color: #FCEDF0;
+}
+
+.output.executed {
+  background: #C01B3A;
+  border: 1px solid #881C30;
+  color: #FCEDF0;
+}

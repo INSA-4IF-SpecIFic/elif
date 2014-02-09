@@ -1,42 +1,64 @@
-from flask import Flask, render_template, request
-import requests
-import sandbox
-from compilation import Compilation
 import json
+import time
+
+from flask import Flask, render_template, request
+import mongoengine
+
+import config
+from job import ExerciseTests
+from model.exercise import Exercise, Test
 
 app = Flask(__name__)
+db = mongoengine.connect(config.db_name)
+
+def test_db():
+    db = mongoengine.connect(config.db_name)
+    db.drop_database(config.db_name)
+
+    exercise = Exercise(title='Blah Bleh', description='Bleuh', boilerplate_code='b', reference_code='#')
+
+    test = Test(input='1\n', output='1')
+    test.save()
+    exercise.tests.append(test)
+
+    test = Test(input='3\n', output='2')
+    test.save()
+    exercise.tests.append(test)
+
+    exercise.save()
+
+    return exercise
 
 @app.route('/')
-def hello():
-    return render_template('index.html')
+def index():
+    exercises = Exercise.objects
+    return render_template('index.html', exercises=exercises)
 
 
-@app.route('/compile', methods=['POST'])
-def compile():
+@app.route('/exercise/<exercise_id>')
+def exercise(exercise_id):
+    exercise = Exercise.objects.get(id=exercise_id)
+    return render_template('exercise.html', exercise=exercise)
+
+
+@app.route('/api/compile')
+def compile(ws):
     code = request.json['code']
-    result = dict()
+    exercise = Exercise.objects.first()
 
-    # TODO: can't use sandbox.Sandbox because of Flask, need to implement the jobs queue in another process
-    comp_sandbox = sandbox.VirtualSandbox()
+    # Saving the compilation/execution job in the database
+    submission = ExerciseTests(exercise=exercise, code=code)
+    submission.save()
 
-    comp = Compilation(comp_sandbox, code)
-    result['compilation'] = dict(stderr=comp.stderr, stdout=comp.stdout)
-    if not comp.stderr:
-        comp.run()
-        result['execution'] = dict(stderr=comp.stderr, stdout=comp.stdout)
-    return json.dumps(result)
+    # Polling the database while the job hasn't been done
+    while not submission.processed:
+        time.sleep(0.5)
+        submission.reload()
 
-@app.route('/get_compile')
-def get_compile():
-    code = request.args.get('code')
-    comp = Compilation(code)
-    result = {'stderr': comp.stderr, 'stdout': 'lol'}
-    return json.dumps(result)
+    ws.send(submission.to_json())
 
-def post_test():
-    r = requests.post('http://localhost:5000/post_compile', data={'code':'lol'})
-    return r
 
 if __name__ == "__main__":
+    test_db()
     app.run(debug=True)
 
