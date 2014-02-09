@@ -1,23 +1,26 @@
-
 import os
 import subprocess
 import tempfile
+from collections import namedtuple
+
+ErrorStruct = namedtuple('ErrorStruct', 'line column type message')
 
 class Compilation(object):
 
-    def __init__(self, sandbox, code, compiler_cmd='g++'):
+    def __init__(self, sandbox, code, compiler_cmd='clang'):
         self.sandbox = sandbox
 
-        source_file = tempfile.mktemp(suffix='.cpp', prefix='elif_code_')
+        self.source_file = tempfile.mktemp(suffix='.cpp', prefix='elif_code_')
         self.exec_file = self.sandbox.mktemp(prefix='exec_')
 
-        with open(source_file, 'w') as f:
+        with open(self.source_file, 'w') as f:
             f.write(code)
 
-        if self._launch_process([compiler_cmd, '-x', 'c++', '-o', self.exec_file, source_file]) == 0:
+        if self._launch_process([compiler_cmd, '-x', 'c++', '-o', self.exec_file, self.source_file]) == 0:
             self.sandbox.clone_bin_dependencies(self.exec_file)
 
-        os.remove(source_file)
+        self.parse_output()
+        os.remove(self.source_file)
 
     def __del__(self):
         if os.path.isfile(self.exec_file):
@@ -47,3 +50,6 @@ class Compilation(object):
 
         return process.returncode
 
+    def parse_output(self):
+        error_lines = (line for line in self.stderr.split('\n') if line.startswith(self.source_file))
+        self.errors = [ErrorStruct(*map(str.strip, error_line.split(':')[1:])) for error_line in error_lines]
