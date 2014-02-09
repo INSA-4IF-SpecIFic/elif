@@ -5,7 +5,7 @@ import tempfile
 
 class Compilation(object):
 
-    def __init__(self, sandbox, code, compilor_cmd='g++'):
+    def __init__(self, sandbox, code, compiler_cmd='g++'):
         self.sandbox = sandbox
 
         source_file = tempfile.mktemp(suffix='.cpp', prefix='elif_code_')
@@ -14,7 +14,7 @@ class Compilation(object):
         with open(source_file, 'w') as f:
             f.write(code)
 
-        if self._launch_process([compilor_cmd, '-x', 'c++', '-o', self.exec_file, source_file]) == 0:
+        if self._launch_process([compiler_cmd, '-x', 'c++', '-o', self.exec_file, source_file]) == 0:
             self.sandbox.clone_bin_dependencies(self.exec_file)
 
         os.remove(source_file)
