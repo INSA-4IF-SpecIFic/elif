@@ -1,21 +1,22 @@
-var websocketURI = function() {
-    var loc = window.location, new_uri;
-    if (loc.protocol === "https:") {
-        new_uri = "wss:";
-    } else {
-        new_uri = "ws:";
-    }
-    new_uri += "//" + loc.host;
-    return new_uri;
-}
-
 var submitCode = function(exercise_id, code) {
     var params = {exercise_id: exercise_id, code: code};
-    apiCall('/compile', 'POST', params, function(data) {
+    apiCall('/api/submission', 'POST', params, function(data) {
+        console.log(data);
+
+        // we wait a bit then send a first request to know the submission's state
+        submissionState(data.result._id['$oid']);
+    });
+
+}
+
+var submissionState = function(submission_id) {
+    console.log(submission_id);
+    apiCall('/api/submission/' + submission_id, 'GET', params, function(data) {
+        console.log('submissionstate');
         console.log(data);
 
         // If the code submission still haven't been processed, we poll the server again
-        if (!data.processed) {
+        if (!data.result.processed) {
             submitCode(exercise_id, code);
             return;
         }
@@ -47,7 +48,7 @@ $(document).ready(function(){
     /* Editor initialization and configuration */
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/textmate");
-    editor.setFontSize(18);
+    editor.setFontSize(15);
     editor.setShowPrintMargin(false);
     editor.getSession().setMode("ace/mode/c_cpp");
 

@@ -1,5 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import json
-import time
 
 from flask import Flask, render_template, request
 import mongoengine
@@ -10,6 +12,9 @@ from model.exercise import Exercise, Test
 
 app = Flask(__name__)
 db = mongoengine.connect(config.db_name)
+
+# \ ! / Monkey patching mongoengine to make json dumping easier
+mongoengine.Document.to_dict = lambda s : json.loads(s.to_json())
 
 def test_db():
     db = mongoengine.connect(config.db_name)
@@ -40,9 +45,8 @@ def exercise(exercise_id):
     exercise = Exercise.objects.get(id=exercise_id)
     return render_template('exercise.html', exercise=exercise)
 
-
-@app.route('/api/compile')
-def compile(ws):
+@app.route('/api/submission', methods=['POST'])
+def submit_code():
     code = request.json['code']
     exercise = Exercise.objects.first()
 
@@ -50,13 +54,22 @@ def compile(ws):
     submission = ExerciseTests(exercise=exercise, code=code)
     submission.save()
 
-    # Polling the database while the job hasn't been done
-    while not submission.processed:
-        time.sleep(0.5)
-        submission.reload()
+    response = dict(ok=True, result=submission.to_dict())
 
-    ws.send(submission.to_json())
+    return json.dumps(response)
 
+@app.route('/api/submission/', methods=['GET'])
+def submissions():
+    submissions = [sub.to_dict() for sub in ExerciseTests.objects()]
+    response = dict(ok=True, result=submissions)
+    return json.dumps(response)
+
+
+@app.route('/api/submission/<submission_id>', methods=['GET'])
+def submission_state(submission_id):
+    submission = ExerciseTests.objects.get(id=submission_id)
+    response = dict(ok=True, result=submission.to_dict())
+    return json.dumps(response)
 
 if __name__ == "__main__":
     test_db()
