@@ -53,5 +53,5 @@ class Compilation(object):
         return process.returncode
 
     def parse_output(self):
-        error_lines = (line for line in self.stderr.split('\n') if line.startswith(self.source_file))
+        error_lines = (line for line in self.stderr.split('\n') if line.startswith(self.source_file) and len(line.split(':')) == 5)
         return [ErrorStruct(*map(str.strip, error_line.split(':', 4)[1:])) for error_line in error_lines]
