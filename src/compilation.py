@@ -16,10 +16,12 @@ class Compilation(object):
         with open(self.source_file, 'w') as f:
             f.write(code)
 
+        self.errors = None
         if self._launch_process([compiler_cmd, '-x', 'c++', '-o', self.exec_file, self.source_file]) == 0:
             self.sandbox.clone_bin_dependencies(self.exec_file)
+        else:
+            self.errors = self.parse_output()
 
-        self.parse_output()
         os.remove(self.source_file)
 
     def __del__(self):
@@ -52,4 +54,4 @@ class Compilation(object):
 
     def parse_output(self):
         error_lines = (line for line in self.stderr.split('\n') if line.startswith(self.source_file))
-        self.errors = [ErrorStruct(*map(str.strip, error_line.split(':')[1:])) for error_line in error_lines]
+        return [ErrorStruct(*map(str.strip, error_line.split(':', 4)[1:])) for error_line in error_lines]

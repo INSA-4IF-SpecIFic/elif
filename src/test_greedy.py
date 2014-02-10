@@ -41,17 +41,18 @@ def test_exercice_test_job():
         '}'
     ])
 
-    exercise_test = job.ExerciseTests(exercise=exercise, code=code)
-    exercise_test.save()
+    submission = job.Submission(exercise=exercise, code=code)
+    submission.save()
 
     greedy_app = greedy.Greedy(db)
     greedy_app.fetch_and_process()
 
-    exercise_test.reload()
-    assert exercise_test.compilation_successful
-    assert exercise_test.test_results[0] == 'PASSED'
-    assert exercise_test.test_results[1] == 'FAILED'
-    assert exercise_test.test_results[2] == 'RETURNED(1)'
+    submission.reload()
+    print submission.compilation_log
+    assert submission.compilation_successful
+    assert submission.test_results[0] == 'PASSED'
+    assert submission.test_results[1] == 'FAILED'
+    assert submission.test_results[2] == 'RETURNED(1)'
 
 if __name__ == '__main__':
     test_exercice_test_job()

@@ -1,4 +1,3 @@
-
 import datetime
 import mongoengine
 import model.exercise
@@ -14,7 +13,7 @@ class Job(mongoengine.Document):
     def process(self, sandbox):
         pass
 
-class ExerciseTests(Job):
+class Submission(Job):
     exercise = mongoengine.ReferenceField(model.exercise.Exercise, required=True)
     code = mongoengine.StringField(required=True)
     compilation_log = mongoengine.StringField(default=None)
@@ -22,13 +21,13 @@ class ExerciseTests(Job):
 
     @property
     def compilation_successful(self):
-        return self.compilation_log == None
+        return self.processed and self.compilation_log == None
 
     def process(self, sandbox):
         comp = compilation.Compilation(sandbox, self.code)
 
         if comp.return_code != 0:
-            self.log = comp.stdout
+            self.compilation_log = comp.stderr
             return
 
         for test in self.exercise.tests:
