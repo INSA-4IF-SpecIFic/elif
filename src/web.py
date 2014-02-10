@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
 import json
 
 from flask import Flask, render_template, request
 import mongoengine
 
 import config
-from job import ExerciseTests
+from job import Submission
 from model.exercise import Exercise, Test
 
 app = Flask(__name__)
@@ -20,7 +21,8 @@ def test_db():
     db = mongoengine.connect(config.db_name)
     db.drop_database(config.db_name)
 
-    exercise = Exercise(title='Blah Bleh', description='Bleuh', boilerplate_code='b', reference_code='#')
+    exercise = Exercise(title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
+                        boilerplate_code='b', reference_code='#')
 
     test = Test(input='1\n', output='1')
     test.save()
@@ -51,7 +53,7 @@ def submit_code():
     exercise = Exercise.objects.first()
 
     # Saving the compilation/execution job in the database
-    submission = ExerciseTests(exercise=exercise, code=code)
+    submission = Submission(exercise=exercise, code=code)
     submission.save()
 
     response = dict(ok=True, result=submission.to_dict())
@@ -60,16 +62,20 @@ def submit_code():
 
 @app.route('/api/submission/', methods=['GET'])
 def submissions():
-    submissions = [sub.to_dict() for sub in ExerciseTests.objects()]
+    submissions = [sub.to_dict() for sub in Submission.objects()]
     response = dict(ok=True, result=submissions)
     return json.dumps(response)
 
 
 @app.route('/api/submission/<submission_id>', methods=['GET'])
 def submission_state(submission_id):
-    submission = ExerciseTests.objects.get(id=submission_id)
-    response = dict(ok=True, result=submission.to_dict())
-    return json.dumps(response)
+    try:
+        submission = Submission.objects.get(id=submission_id)
+        response = dict(ok=True, result=submission.to_dict())
+        return json.dumps(response)
+    except mongoengine.DoesNotExist as e:
+        response = dict(ok=False, result=e.message)
+        return json.dumps(response)
 
 if __name__ == "__main__":
     test_db()
