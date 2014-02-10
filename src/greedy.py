@@ -18,7 +18,7 @@ class Greedy(object):
 
         for j in job.Job.objects(processed=False):
             j.process(self.sandbox)
-            j.proceed = True
+            j.processed = True
             j.save()
 
             count +=1
