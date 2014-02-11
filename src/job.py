@@ -17,6 +17,7 @@ class Submission(Job):
     exercise = mongoengine.ReferenceField(model.exercise.Exercise, required=True)
     code = mongoengine.StringField(required=True)
     compilation_log = mongoengine.StringField(default=None)
+    compilation_error = mongoengine.BooleanField(default=False)
     test_results = mongoengine.ListField(default=list)
 
     @property
@@ -27,6 +28,7 @@ class Submission(Job):
         comp = compilation.Compilation(sandbox, self.code)
 
         if comp.return_code != 0:
+            self.compilation_error = True
             self.compilation_log = comp.stderr
             return
 

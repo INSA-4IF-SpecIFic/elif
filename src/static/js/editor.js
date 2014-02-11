@@ -14,23 +14,25 @@ var submissionState = function(submission_id) {
     apiCall('/api/submission/' + submission_id, 'GET', {}, function(data) {
         console.log(data);
 
+        var submission = data.result;
+
         // If the code submission still haven't been processed, we poll the server again
-        if (!data.result.processed) {
+        if (!submission.processed) {
             setTimeout(function() { submissionState(submission_id); }, 1000);
             return;
         }
 
         // Otherwise, we show the result
-        if (data.result.compilation.stderr) {
+        if (submission.compilation_error) {
             $('.output').attr('class', 'output');
             $('.output').addClass('error');
-            $('.output').html(preprocessText(data.compilation.stderr));
+            $('.output').html(preprocessText(submission.compilation_log));
             $('.output').fadeIn(500);
         }
-        else if (data.result.execution.stdout) {
+        else if (submission.test_results) {
             $('.output').attr('class', 'output');
             $('.output').addClass('execution');
-            $('.output').html(preprocessText(data.execution.stdout));
+            $('.output').html(preprocessText(submission.test_results.join('\n')));
             $('.output').fadeIn(500);
         }
         else {
