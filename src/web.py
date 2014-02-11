@@ -21,8 +21,24 @@ def test_db():
     db = mongoengine.connect(config.db_name)
     db.drop_database(config.db_name)
 
+    # Ex 1
     exercise = Exercise(title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
                         boilerplate_code='b', reference_code='#')
+
+    test = Test(input='1\n', output='1')
+    test.save()
+    exercise.tests.append(test)
+
+    test = Test(input='3\n', output='2')
+    test.save()
+    exercise.tests.append(test)
+
+    exercise.save()
+
+    # Ex 2
+    exercise = Exercise(title="Another exercise's title",
+                    description="## This is an exercise\n\n* El1\n* El2\n![Alt text](/static/img/cat.jpeg)",
+                    boilerplate_code='int main() {\n}', reference_code='int main() {    // lol   }')
 
     test = Test(input='1\n', output='1')
     test.save()

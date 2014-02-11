@@ -1,5 +1,5 @@
-var submitCode = function(exercise_id, code) {
-    var params = {exercise_id: exercise_id, code: code};
+var submitCode = function(exerciseId, code) {
+    var params = {exerciseId: exerciseId, code: code};
     apiCall('/api/submission', 'POST', params, function(data) {
         console.log(data);
 
@@ -42,9 +42,12 @@ var submissionState = function(submission_id) {
 
 }
 
-$(document).ready(function(){
+
+$(document).ready(function() {
     /* Getting the current exercise's data */
-    var exercise_id = $('#exercise').data('id');
+    var $exercise = $('#exercise');
+    var exerciseId = $exercise.data('id');
+    var boilerplateCode = $exercise.data('boilerplate-code');
 
     /* Editor initialization and configuration */
     var editor = ace.edit("editor");
@@ -52,6 +55,8 @@ $(document).ready(function(){
     editor.setFontSize(15);
     editor.setShowPrintMargin(false);
     editor.getSession().setMode("ace/mode/c_cpp");
+
+    editor.setValue(boilerplateCode);
 
     /* Formatting the markdown description */
     var description_markdown = $('.description').text();
@@ -68,7 +73,7 @@ $(document).ready(function(){
     $('.btn-submit').click(function() {
         var code = editor.getValue();
 
-        submitCode(exercise_id, code);
+        submitCode(exerciseId, code);
 
     });
 

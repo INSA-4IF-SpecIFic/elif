@@ -22,7 +22,7 @@ var apiCall = function(path, method, data, callback) {
 notification = {
     show: function(cls, msg) {
         msg = preprocessText(msg);
-        $('#notification-bar').attr('class', cls).stop().html(msg).show().fadeIn(500).delay(2000).fadeOut(500);
+        $('#notification-bar').attr('class', cls).stop().html(msg).fadeIn(300).delay(2000).fadeOut(500);
     },
     error: function(msg) {
         this.show('error', msg);
