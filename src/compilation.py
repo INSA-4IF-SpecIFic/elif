@@ -7,7 +7,7 @@ ErrorStruct = namedtuple('ErrorStruct', 'line column type message')
 
 class Compilation(object):
 
-    def __init__(self, sandbox, code, compiler_cmd='clang'):
+    def __init__(self, sandbox, code, compiler_cmd='clang++'):
         self.sandbox = sandbox
 
         self.source_file = tempfile.mktemp(suffix='.cpp', prefix='elif_code_')
