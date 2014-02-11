@@ -49,7 +49,7 @@ def test_exercice_test_job():
 
     submission.reload()
     print submission.compilation_log
-    assert submission.compilation_successful
+    assert not submission.compilation_error
     assert submission.test_results[0] == 'PASSED'
     assert submission.test_results[1] == 'FAILED'
     assert submission.test_results[2] == 'RETURNED(1)'

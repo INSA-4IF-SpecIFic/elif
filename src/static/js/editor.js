@@ -22,6 +22,9 @@ var submissionState = function(submission_id) {
             return;
         }
 
+        // We re-enable the 'Test' button since the code has been processed by the server.
+        $('#test-button').removeAttr('disabled');
+
         // Otherwise, we show the result
         if (submission.compilation_error) {
             $('.output').attr('class', 'output');
@@ -71,8 +74,9 @@ $(document).ready(function() {
 
     /* Binding the submit button */
     $('.btn-submit').click(function() {
-        var code = editor.getValue();
+        $(this).attr('disabled', 'disabled');
 
+        var code = editor.getValue();
         submitCode(exerciseId, code);
 
     });
