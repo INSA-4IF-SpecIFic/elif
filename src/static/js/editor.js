@@ -25,22 +25,18 @@ var submissionState = function(submission_id) {
         // We re-enable the 'Test' button since the code has been processed by the server.
         $('#test-button').removeAttr('disabled');
 
+        $('#output').attr('class', 'tab-pane');
+
         // Otherwise, we show the result
         if (submission.compilation_error) {
-            $('.output').attr('class', 'output');
-            $('.output').addClass('error');
-            $('.output').html(preprocessText(submission.compilation_log));
-            $('.output').fadeIn(500);
-        }
-        else if (submission.test_results) {
-            $('.output').attr('class', 'output');
-            $('.output').addClass('execution');
-            $('.output').html(preprocessText(submission.test_results.join('\n')));
-            $('.output').fadeIn(500);
+            $('#output').addClass('error');
+            $('#output').html(preprocessText(submission.compilation_log));
         }
         else {
-            $('.output').hide();
+            $('#output').addClass('execution');
+            $('#output').html(preprocessText(submission.test_results.join('\n')));
         }
+        $('.nav-tabs a[href="#output"]').tab('show');
     });
 
 }
