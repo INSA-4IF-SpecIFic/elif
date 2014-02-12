@@ -60,11 +60,22 @@ def index():
     exercises = Exercise.objects
     return render_template('index.html', exercises=exercises, tags=tags)
 
-@app.route('/search/<tag>')
-def search(tag):
+@app.route('/searchByWords', methods=['POST'])
+def search_words():
+    words = request.form['recherche']
+    words = words.lower()
+    find = [words] + words.split()
+
     exercises = Exercise.objects
-    found = [e for e in exercises if tag in e.tags]
+    found = list(set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()]))
+
     return render_template('index.html', exercises=found, tags=tags)
+
+@app.route('/searchByTag/<tag>')
+def search_tag(tag):
+    exercises = Exercise.objects(tags = tag)
+    #found = [e for e in exercises if tag in e.tags]
+    return render_template('index.html', exercises=exercises, tags=tags)
 
 @app.route('/exercise/<exercise_id>')
 def exercise(exercise_id):

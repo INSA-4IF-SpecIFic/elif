@@ -13,16 +13,18 @@
 <div class="col-md-4">
     <!-- Text editor -->
     <div class="form-group">
-        <input type="text" class="form-control" id="parTags" placeholder="Recherche" name="recherche" onkeydown="if (event.keyCode == 13) document.getElementById('btnSearch').click()">
-            <button type="submit" id="btnSearch" class="btn btn-default" onclick="valider()">
-                <span class="glyphicon glyphicon-search"></span>
-                <span class="glyphicon-class"></span>
-                Submit
-            </button>
+        <form action="/searchByWords" method="post">
+            <input type="text" class="form-control" id="parTags" placeholder="Recherche" name="recherche" onkeydown="if (event.keyCode == 13) document.getElementById('btnSearch').click()">
+                <button type="submit" id="btnSearch" class="btn btn-default">
+                    <span class="glyphicon glyphicon-search"></span>
+                    <span class="glyphicon-class"></span>
+                    Submit
+                </button>
+        </form>
     </div>
     {% for tag in tags %}
         <li>
-            <a class="tag" href="/search/{{tag}}">
+            <a class="tag" href="/searchByTag/{{tag}}">
                 <span class="title">{{tag}}</span>
             </a>
         </li>
