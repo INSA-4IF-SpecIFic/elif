@@ -14,6 +14,9 @@ from model.exercise import Exercise, Test
 app = Flask(__name__)
 db = mongoengine.connect(config.db_name)
 
+#Static tags
+tags = ["algorithms", "trees", "sort"]
+
 # \ ! / Monkey patching mongoengine to make json dumping easier
 mongoengine.Document.to_dict = lambda s : json.loads(s.to_json())
 
@@ -23,7 +26,7 @@ def test_db():
 
     # Ex 1
     exercise = Exercise(title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
-                        boilerplate_code='b', reference_code='#')
+                        boilerplate_code='b', reference_code='#', tags=['sort','trees'])
 
     test = Test(input='1\n', output='1')
     test.save()
@@ -38,7 +41,7 @@ def test_db():
     # Ex 2
     exercise = Exercise(title="Another exercise's title",
                     description="## This is an exercise\n\n* El1\n* El2\n![Alt text](/static/img/cat.jpeg)",
-                    boilerplate_code='int main() {\n}', reference_code='int main() {    // lol   }')
+                    boilerplate_code='int main() {\n}', reference_code='int main() {    // lol   }', tags=['algorithms','trees'])
 
     test = Test(input='1\n', output='1')
     test.save()
@@ -55,8 +58,13 @@ def test_db():
 @app.route('/')
 def index():
     exercises = Exercise.objects
-    return render_template('index.html', exercises=exercises)
+    return render_template('index.html', exercises=exercises, tags=tags)
 
+@app.route('/search/<tag>')
+def search(tag):
+    exercises = Exercise.objects
+    found = [e for e in exercises if tag in e.tags]
+    return render_template('index.html', exercises=found, tags=tags)
 
 @app.route('/exercise/<exercise_id>')
 def exercise(exercise_id):
