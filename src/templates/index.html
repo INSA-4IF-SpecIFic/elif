@@ -10,21 +10,43 @@
 
 <h2>Exercises</h2>
 
-<ul class="exercises">
-    {% for exercise in exercises %}
+<div class="col-md-4">
+    <!-- Text editor -->
+    <div class="form-group">
+        <input type="text" class="form-control" id="parTags" placeholder="Recherche">
+            <button type="submit" class="btn btn-default">
+                <span class="glyphicon glyphicon-search"></span>
+                <span class="glyphicon-class"></span>
+                Submit
+            </button>
+    </div>
+</div>
 
-    <li>
-        <a href="/exercise/{{exercise.id}}">
-            <span class="title">{{exercise.title}}</span>
-        </a>
+<div class="col-md-8">
 
-        <p class="description">
-            {{exercise.description}}
-        </p>
-    </li>
+    <!-- Tab panes -->
+    <div class="tab-content">
 
-    {% endfor %}
-</ul>
+        <ul class="exercises">
+            {% for exercise in exercises %}
+
+            <li>
+                <a href="/exercise/{{exercise.id}}">
+                    <span class="title">{{exercise.title}}</span>
+                </a>
+
+                <p class="description">
+                    {{exercise.description}}
+                </p>
+            </li>
+
+            {% endfor %}
+        </ul>
+
+    </div>
+
+
+</div>
 
 {% endblock body %}
 

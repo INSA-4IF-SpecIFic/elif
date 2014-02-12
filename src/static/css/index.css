@@ -21,3 +21,8 @@ h2 {
 .exercises li .description {
     font-style: italic;
 }
+
+#parTags {
+	width : 60%;
+	display: inline;
+}
