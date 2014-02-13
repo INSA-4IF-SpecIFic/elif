@@ -44,7 +44,7 @@ def inject_user():
     if session.get('logged_in', False):
         return dict(user=User.objects.get(email=session['email']))
     else:
-        return {}
+        return dict(user=None)
 
 @app.route('/')
 def index():
