@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import json
+from functools import wraps
 
 from flask import Flask, request, session, render_template, redirect
 import mongoengine
@@ -18,6 +19,7 @@ mongoengine.Document.to_dict = lambda s : json.loads(s.to_json())
 # Initializing the web app and the database
 app = Flask(__name__)
 app.secret_key = config.secret_key
+app.config.app_config = config
 db = mongoengine.connect(config.db_name)
 
 # Adding the REST API to our web app
@@ -27,12 +29,14 @@ app.register_blueprint(rest_api)
 tags = ["algorithms", "trees", "sort"]
 
 # Decorator for views that requires the user to be logged in
-def requires_login(func):
-    def wrapped(*args, **kwargs):
+def requires_login(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
         if not session.get('logged_in', False):
-            redirect('/login')
-        return func(*args, **kwargs)
-    return wrapped
+            return redirect('/login')
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 
 @app.route('/')
@@ -79,6 +83,7 @@ def search_tag(tag):
     return render_template('index.html', exercises=exercises, tags=tags)
 
 @app.route('/exercise/<exercise_id>')
+@requires_login
 def exercise(exercise_id):
     exercise = Exercise.objects.get(id=exercise_id)
     return render_template('exercise.html', exercise=exercise)

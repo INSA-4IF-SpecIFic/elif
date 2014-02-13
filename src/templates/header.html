@@ -2,6 +2,16 @@
     <a href="/">
         <h1 class="sitename">elif</h1>
     </a>
+
+    {% if session['logged_in'] %}
+    <span class="logout right-link">
+        <a href="/logout"><span class="glyphicon glyphicon-remove"></span> Logout</a>
+    </span>
+    {% else %}
+    <span class="login right-link">
+        <a href="/login"><span class="glyphicon glyphicon-user"></span> Login</a>
+    </span>
+    {% endif %}
 </div>
 
 <ol class="breadcrumb">

@@ -91,6 +91,23 @@ body {
 .header .sitename {
   font-size: 20px;
   margin: 5px 10px;
+  display: inline-block;
+}
+
+.right-link {
+  font-size: 14px;
+  display: inline-block;
+  float: right;
+  margin: 7px 10px;
+}
+
+.right-link .glyphicon {
+  top: 1px;
+  font-size: 12px;
+}
+
+.right-link:hover .glyphicon {
+  color: #DA0C15;
 }
 
 .breadcrumb {
