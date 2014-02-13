@@ -7,59 +7,23 @@ from flask import Flask, render_template, request
 import mongoengine
 
 import config
-from model.exercise import Exercise, Test
-
-# Initializing the web app and the database
-app = Flask(__name__)
-db = mongoengine.connect(config.db_name)
+from model.exercise import Exercise
+from utils import test_db
+from api import rest_api
 
 # \ ! / Monkey patching mongoengine to make json dumping easier
 mongoengine.Document.to_dict = lambda s : json.loads(s.to_json())
 
 
+# Initializing the web app and the database
+app = Flask(__name__)
+db = mongoengine.connect(config.db_name)
+
 # Adding the REST API to our web app
-from api import rest_api
 app.register_blueprint(rest_api)
 
 #Static tags
 tags = ["algorithms", "trees", "sort"]
-
-def test_db():
-    """ Wipes the database and initializes it with some dummy data """
-    db = mongoengine.connect(config.db_name)
-    db.drop_database(config.db_name)
-
-    # Ex 1
-    exercise = Exercise(title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
-                        boilerplate_code='b', reference_code='#', tags=['sort','trees'])
-
-    test = Test(input='1\n', output='1')
-    test.save()
-    exercise.tests.append(test)
-
-    test = Test(input='3\n', output='2')
-    test.save()
-    exercise.tests.append(test)
-
-    exercise.save()
-
-    # Ex 2
-    exercise = Exercise(title="Another exercise's title",
-                    description="## This is an exercise\n\n* El1\n* El2\n![Alt text](/static/img/cat.jpeg)",
-                    boilerplate_code='int main() {\n}', reference_code='int main() {    // lol   }',
-                    tags=['algorithms','trees'])
-
-    test = Test(input='1\n', output='1')
-    test.save()
-    exercise.tests.append(test)
-
-    test = Test(input='3\n', output='2')
-    test.save()
-    exercise.tests.append(test)
-
-    exercise.save()
-
-    return exercise
 
 @app.route('/')
 def index():

@@ -1,6 +1,5 @@
 import time
-import logging
-import os
+import utils
 
 import mongoengine
 
@@ -9,11 +8,7 @@ import sandbox
 import job
 
 # Initializing Greedy's logger
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-handler = logging.FileHandler(os.path.join(config.logs_dir, 'greedy.log'))
-handler.setLevel(logging.INFO)
-logger.addHandler(handler)
+logger = utils.get_logger('greedy')
 
 class Greedy(object):
     """Greedy application instance polling and executing job from the database"""
@@ -31,6 +26,8 @@ class Greedy(object):
             j.process(self.sandbox)
             j.processed = True
             j.save()
+
+            logger.info("Job #{} processed !".format(count))
 
             count += 1
 
