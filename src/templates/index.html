@@ -10,24 +10,56 @@
 
 <h2>Exercises</h2>
 
-<ul class="exercises">
-    {% for exercise in exercises %}
-
-    <li>
-        <a href="/exercise/{{exercise.id}}">
-            <span class="title">{{exercise.title}}</span>
-        </a>
-
-        <p class="description">
-            {{exercise.description}}
-        </p>
-    </li>
-
+<div class="col-md-4">
+    <!-- Text editor -->
+    <div class="form-group">
+        <form action="/searchByWords" method="post">
+            <input type="text" class="form-control" id="parTags" placeholder="Recherche" name="recherche" onkeydown="if (event.keyCode == 13) document.getElementById('btnSearch').click()">
+                <button type="submit" id="btnSearch" class="btn btn-default">
+                    <span class="glyphicon glyphicon-search"></span>
+                    <span class="glyphicon-class"></span>
+                    Submit
+                </button>
+        </form>
+    </div>
+    {% for tag in tags %}
+        <li>
+            <a class="tag" href="/searchByTag/{{tag}}">
+                <span class="title">{{tag}}</span>
+            </a>
+        </li>
     {% endfor %}
-</ul>
+</div>
+
+<div class="col-md-8">
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+
+        <ul class="exercises">
+            {% for exercise in exercises %}
+
+            <li>
+                <a href="/exercise/{{exercise.id}}">
+                    <span class="title">{{exercise.title}}</span>
+                </a>
+
+                <p class="description">
+                    {{exercise.description}}
+                </p>
+            </li>
+
+            {% endfor %}
+        </ul>
+
+    </div>
+
+
+</div>
 
 {% endblock body %}
 
 
 {% block javascript %}
+<script src="/static/js/search.js"></script>
 {% endblock %}
