@@ -6,6 +6,7 @@ import logging
 
 import mongoengine
 from model.exercise import Exercise, Test
+from model.user import User
 
 import config
 
@@ -35,12 +36,10 @@ def test_db():
     exercise = Exercise(title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
                         boilerplate_code='b', reference_code='#', tags=['sort','trees'])
 
-    test = Test(input='1\n', output='1')
-    test.save()
+    test = Test(input='1\n', output='1').save()
     exercise.tests.append(test)
 
-    test = Test(input='3\n', output='2')
-    test.save()
+    test = Test(input='3\n', output='2').save()
     exercise.tests.append(test)
 
     exercise.save()
@@ -51,14 +50,16 @@ def test_db():
                     boilerplate_code='int main() {\n}', reference_code='int main() {    // lol   }',
                     tags=['algorithms','trees'])
 
-    test = Test(input='1\n', output='1')
-    test.save()
+    test = Test(input='1\n', output='1').save()
     exercise.tests.append(test)
 
-    test = Test(input='3\n', output='2')
-    test.save()
+    test = Test(input='3\n', output='2').save()
     exercise.tests.append(test)
 
     exercise.save()
+
+    # Dummy user
+    User.new_user(email="dummy@{}".format(config.email_domain),
+                  username="dummy_username", password="123456", editor=True).save()
 
     return exercise
