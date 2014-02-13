@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from mongoengine import *
+from mongoengine import Document, StringField, ListField, ReferenceField
 
 class Test(Document):
     input = StringField(required=True)
@@ -17,14 +17,3 @@ class Exercise(Document):
     tests = ListField(ReferenceField('Test'), required=True)
 
     tags = ListField(StringField())
-
-if __name__ == '__main__':
-    db = connect('db_test')
-    db.drop_database('db_test')
-    test = Test(input='a', output='')
-    test.save()
-    exercise = Exercise(title='Blah Bleh', description='Bleuh', boilerplate_code='b', reference_code='#', tests=[test])
-    exercise.save()
-
-    exercise.tags.append('sort')
-    exercise.save()
