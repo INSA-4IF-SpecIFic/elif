@@ -28,16 +28,23 @@ app.register_blueprint(rest_api)
 # Static tags
 tags = ["algorithms", "trees", "sort"]
 
-# Decorator for views that requires the user to be logged in
 def requires_login(f):
+    """  Decorator for views that requires the user to be logged in """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in', False):
             return redirect('/login')
-        return f(*args, **kwargs)
+        else:
+            return f(*args, **kwargs)
     return decorated_function
 
-
+@app.context_processor
+def inject_user():
+    """ Injects a 'user' variable in templates' context when a user is logged in """
+    if session.get('logged_in', False):
+        return dict(user=User.objects.get(email=session['email']))
+    else:
+        return {}
 
 @app.route('/')
 def index():

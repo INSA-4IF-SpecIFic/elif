@@ -75,7 +75,6 @@ body {
 
   background: #32477E;
   color: #FFF;
-  font-weight: bold;
   text-shadow: -1px 1px 0px rgba(0, 0, 0, 0.5);
 }
 
@@ -109,6 +108,11 @@ body {
 .right-link:hover .glyphicon {
   color: #DA0C15;
 }
+
+.header .username {
+  font-weight: bold;
+}
+
 
 .breadcrumb {
   margin: 0;
