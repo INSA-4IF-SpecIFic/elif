@@ -13,7 +13,7 @@ def generate_salt():
     return os.urandom(16).encode('base_64')
 
 def hash_password(password, salt):
-    return hashlib.sha512(password + salt).hexdigest()
+    return hashlib.sha512(salt + hashlib.sha256(password).hexdigest()).hexdigest()
 
 class User(mongoengine.Document):
     email = mongoengine.StringField(primary_key=True)
