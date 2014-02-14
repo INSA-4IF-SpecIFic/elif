@@ -126,6 +126,26 @@ class Profile(object):
     }
 
 
+class ProcessFeedback(object):
+    """Sandbox's process feedback
+
+    TODO: rename returncode member to return_code
+
+    Members:
+        returncode: the process return code (not return_code for compatibility with subprocess.Popen)
+        stdout: the stdout's pipe
+        stderr: the stderr's pipe
+        ressources: used ressources information (CF offcial documentation resource.getrusage())
+    """
+
+    def __init__(self, return_code, exit_status, stdout, stderr, resources):
+        self.returncode = return_code
+        self.exit_status = exit_status
+        self.stdout = stdout
+        self.stderr = stderr
+        self.resources = resources
+
+
 class Sandbox(object):
     """Sandbox object to execute code in a chroot jail (must be executed as root)
 
@@ -232,7 +252,7 @@ class Sandbox(object):
 
         return True
 
-    def process(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
+    def _process_subprocess(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
         """Processes a sub process, wait for its end and then returns the subprocess.Popen
 
         Caution: all paths in the <cmd> parameter must be in the sandbox basis
@@ -264,6 +284,120 @@ class Sandbox(object):
         process.wait()
 
         return process
+
+    def _process_fork(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
+        assert len(cmd) >= 1
+
+        if profile == None:
+            profile = Profile()
+
+        stdin_r = None
+        stdin_w = None
+
+        if isinstance(stdin, str):
+            stdin_r, stdin_w = os.pipe()
+
+        stdout_r = None
+        stdout_w = None
+
+        if stdout == subprocess.PIPE:
+            stdout_r, stdout_w = os.pipe()
+
+        stderr_r = None
+        stderr_w = None
+
+        if stderr == subprocess.PIPE:
+            stderr_r, stderr_w = os.pipe()
+
+        elif stderr == subprocess.STDOUT:
+            assert stdout == subprocess.PIPE
+
+            assert False  #TODO: not yet implemented
+
+        pid = os.fork()
+
+        if pid == 0:
+            # children process
+
+            # stdin setup
+            if stdin_r:
+                sys.stdin = os.fdopen(stdin_r, 'r')
+                os.dup2(sys.stdin.fileno(), 0)
+
+            if stdin_w:
+                os.close(stdin_w)
+
+
+            # stdout setup
+            if stdout_r:
+                os.close(stdout_r)
+
+            if stdout_w:
+                sys.stdout = os.fdopen(stdout_w, 'w')
+                os.dup2(sys.stdout.fileno(), 1)
+
+
+            # stderr setup
+            if stderr_r:
+                os.close(stderr_r)
+
+            if stderr_w:
+                sys.stderr = os.fdopen(stderr_w, 'w')
+                os.dup2(sys.stderr.fileno(), 2)
+
+            # changes root
+            os.chroot(self.root_directory)
+            os.chdir('/')
+
+            # sets limits
+            for key, name in Profile.params.items():
+                value = profile[key]
+                resource.setrlimit(name, (value, value))
+
+            # changes user
+            os.setuid(self.uid)
+
+            # launch executable
+            os.execv(cmd[0], cmd)
+
+        # stdin setup
+        if stdin_r:
+            os.close(stdin_r)
+
+        if isinstance(stdin, str):
+            stdin_w.write(stdin)
+
+        if stdin_w:
+            stdin_w.close()
+
+
+        # stdout/stderr setup
+        if stdout_r:
+            stdout_r = os.fdopen(stdout_r, 'r')
+
+        if stdout_w:
+            os.close(stdout_w)
+
+        if stderr_r:
+            stderr_r = os.fdopen(stderr_r, 'r')
+
+        if stderr_w:
+            os.close(stderr_w)
+
+        pid, exit_status, resources = os.wait4(pid, 0)
+
+        return_code = (exit_status >> 8) & 0xFF
+        exit_status = exit_status & 0xFF
+
+        return ProcessFeedback(
+            return_code=return_code,
+            exit_status=exit_status,
+            stdout=stdout_r,
+            stderr=stderr_r,
+            resources=resources
+        )
+
+    process = _process_fork
 
     @property
     def tmp_directory(self):
