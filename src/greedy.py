@@ -37,7 +37,7 @@ class Greedy(object):
         logger.info("Greedy started !")
         while True:
             try:
-                time.sleep(0.2)
+                time.sleep(0.01)
             except KeyboardInterrupt:
                 break
 

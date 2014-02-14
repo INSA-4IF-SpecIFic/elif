@@ -18,7 +18,7 @@ var submissionState = function(submission_id) {
 
         // If the code submission still haven't been processed, we poll the server again
         if (!submission.processed) {
-            setTimeout(function() { submissionState(submission_id); }, 1000);
+            setTimeout(function() { submissionState(submission_id); }, 200);
             return;
         }
 
