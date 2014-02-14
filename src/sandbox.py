@@ -6,6 +6,7 @@ import resource
 import subprocess
 import tempfile
 import shutil
+import pwd
 
 
 def lib_dependencies_osx(binary_path, deps):
@@ -145,6 +146,7 @@ class Sandbox(object):
         else:
             self.root_directory = root_directory
 
+        self.uid = pwd.getpwnam('nobody').pw_uid
         self._build()
 
     def to_main_basis(self, path):
@@ -168,7 +170,10 @@ class Sandbox(object):
         directory = self.to_main_basis(directory)
 
         if not os.path.isdir(directory):
-            os.makedirs(directory)
+            os.makedirs(directory, 0755)
+
+        else:
+            os.chmod(directory, 0755)
 
     def mktemp(self, prefix='tmp', suffix=''):
         """Allocates a temporary file name in the /tmp/ directory of the sand box and return its path
@@ -189,6 +194,7 @@ class Sandbox(object):
         path_dest = self.to_main_basis(path_src)
 
         shutil.copy(path_src, path_dest)
+        os.chmod(path_dest, 0755)
 
         return True
 
@@ -219,9 +225,10 @@ class Sandbox(object):
                 continue
 
             if not os.path.isdir(dep_dest_dir):
-                os.makedirs(dep_dest_dir)
+                os.makedirs(dep_dest_dir, 0755)
 
             shutil.copy2(dep_src, dep_dest)
+            os.chmod(dep_dest, 0755)
 
         return True
 
@@ -240,6 +247,8 @@ class Sandbox(object):
             for key, name in Profile.params.items():
                 value = profile[key]
                 resource.setrlimit(name, (value, value))
+
+            os.setuid(self.uid)
 
         stdin_param = None
 
