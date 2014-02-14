@@ -25,7 +25,7 @@ var submissionState = function(submission_id) {
         // We re-enable the 'Test' button since the code has been processed by the server.
         $('#test-button').removeAttr('disabled');
 
-        $('#output').attr('class', 'tab-pane');
+        $('#output').attr('class', 'tab-pane output');
 
         // Otherwise, we show the result
         if (submission.compilation_error) {

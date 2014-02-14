@@ -49,10 +49,22 @@ def test_exercice_test_job():
 
     submission.reload()
     print submission.compilation_log
+    for t in submission.test_results:
+        print t
+
     assert not submission.compilation_error
-    assert submission.test_results[0]['success']
-    assert not submission.test_results[1]['success']
+
+    assert submission.test_results[0]['success'] == True
+    assert submission.test_results[0]['return_code'] == 0
+    assert submission.test_results[0]['output'] == '1'
+
+    assert submission.test_results[1]['success'] == False
+    assert submission.test_results[1]['return_code'] == 0
+    assert submission.test_results[1]['output'] == '2'
+
+    assert submission.test_results[2]['success'] == False
     assert submission.test_results[2]['return_code'] == 1
+    assert submission.test_results[2]['output'] == '3'
 
 if __name__ == '__main__':
     test_exercice_test_job()

@@ -40,7 +40,7 @@ class Submission(Job):
 
             status['success'] = True
             status['return_code'] = comp.return_code
-            status['output'] = test.output
+            status['output'] = comp.stdout
             status['reason'] = ""
             #status['test_id'] = test.id
 
