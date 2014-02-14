@@ -21,13 +21,13 @@ class Greedy(object):
         count = 0
 
         for j in job.Job.objects(processed=False):
-            logger.info("Processing job #{}".format(count))
+            logger.info("Processing {}".format(j))
 
             j.process(self.sandbox)
             j.processed = True
             j.save()
 
-            logger.info("Job #{} processed !".format(count))
+            logger.info("{} processed !".format(j))
 
             count += 1
 

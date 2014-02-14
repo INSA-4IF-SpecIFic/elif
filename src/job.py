@@ -13,6 +13,11 @@ class Job(mongoengine.Document):
     def process(self, sandbox):
         pass
 
+    def __repr__(self):
+        return '<{} : created at {}>'.format(self.__class__.__name__, self.date_created)
+
+    __str__ = __repr__
+
 class Submission(Job):
     exercise = mongoengine.ReferenceField(model.exercise.Exercise, required=True)
     code = mongoengine.StringField(required=True)
