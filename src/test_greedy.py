@@ -50,9 +50,9 @@ def test_exercice_test_job():
     submission.reload()
     print submission.compilation_log
     assert not submission.compilation_error
-    assert submission.test_results[0] == 'PASSED'
-    assert submission.test_results[1] == 'FAILED'
-    assert submission.test_results[2] == 'RETURNED(1)'
+    assert submission.test_results[0]['success']
+    assert not submission.test_results[1]['success']
+    assert submission.test_results[2]['return_code'] == 1
 
 if __name__ == '__main__':
     test_exercice_test_job()
