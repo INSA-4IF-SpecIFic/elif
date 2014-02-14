@@ -45,6 +45,32 @@
 
 </div>
 
+<!-- Compilation / Execution output's template -->
+{% raw %}
+<script id="output-template" type="text/x-handlebars-template">
+  <ul class="tests">
+    {{#if compilation_error}}
+      <div class="alert label-danger">
+          {{breaklines compilation_log}}
+      </div>
+    {{else}}
+      {{#each test_results}}
+      {{#if success}}
+        <li class="alert label-success">
+          Test n&deg;{{index}}: Passed!
+        </li>
+      {{else}}
+        <li class="alert label-danger">
+          Test n&deg;{{index}}: {{reason}}
+        </li>
+      {{/if}}
+
+      {{/each}}
+    {{/if}}
+  </ul>
+</script>
+{% endraw %}
+
 {% endblock body %}
 
 

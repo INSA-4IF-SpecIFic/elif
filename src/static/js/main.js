@@ -1,8 +1,19 @@
+/* Handlebars */
+loadTemplate = function(template_id) {
+    var source = $(template_id).html();
+    return Handlebars.compile(source);
+}
+
+Handlebars.registerHelper('breaklines', function(text) {
+    text = Handlebars.Utils.escapeExpression(text);
+    text = preprocessText(text);
+    return new Handlebars.SafeString(text);
+});
 /* Misc */
 var markdown = new Showdown.converter();
 
 var preprocessText = function(msg) {
-    return msg.replace(/\n/g,'<br/>').replace(/ /g, '&nbsp;');
+    return msg.replace(/(\r\n|\n|\r)/gm, '<br>').replace(/ /g, '&nbsp;');
 }
 
 /* API related */

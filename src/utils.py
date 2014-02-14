@@ -58,6 +58,24 @@ def test_db():
 
     exercise.save()
 
+
+    # Ex 3
+    exercise = Exercise(title="Double the given number",
+                    description="## Just double the freaking number !\n\n* You get a\n* Print a x 2\n![Alt text](/static/img/cat.jpeg)",
+                    boilerplate_code='#include <iostream>\nint main() {\n}', reference_code='int main() {    // lol   }',
+                    tags=['algorithms'])
+
+    test = Test(input='1\n', output='1').save()
+    exercise.tests.append(test)
+
+    test = Test(input='2\n', output='4').save()
+    exercise.tests.append(test)
+
+    test = Test(input='-2\n', output='4').save()
+    exercise.tests.append(test)
+
+    exercise.save()
+
     # Dummy user
     User.new_user(email="dummy@{}".format(config.email_domain),
                   username="dummy_username", password="123456", editor=True).save()
