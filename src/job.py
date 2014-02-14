@@ -36,13 +36,20 @@ class Submission(Job):
         for test in self.exercise.tests:
             comp.run(stdin=str(test.input))
 
-            status = 'PASSED'
+            status = { }
+
+            status['success'] = True
+            status['return_code'] = comp.return_code
+            status['output'] = test.output
+            status['reason'] = ""
+            #status['test_id'] = test.id
 
             if comp.return_code != 0:
-                status = 'RETURNED({})'.format(comp.return_code)
+                status['success'] = False
+                status['reason'] = "Return code is not 0 : got {}".format(comp.return_code)
 
             elif comp.stdout != test.output:
-                status = 'FAILED'
+                status['success'] = False
+                status['reason'] = "Test failed"
 
             self.test_results.append(status)
-

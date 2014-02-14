@@ -269,21 +269,3 @@ class Sandbox(object):
     def _clean(self):
         if os.path.isdir(self.root_directory):
             shutil.rmtree(self.root_directory)
-
-
-class VirtualSandbox(Sandbox):
-    """Dirty work around with flask. HAS KNOWN BORDER EFFECTS. DO NOT USE IT WITHOUT TALKED TO G. ABADIE."""
-
-    def __init__(self):
-        Sandbox.__init__(self)
-
-    def process(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
-        new_cmd = list()
-        new_cmd.append(self.to_main_basis(cmd[0]))
-        new_cmd.extend(cmd[1:])
-
-        process = subprocess.Popen(new_cmd, stdin=stdin, stdout=stdout, stderr=stderr)
-        process.wait()
-
-        return process
-
