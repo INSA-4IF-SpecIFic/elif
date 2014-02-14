@@ -32,7 +32,7 @@ def requires_login(f):
     """  Decorator for views that requires the user to be logged in """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not session.get('logged_in', False):
+        if not session.get('logged_in', None):
             return redirect('/login')
         else:
             return f(*args, **kwargs)
@@ -42,7 +42,7 @@ def requires_login(f):
 def inject_user():
     """ Injects a 'user' variable in templates' context when a user is logged in """
     if session.get('logged_in', False):
-        return dict(user=User.objects.get(email=session['email']))
+        return dict(user=User.objects.get(email=session['logged_in']))
     else:
         return dict(user=None)
 
@@ -63,8 +63,7 @@ def process_login():
         app.logger.warning("Couldn't login : {}".format(user))
         return render_template('login.html', error=True, email=email)
     else:
-        session['logged_in'] = True
-        session['email'] = user.email
+        session['logged_in'] = user.email
         return redirect('/')
 
 @app.route('/logout')
