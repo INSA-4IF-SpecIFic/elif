@@ -25,17 +25,7 @@ var submissionState = function(submission_id) {
         // We re-enable the 'Test' button since the code has been processed by the server.
         $('#test-button').removeAttr('disabled');
 
-        $('#output').attr('class', 'tab-pane output');
-
-        // Otherwise, we show the result
-        if (submission.compilation_error) {
-            $('#output').addClass('error');
-            $('#output').html(preprocessText(submission.compilation_log));
-        }
-        else {
-            $('#output').addClass('execution');
-            $('#output').html(preprocessText(submission.test_results.join('\n')));
-        }
+        $('#output').html(output_template(submission));
         $('.nav-tabs a[href="#output"]').tab('show');
     });
 
@@ -47,6 +37,9 @@ $(document).ready(function() {
     var $exercise = $('#exercise');
     var exerciseId = $exercise.data('id');
     var boilerplateCode = $exercise.data('boilerplate-code');
+
+    /* Getting Handlebar templates */
+    output_template = loadTemplate('#output-template');
 
     /* Editor initialization and configuration */
     var editor = ace.edit("editor");

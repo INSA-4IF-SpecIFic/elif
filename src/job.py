@@ -33,21 +33,21 @@ class Submission(Job):
             self.compilation_log = comp.stderr
             return
 
-        for test in self.exercise.tests:
+        for i, test in enumerate(self.exercise.tests):
             comp.run(stdin=str(test.input))
 
             status = { }
 
+            status['index'] = i
             status['success'] = True
             status['return_code'] = comp.return_code
             status['output'] = comp.stdout
-            status['reason'] = ""
+            status['reason'] = str()
             #status['test_id'] = test.id
 
             if comp.return_code != 0:
                 status['success'] = False
                 status['reason'] = "Return code is not 0 : got {}".format(comp.return_code)
-
             elif comp.stdout != test.output:
                 status['success'] = False
                 status['reason'] = "Test failed"

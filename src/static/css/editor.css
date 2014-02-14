@@ -39,25 +39,27 @@
 
 /* Compilation / Execution output */
 .output {
-  /* hidden by default */
-  display: none;
+  margin: 5px;
+}
 
+.tests {
   font-family: "Ubuntu Mono", monospace;
-  padding: 5px;
-  margin: 10px;
-  background: #E9E2CF;
-  border: 1px solid #C5BEAA;
-  color: #535045;
+  padding: 0;
+  list-style: none;
 }
 
-.output.error {
+.output .alert {
+  margin-bottom: 10px;
+}
+
+.output .label-danger {
   background: #C01B3A;
   border: 1px solid #881C30;
   color: #FCEDF0;
 }
 
-.output.executed {
-  background: #C01B3A;
-  border: 1px solid #881C30;
-  color: #FCEDF0;
+.output .label-success {
+  background: #5cb85c;
+  border: 1px solid #2ecc71;
+  color: #EDFCEE;
 }
