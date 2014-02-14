@@ -21,3 +21,17 @@ h2 {
 .exercises li .description {
     font-style: italic;
 }
+
+#parTags {
+	width : 70%;
+	display: inline;
+}
+
+#btnSearch {
+    position:absolute;
+    right : 10%;
+}
+
+#tag {
+    display: block;
+}

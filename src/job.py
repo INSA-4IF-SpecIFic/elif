@@ -20,10 +20,6 @@ class Submission(Job):
     compilation_error = mongoengine.BooleanField(default=False)
     test_results = mongoengine.ListField(default=list)
 
-    @property
-    def compilation_successful(self):
-        return self.processed and self.compilation_log == None
-
     def process(self, sandbox):
         comp = compilation.Compilation(sandbox, self.returnCode)
 
