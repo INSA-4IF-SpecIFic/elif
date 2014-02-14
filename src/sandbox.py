@@ -164,6 +164,12 @@ class Sandbox(object):
         self._clean()
         self._build()
 
+    def makedirs(self, directory):
+        directory = self.to_main_basis(directory)
+
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+
     def mktemp(self, prefix='tmp', suffix=''):
         """Allocates a temporary file name in the /tmp/ directory of the sand box and return its path
 
@@ -250,21 +256,15 @@ class Sandbox(object):
         self._clean()
 
     def _build(self):
-        self._ensure_directory('/')
-        self._ensure_directory('/tmp/')
-        self._ensure_directory('/bin/')
-        self._ensure_directory('/usr/lib/')
+        self.makedirs('/')
+        self.makedirs('/tmp/')
+        self.makedirs('/bin/')
+        self.makedirs('/usr/lib/')
 
         if platform.system() == "Darwin":
             """ Mac OS X specific environment """
 
             self.clone_bin("/usr/lib/dyld")
-
-    def _ensure_directory(self, directory):
-        directory = self.to_main_basis(directory)
-
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
 
     def _clean(self):
         if os.path.isdir(self.root_directory):
