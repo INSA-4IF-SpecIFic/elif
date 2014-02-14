@@ -15,7 +15,7 @@ class Job(mongoengine.Document):
 
 class Submission(Job):
     exercise = mongoengine.ReferenceField(model.exercise.Exercise, required=True)
-    code = mongoengine.StringField(required=True)
+    returnCode = mongoengine.StringField(required=True)
     compilation_log = mongoengine.StringField(default=None)
     compilation_error = mongoengine.BooleanField(default=False)
     test_results = mongoengine.ListField(default=list)
@@ -25,7 +25,7 @@ class Submission(Job):
         return self.processed and self.compilation_log == None
 
     def process(self, sandbox):
-        comp = compilation.Compilation(sandbox, self.code)
+        comp = compilation.Compilation(sandbox, self.returnCode)
 
         if comp.return_code != 0:
             self.compilation_error = True
@@ -35,13 +35,20 @@ class Submission(Job):
         for test in self.exercise.tests:
             comp.run(stdin=str(test.input))
 
-            status = 'PASSED'
+            status = { }
+
+            status['success'] = True
+            status['return_code'] = comp.return_code
+            status['output'] = test.output
+            status['reason'] = ""
+            #status['test_id'] = test.id
 
             if comp.return_code != 0:
-                status = 'RETURNED({})'.format(comp.return_code)
+                status['success'] = False
+                status['reason'] = "Return code is not 0 : got {}".format(comp.return_code)
 
             elif comp.stdout != test.output:
-                status = 'FAILED'
+                status['success'] = False
+                status['reason'] = "Test failed"
 
             self.test_results.append(status)
-
