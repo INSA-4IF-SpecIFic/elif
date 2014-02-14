@@ -57,7 +57,7 @@ def login():
 
 @app.route('/login', methods=['POST'])
 def process_login():
-    email, password = request.form['email'], request.form['password']
+    email, password = request.form['email'].lower(), request.form['password']
     user = User.objects(email=email).first()
     if user is None or not user.valid_password(password):
         app.logger.warning("Couldn't login : {}".format(user))

@@ -38,6 +38,11 @@ class User(mongoengine.Document):
         self.username = self.username.lower()
         self.email = self.email.lower()
 
+        if len(self.username) > config.length_limit:
+            raise mongoengine.ValidationError(dict(username="Username is too long (maximum length: {})".format(config.length_limit)))
+        if len(self.email) > config.length_limit:
+            raise mongoengine.ValidationError(dict(email="Email is too long (maximum length: {})".format(config.length_limit)))
+
         if config.email_domain and not self.email.endswith('@{}'.format(config.email_domain)):
             raise mongoengine.ValidationError(dict(email="Email doesn't pass the email restriction"))
 
