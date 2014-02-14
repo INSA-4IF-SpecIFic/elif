@@ -178,6 +178,30 @@ class Sandbox(object):
 
         return tempfile.mktemp(prefix=prefix, suffix=suffix, dir=self.tmp_directory)
 
+    def clone(self, path_src):
+        """Clones a common file to the sandbox
+
+        Important:
+            - <path_src> must be in the main basis
+        """
+        assert path_src[0] == '/'
+
+        path_dest = self.to_main_basis(path_src)
+
+        shutil.copy(path_src, path_dest)
+
+        return True
+
+    def clone_bin(self, bin_path_src):
+        """Clones a binary file and its dependencies to the sandbox
+
+        Important:
+            - <bin_path_src> must be in the main basis
+        """
+        self.clone(bin_path_src)
+
+        return self.clone_bin_dependencies(bin_path_src)
+
     def clone_bin_dependencies(self, executable_path):
         """Clone binary file's dependencies
 
@@ -200,20 +224,6 @@ class Sandbox(object):
             shutil.copy2(dep_src, dep_dest)
 
         return True
-
-    def clone_bin(self, bin_path_src):
-        """Clones a binary file and its dependencies to the sandbox
-
-        Important:
-            - <bin_path_src> must be in the main basis
-        """
-
-        bin_path_src = os.path.abspath(bin_path_src)
-        bin_path_dest = self.to_main_basis(bin_path_src)
-
-        shutil.copy(bin_path_src, bin_path_dest)
-
-        return self.clone_bin_dependencies(bin_path_src)
 
     def process(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
         """Processes a sub process, wait for its end and then returns the subprocess.Popen
