@@ -41,15 +41,21 @@ class Submission(Job):
             status['index'] = i
             status['success'] = True
             status['return_code'] = feedback.return_code
-            status['output'] = feedback.stdout.read()
             status['reason'] = str()
+            status['cpu_time'] = feedback.resources.ru_utime
+            status['memory_used'] = feedback.resources.ru_ixrss + feedback.resources.ru_idrss
             #status['test_id'] = test.id
 
-            if feedback.return_code != 0:
+            if not feedback.ended_correctly:
+                status['success'] = False
+                status['reason'] = "Process has exited unexpectly (killed by signal {})".format(feedback.killing_signal)
+
+            elif feedback.return_code != 0:
                 status['success'] = False
                 status['reason'] = "Return code is not 0 : got {}".format(feedback.return_code)
-            elif status['output'] != test.output:
+
+            elif feedback.stdout.read() != test.output:
                 status['success'] = False
-                status['reason'] = "Test failed"
+                status['reason'] = "Invalid output"
 
             self.test_results.append(status)
