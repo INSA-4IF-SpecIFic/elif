@@ -170,10 +170,15 @@ def test_clobbering():
         ]))
 
     feedback = s.process(["/bin/sh", "/sandbox_clobber.sh", "/bin/cat"], stdout=subprocess.PIPE)
-    stdout = feedback.stdout.read()
     assert feedback.ended_correctly
     assert feedback.return_code == 0
-    assert stdout == "clobbering /bin/cat ...\n1\n"
+
+    i = 0
+    for l in feedback.stdout:
+        assert i != 0 or l == "clobbering /bin/cat ...\n"
+        assert i != 1 or int(l) != 0
+        i += 1
+
     assert os.stat(s.to_main_basis('/bin/cat')) == cat_size
 
     del s
