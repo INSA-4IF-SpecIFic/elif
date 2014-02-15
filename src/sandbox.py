@@ -159,6 +159,7 @@ class Sandbox(object):
 
     Members:
         root_directory (in the main basis)
+        user_name: the running user's name
     """
 
     def __init__(self, root_directory = None):
@@ -169,7 +170,7 @@ class Sandbox(object):
         else:
             self.root_directory = root_directory
 
-        self.uid = pwd.getpwnam('nobody').pw_uid
+        self.user_name = 'nobody'
         self._build()
 
     def to_main_basis(self, path):
@@ -263,7 +264,7 @@ class Sandbox(object):
 
         env = dict()
         env['PATH'] = '/usr/bin:/bin'
-        env['USER'] = 'nobody'
+        env['USER'] = self.user_name
         env['HOME'] = '/'
         env['SHELL'] = '/bin/sh'
 
@@ -294,6 +295,7 @@ class Sandbox(object):
 
         if pid == 0:
             # children process
+            uid = pwd.getpwnam(self.user_name).pw_uid
 
             # stdin setup
             if stdin_r:
@@ -330,7 +332,7 @@ class Sandbox(object):
             resource.setrlimit(resource.RLIMIT_STACK, (profile['max_stack_size'], profile['max_stack_size']))
 
             # os.setuid() mights create pseverals threads on linux, then we limit processes after
-            os.setuid(self.uid)
+            os.setuid(uid)
             resource.setrlimit(resource.RLIMIT_NPROC, (profile['max_processes'], profile['max_processes']))
 
             # launch executable
