@@ -129,10 +129,8 @@ class Profile(object):
 class ProcessFeedback(object):
     """Sandbox's process feedback
 
-    TODO: rename returncode member to return_code
-
     Members:
-        returncode: the process return code (not return_code for compatibility with subprocess.Popen)
+        return_code: the process return code (not return_code for compatibility with subprocess.Popen)
         killing_signal: the signal ID that has killed the process
         stdout: the stdout's pipe
         stderr: the stderr's pipe
@@ -140,7 +138,7 @@ class ProcessFeedback(object):
     """
 
     def __init__(self, return_code, killing_signal, stdout, stderr, resources):
-        self.returncode = return_code
+        self.return_code = return_code
         self.killing_signal = killing_signal
         self.stdout = stdout
         self.stderr = stderr

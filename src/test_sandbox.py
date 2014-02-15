@@ -36,7 +36,7 @@ def test_basic_ls():
     s.clone_bin("/bin/ls")
     p = s.process(["/bin/ls", "/"], stdout=subprocess.PIPE)
 
-    assert p.returncode == 0
+    assert p.return_code == 0
 
     stdout = p.stdout.read()
     assert "bin" in stdout
@@ -49,11 +49,11 @@ def test_jail_security():
 
     s.clone_bin("/bin/cat")
     p = s.process(["/bin/cat", "/bin/cat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    assert p.returncode == 0
+    assert p.return_code == 0
 
     s.clone_bin("/bin/cat")
     p = s.process(["/bin/cat", os.path.abspath(__file__)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    assert p.returncode != 0
+    assert p.return_code != 0
 
     del s
 
@@ -66,7 +66,7 @@ def test_infinte_loop():
 
     p = s.process(["/bin/sh", "/sandbox_infinite.sh"], profile=profile)
 
-    assert p.returncode == 0
+    assert p.return_code == 0
     assert p.killing_signal != 0
     assert not p.ended_correctly
     del s
