@@ -9,6 +9,16 @@ import shutil
 import pwd
 
 
+def which(file):
+    """Locates a program <file> in the user's path"""
+
+    for path in os.environ["PATH"].split(os.pathsep):
+        if os.path.exists(path + "/" + file):
+            return path + "/" + file
+
+    return None
+
+
 def lib_dependencies_osx(binary_path, deps):
     """Get executable's dynamic libraries list (Mac OS X specific code)"""
 
@@ -160,6 +170,7 @@ class Sandbox(object):
     Members:
         root_directory (in the main basis)
         user_name: the running user's name
+        env_paths: the environment's paths
     """
 
     def __init__(self, root_directory = None):
@@ -171,7 +182,22 @@ class Sandbox(object):
             self.root_directory = root_directory
 
         self.user_name = 'nobody'
+        self.env_paths = [
+            '/usr/bin',
+            '/bin'
+        ]
+
         self._build()
+
+    @property
+    def shell_environment(self):
+        environ = dict()
+        environ['PATH'] = os.pathsep.join(self.env_paths)
+        environ['USER'] = self.user_name
+        environ['HOME'] = '/'
+        environ['SHELL'] = '/bin/sh'
+
+        return environ
 
     def to_main_basis(self, path):
         """Converts absolute path from the sandbox's basis to the main basis"""
@@ -184,11 +210,28 @@ class Sandbox(object):
 
         return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
 
+    def which(self, file):
+        """Locates a program <file> in the sandbox and returns his path in the sandbox's basis"""
+
+        for path in self.shell_environment["PATH"].split(os.pathsep):
+            path += "/" + file
+
+            if os.path.exists(self.to_main_basis(path)):
+                return path
+
+        return None
+
     def recover(self):
         """Recover the sandbox from scratch"""
 
         self._clean()
         self._build()
+
+    def isfile(self, path):
+        """Tests if a file exists in sandbox"""
+        assert path.startswith('/')
+
+        return os.path.isfile(self.to_main_basis(path))
 
     def makedirs(self, directory):
         directory = self.to_main_basis(directory)
@@ -198,6 +241,12 @@ class Sandbox(object):
 
         else:
             os.chmod(directory, 0755)
+
+    def open(self, path, mode):
+        return open(self.to_main_basis(path), mode)
+
+    def chmod(self, path, mode):
+        return os.chmod(self.to_main_basis(path), mode)
 
     def mktemp(self, prefix='tmp', suffix=''):
         """Allocates a temporary file name in the /tmp/ directory of the sand box and return its path
@@ -226,8 +275,13 @@ class Sandbox(object):
         """Clones a binary file and its dependencies to the sandbox
 
         Important:
-            - <bin_path_src> must be in the main basis
+            - <bin_path_src> must be in the main basis or a known program in user's environment
         """
+        if not bin_path_src.startswith('/'):
+            bin_path_src = which(bin_path_src)
+
+            assert bin_path_src.startswith('/')  # couldn't find command <bin_path_src>
+
         self.clone(bin_path_src)
 
         return self.clone_bin_dependencies(bin_path_src)
@@ -259,14 +313,15 @@ class Sandbox(object):
     def process(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
         assert len(cmd) >= 1
 
+        cmd_exec = cmd[0]
+
+        if not cmd_exec.startswith('/'):
+            cmd_exec = self.which(cmd_exec)
+
+            assert cmd_exec  # unable to find cmd[0]
+
         if profile == None:
             profile = Profile()
-
-        env = dict()
-        env['PATH'] = '/usr/bin:/bin'
-        env['USER'] = self.user_name
-        env['HOME'] = '/'
-        env['SHELL'] = '/bin/sh'
 
         stdin_r = None
         stdin_w = None
@@ -338,7 +393,7 @@ class Sandbox(object):
             resource.setrlimit(resource.RLIMIT_NPROC, (profile['max_processes'], profile['max_processes']))
 
             # launch executable
-            os.execve(cmd[0], cmd, env)
+            os.execve(cmd_exec, cmd, self.shell_environment)
 
         # stdin setup
         if stdin_r:
@@ -391,10 +446,10 @@ class Sandbox(object):
 
     def _build(self):
         self.makedirs('/')
-        self.makedirs('/tmp/')
         self.makedirs('/bin/')
-        self.makedirs('/usr/lib/')
+        self.makedirs('/tmp/')
         self.makedirs('/usr/bin/')
+        self.makedirs('/usr/lib/')
 
         if platform.system() == "Darwin":
             """ Mac OS X specific environment """
