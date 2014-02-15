@@ -46,11 +46,11 @@ class Compilation(object):
 
         process = self.sandbox.process(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        self.return_code = process.returncode
+        self.return_code = process.return_code
         self.stdout = process.stdout.read()
         self.stderr = process.stderr.read()
 
-        return process.returncode
+        return process.return_code
 
     def parse_output(self):
         error_lines = (line for line in self.stderr.split('\n') if line.startswith(self.source_file) and len(line.split(':')) == 5)
