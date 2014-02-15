@@ -15,8 +15,9 @@ def tutil_run(code, return_code):
     comp = Compilation(s, code)
     assert comp.return_code == 0
 
-    comp.run()
-    assert comp.return_code == return_code
+    feedback = comp.run()
+    assert feedback.ended_correctly
+    assert feedback.return_code == return_code
 
 def test_basic_compilation():
     tutil_code("int main() { return 0; }\n", 0)
@@ -51,10 +52,10 @@ def test_stdout():
     comp = Compilation(s, code)
     assert comp.return_code == 0
 
-    comp.run()
-    assert comp.return_code == 0
-
-    assert comp.stdout == "hello world\n"
+    feedback = comp.run()
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
+    assert feedback.stdout.read() == "hello world\n"
 
 
 if __name__ == "__main__":

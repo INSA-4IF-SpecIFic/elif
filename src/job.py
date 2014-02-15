@@ -34,21 +34,21 @@ class Submission(Job):
             return
 
         for i, test in enumerate(self.exercise.tests):
-            comp.run(stdin=str(test.input))
+            feedback = comp.run(stdin=str(test.input))
 
             status = { }
 
             status['index'] = i
             status['success'] = True
-            status['return_code'] = comp.return_code
-            status['output'] = comp.stdout
+            status['return_code'] = feedback.return_code
+            status['output'] = feedback.stdout.read()
             status['reason'] = str()
             #status['test_id'] = test.id
 
-            if comp.return_code != 0:
+            if feedback.return_code != 0:
                 status['success'] = False
-                status['reason'] = "Return code is not 0 : got {}".format(comp.return_code)
-            elif comp.stdout != test.output:
+                status['reason'] = "Return code is not 0 : got {}".format(feedback.return_code)
+            elif status['output'] != test.output:
                 status['success'] = False
                 status['reason'] = "Test failed"
 
