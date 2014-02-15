@@ -141,6 +141,18 @@ def test_jail_whoami():
 
     del s
 
+def test_jail_pwd():
+    s = Sandbox()
+    s.clone_bin("/bin/pwd")
+
+    feedback = s.process(["/bin/pwd"], stdout=subprocess.PIPE)
+    stdout = feedback.stdout.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
+    assert stdout == "/\n"
+
+    del s
+
 def test_infinte_loop():
     profile = Profile({'max_cpu_time': 1})
     s = Sandbox()
