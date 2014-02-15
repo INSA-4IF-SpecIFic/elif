@@ -1,6 +1,7 @@
 import datetime
 import mongoengine
 import model.exercise
+import model.user
 import compilation
 
 
@@ -11,21 +12,30 @@ class Job(mongoengine.Document):
     meta = {'allow_inheritance': True}
 
     def process(self, sandbox):
-        pass
+        """Process execution code (to be implemented in sub classes)
+
+        Parameters:
+            - <sandbox>: the sandbox to play in
+        """
+        raise NotImplemented
 
     def __repr__(self):
         return '<{} : created at {}>'.format(self.__class__.__name__, self.date_created)
 
     __str__ = __repr__
 
+
 class Submission(Job):
-    exercise = mongoengine.ReferenceField(model.exercise.Exercise, required=True)
+    """Abtract submission class factorising compilation and test execution"""
+
     code = mongoengine.StringField(required=True)
     compilation_log = mongoengine.StringField(default=None)
     compilation_error = mongoengine.BooleanField(default=False)
-    test_results = mongoengine.ListField(default=list)
+    test_results = mongoengine.ListField(mongoengine.ReferenceField(model.exercise.TestResult), default=list)
 
     def process(self, sandbox):
+        """Code compilation stage (Overloads Job.process())"""
+
         comp = compilation.Compilation(sandbox, self.code)
 
         if comp.return_code != 0:
@@ -33,29 +43,75 @@ class Submission(Job):
             self.compilation_log = comp.log
             return
 
-        for i, test in enumerate(self.exercise.tests):
-            feedback = comp.run(stdin=str(test.input))
+        self.process_tests(comp)
 
-            status = { }
+    def process_tests(self, comp):
+        """Tests execution stage (to be implemented in sub classes)"""
+        raise NotImplemented
 
-            status['index'] = i
-            status['success'] = True
-            status['return_code'] = feedback.return_code
-            status['reason'] = str()
-            status['cpu_time'] = feedback.resources.ru_utime
-            status['memory_used'] = feedback.resources.ru_ixrss + feedback.resources.ru_idrss
-            #status['test_id'] = test.id
+    def test_result(self, comp, test):
+        """Runs a <test> and starts to fill a result
 
-            if not feedback.ended_correctly:
-                status['success'] = False
-                status['reason'] = "Process has exited unexpectly (killed by signal {})".format(feedback.killing_signal)
+        Parameters:
+            - <comp>: the compiled code
+            - <test>: the test to execute
+        """
 
-            elif feedback.return_code != 0:
-                status['success'] = False
-                status['reason'] = "Return code is not 0 : got {}".format(feedback.return_code)
+        feedback = comp.run(stdin=str(test.input))
 
-            elif feedback.stdout.read() != test.output:
-                status['success'] = False
-                status['reason'] = "Invalid output"
+        result = model.exercise.TestResult(test=test)
+        result.cpu_time = feedback.resources.ru_utime
+        result.memory_used = feedback.resources.ru_ixrss + feedback.resources.ru_idrss
+        result.return_code = feedback.return_code
 
-            self.test_results.append(status)
+        if not feedback.ended_correctly:
+            result.successed = False
+            result.report = "Process has exited unexpectly (killed by signal {})".format(feedback.killing_signal)
+
+        elif feedback.return_code != 0:
+            result.successed = False
+            result.report = "Return code is not 0 : got {}".format(feedback.return_code)
+
+        self.test_results.append(result)
+
+        return result, feedback
+
+    def save(self):
+        """Overloads mongoengine.Document.save()"""
+
+        for result in self.test_results:
+            result.save()
+
+        Job.save(self)
+
+
+class SubmissionStudent(Submission):
+    """Submission to compile and execute tests on a student code"""
+
+    exercise = mongoengine.ReferenceField(model.exercise.Exercise, required=True)
+
+    def process_tests(self, comp):
+        """Overloads Submission.process_tests()"""
+
+        for test in self.exercise.tests:
+            result, feedback = self.test_result(comp, test)
+
+            if result.successed and feedback.stdout.read() != test.output:
+                # to prevent output leaks, we don't save stdout and stderr
+                result.successed = False
+                result.report = "Invalid output"
+
+
+class SubmissionProf(Submission):
+    """Submission to let teachers tests specifics input"""
+
+    tests = mongoengine.ListField(mongoengine.ReferenceField(model.exercise.Test), default=list)
+
+    def process_tests(self, comp):
+        """Overloads Submission.process_tests()"""
+
+        for test in self.tests:
+            result, feedback = self.test_result(comp, test)
+
+            result.stdout = feedback.stdout.read()
+            result.stderr = feedback.stdout.read()
