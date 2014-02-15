@@ -2,6 +2,7 @@
 import os
 import shutil
 import subprocess
+import pwd
 from sandbox import Sandbox, Profile
 
 def test_root_dir():
@@ -128,14 +129,15 @@ def test_jail_security():
     del s
 
 def test_jail_whoami():
+    profile = Profile({'max_processes': 10})
     s = Sandbox()
-    s.clone_bin("/usr/bin/whoami")
+    s.clone_bin("/usr/bin/id")
 
-    feedback = s.process(["/usr/bin/whoami"], stdout=subprocess.PIPE)
+    feedback = s.process(["/usr/bin/id", "-u"], profile=profile, stdout=subprocess.PIPE)
     stdout = feedback.stdout.read()
     assert feedback.ended_correctly
     assert feedback.return_code == 0
-    assert stdout == "nobody\n"
+    assert stdout == "{}\n".format(pwd.getpwnam(s.user_name).pw_uid)
 
     del s
 

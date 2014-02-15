@@ -199,6 +199,12 @@ class Sandbox(object):
         else:
             os.chmod(directory, 0755)
 
+    def open(self, path, mode):
+        return open(self.to_main_basis(path), mode)
+
+    def chmod(self, path, mode):
+        return os.chmod(self.to_main_basis(path), mode)
+
     def mktemp(self, prefix='tmp', suffix=''):
         """Allocates a temporary file name in the /tmp/ directory of the sand box and return its path
 
@@ -391,10 +397,10 @@ class Sandbox(object):
 
     def _build(self):
         self.makedirs('/')
-        self.makedirs('/tmp/')
         self.makedirs('/bin/')
-        self.makedirs('/usr/lib/')
+        self.makedirs('/tmp/')
         self.makedirs('/usr/bin/')
+        self.makedirs('/usr/lib/')
 
         if platform.system() == "Darwin":
             """ Mac OS X specific environment """
