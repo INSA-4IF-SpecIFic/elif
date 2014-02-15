@@ -20,6 +20,7 @@ def test_basises():
 
     assert main_basis == s.root_directory[:-1] + sandbox_basis
     assert s.to_sandbox_basis(main_basis) == sandbox_basis
+    assert len(main_basis.split('//')) == 1
 
     try:
         s.to_main_basis('bin/ls')
