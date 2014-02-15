@@ -30,7 +30,7 @@ class Submission(Job):
 
         if comp.return_code != 0:
             self.compilation_error = True
-            self.compilation_log = comp.stderr
+            self.compilation_log = comp.log
             return
 
         for i, test in enumerate(self.exercise.tests):

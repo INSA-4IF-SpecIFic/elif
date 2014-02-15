@@ -29,12 +29,11 @@ class Compilation(object):
             os.remove(self.exec_file)
 
     def _launch_process(self, cmd):
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         process.wait()
 
         self.return_code = process.returncode
-        self.stdout = process.stdout.read()
-        self.stderr = process.stderr.read()
+        self.log = process.stdout.read()
 
         return self.return_code
 
@@ -47,5 +46,5 @@ class Compilation(object):
         return self.sandbox.process(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def parse_output(self):
-        error_lines = (line for line in self.stderr.split('\n') if line.startswith(self.source_file) and len(line.split(':')) == 5)
+        error_lines = (line for line in self.log.split('\n') if line.startswith(self.source_file) and len(line.split(':')) == 5)
         return [ErrorStruct(*map(str.strip, error_line.split(':', 4)[1:])) for error_line in error_lines]
