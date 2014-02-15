@@ -67,7 +67,8 @@ def test_infinte_loop():
     p = s.process(["/bin/sh", "/sandbox_infinite.sh"], profile=profile)
 
     assert p.returncode == 0
-    assert p.exit_status != 0
+    assert p.killing_signal != 0
+    assert not p.ended_correctly
     del s
 
 def test_run_time_context():

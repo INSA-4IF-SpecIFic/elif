@@ -133,17 +133,22 @@ class ProcessFeedback(object):
 
     Members:
         returncode: the process return code (not return_code for compatibility with subprocess.Popen)
+        killing_signal: the signal ID that has killed the process
         stdout: the stdout's pipe
         stderr: the stderr's pipe
         ressources: used ressources information (CF offcial documentation resource.getrusage())
     """
 
-    def __init__(self, return_code, exit_status, stdout, stderr, resources):
+    def __init__(self, return_code, killing_signal, stdout, stderr, resources):
         self.returncode = return_code
-        self.exit_status = exit_status
+        self.killing_signal = killing_signal
         self.stdout = stdout
         self.stderr = stderr
         self.resources = resources
+
+    @property
+    def ended_correctly(self):
+        return self.killing_signal == 0
 
 
 class Sandbox(object):
@@ -362,12 +367,12 @@ class Sandbox(object):
 
         pid, exit_status, resources = os.wait4(pid, 0)
 
-        return_code = (exit_status >> 8) & 0xFF
-        exit_status = exit_status & 0xFF
+        return_code = int((exit_status >> 8) & 0xFF)
+        killing_signal = int(exit_status & 0xFF)
 
         return ProcessFeedback(
             return_code=return_code,
-            exit_status=exit_status,
+            killing_signal=killing_signal,
             stdout=stdout_r,
             stderr=stderr_r,
             resources=resources
