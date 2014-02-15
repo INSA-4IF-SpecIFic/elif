@@ -1,0 +1,13 @@
+language: python
+python:
+  - "2.7"
+services: mongodb
+# command to install dependencies
+install:
+  - "sudo pip install pytest"
+  - "sudo pip install -r requirements.txt"
+# command to run tests
+script: "cd src; sudo python -m pytest;"
+notifications:
+  email:
+    - ahmed.kachkach@gmail.com
