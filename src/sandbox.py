@@ -252,40 +252,7 @@ class Sandbox(object):
 
         return True
 
-    def _process_subprocess(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
-        """Processes a sub process, wait for its end and then returns the subprocess.Popen
-
-        Caution: all paths in the <cmd> parameter must be in the sandbox basis
-        """
-
-        if profile == None:
-            profile = Profile()
-
-        def subprocess_limits():
-            os.chroot(self.root_directory)
-
-            for key, name in Profile.params.items():
-                value = profile[key]
-                resource.setrlimit(name, (value, value))
-
-            os.setuid(self.uid)
-
-        stdin_param = None
-
-        if isinstance(stdin, str):
-            stdin_param = subprocess.PIPE
-
-        process = subprocess.Popen(cmd, stdin=stdin_param, stdout=stdout, stderr=stderr, preexec_fn=subprocess_limits)
-
-        if isinstance(stdin, str):
-            process.stdin.write(stdin)
-            process.stdin.close()
-
-        process.wait()
-
-        return process
-
-    def _process_fork(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
+    def process(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
         assert len(cmd) >= 1
 
         if profile == None:
@@ -405,8 +372,6 @@ class Sandbox(object):
             stderr=stderr_r,
             resources=resources
         )
-
-    process = _process_fork
 
     @property
     def tmp_directory(self):
