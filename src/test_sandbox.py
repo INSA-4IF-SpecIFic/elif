@@ -73,6 +73,46 @@ def test_basic_stderr():
 
     del s
 
+def test_basic_stderr_in_stdout():
+    s = Sandbox()
+    s.clone_bin("/bin/ls")
+
+    feedback = s.process(["/bin/ls", "/"], stderr=subprocess.STDOUT)
+    assert feedback.stdout
+    assert not feedback.stderr
+    stdout = feedback.stdout.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
+    assert stdout == ""
+
+    feedback = s.process(["/bin/ls", "/hello"], stderr=subprocess.STDOUT)
+    assert feedback.stdout
+    assert not feedback.stderr
+    stdout = feedback.stdout.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code != 0
+    assert "/hello" in stdout
+
+    feedback = s.process(["/bin/ls", "/"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    assert feedback.stdout
+    assert not feedback.stderr
+    stdout = feedback.stdout.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
+    assert "bin" in stdout
+    assert "tmp" in stdout
+    assert "usr" in stdout
+
+    feedback = s.process(["/bin/ls", "/hello"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    assert feedback.stdout
+    assert not feedback.stderr
+    stdout = feedback.stdout.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code != 0
+    assert "/hello" in stdout
+
+    del s
+
 def test_jail_security():
     s = Sandbox()
 

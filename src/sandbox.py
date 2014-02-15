@@ -287,9 +287,11 @@ class Sandbox(object):
             stderr_r, stderr_w = os.pipe()
 
         elif stderr == subprocess.STDOUT:
-            assert stdout == subprocess.PIPE
+            if stdout == subprocess.PIPE:
+                stderr_w = stdout_w
 
-            assert False  #TODO: not yet implemented
+            else:
+                stdout_r, stderr_w = os.pipe()
 
         pid = os.fork()
 
@@ -362,7 +364,7 @@ class Sandbox(object):
         if stderr_r:
             stderr_r = os.fdopen(stderr_r, 'r')
 
-        if stderr_w:
+        if stderr_w and stderr_w != stdout_w:
             os.close(stderr_w)
 
         pid, exit_status, resources = os.wait4(pid, 0)
