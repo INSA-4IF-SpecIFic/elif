@@ -173,6 +173,19 @@ class Sandbox(object):
         self.user_name = 'nobody'
         self._build()
 
+    @property
+    def shell_environment(self):
+        environ = dict()
+        environ['PATH'] = os.pathsep.join([
+            '/usr/bin',
+            '/bin'
+        ])
+        environ['USER'] = self.user_name
+        environ['HOME'] = '/'
+        environ['SHELL'] = '/bin/sh'
+
+        return environ
+
     def to_main_basis(self, path):
         """Converts absolute path from the sandbox's basis to the main basis"""
 
@@ -268,12 +281,6 @@ class Sandbox(object):
         if profile == None:
             profile = Profile()
 
-        env = dict()
-        env['PATH'] = '/usr/bin:/bin'
-        env['USER'] = self.user_name
-        env['HOME'] = '/'
-        env['SHELL'] = '/bin/sh'
-
         stdin_r = None
         stdin_w = None
 
@@ -344,7 +351,7 @@ class Sandbox(object):
             resource.setrlimit(resource.RLIMIT_NPROC, (profile['max_processes'], profile['max_processes']))
 
             # launch executable
-            os.execve(cmd[0], cmd, env)
+            os.execve(cmd[0], cmd, self.shell_environment)
 
         # stdin setup
         if stdin_r:

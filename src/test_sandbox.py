@@ -114,6 +114,38 @@ def test_basic_stderr_in_stdout():
 
     del s
 
+def test_environment():
+    s = Sandbox()
+    s.clone_bin("/bin/echo")
+    s.clone_bin("/bin/sh")
+
+    assert s.shell_environment['USER'] == s.user_name
+    assert s.user_name != 'root'
+    assert pwd.getpwnam(s.user_name).pw_uid != 0
+
+    with s.open("/sandbox_env.sh", 'w') as f:
+        f.write('\n'.join([
+            '#!/bin/sh',
+            'echo $HOME',
+            'echo $USER',
+            'echo $PATH',
+            'echo $SHELL'
+        ]))
+
+    feedback = s.process(["/bin/sh", "/sandbox_env.sh"], stdout=subprocess.PIPE)
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
+
+    i = 0
+    for l in feedback.stdout:
+        assert i != 0 or l.startswith(s.shell_environment['HOME'])
+        assert i != 1 or l.startswith(s.shell_environment['USER'])
+        assert i != 2 or l.startswith(s.shell_environment['PATH'])
+        assert i != 3 or l.startswith(s.shell_environment['SHELL'])
+        i += 1
+
+    del s
+
 def test_jail_security():
     s = Sandbox()
     s.clone_bin("/bin/cat")
