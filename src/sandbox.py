@@ -92,13 +92,13 @@ class Profile(object):
         self.inherited = list(inherited)
 
     def __setitem__(self, key, value):
-        assert key in Profile.params
-        assert type(value) == type(Profile.params[key])
+        assert key in Profile.default_values
+        assert type(value) == type(Profile.default_values[key])
 
         self.parameters[key] = value
 
     def __getitem__(self, key):
-        assert key in Profile.params
+        assert key in Profile.default_values
 
         def getitem_rec(self, key):
             if key in self.parameters:
@@ -120,13 +120,6 @@ class Profile(object):
             return Profile.default_values[key]
 
         return value
-
-    params = {
-        'max_cpu_time': resource.RLIMIT_CPU, # in seconds
-        'max_heap_size': resource.RLIMIT_DATA, # in bytes
-        'max_stack_size': resource.RLIMIT_STACK, # in bytes
-        'max_processes': resource.RLIMIT_NPROC,
-    }
 
     default_values = {
         'max_cpu_time': 10,
@@ -156,6 +149,8 @@ class ProcessFeedback(object):
 
     @property
     def ended_correctly(self):
+        """Checks if the process has ended correctly"""
+
         return self.killing_signal == 0
 
 
@@ -191,6 +186,8 @@ class Sandbox(object):
 
     @property
     def shell_environment(self):
+        """Gets running shell environment constants"""
+
         environ = dict()
         environ['PATH'] = os.pathsep.join(self.env_paths)
         environ['USER'] = self.user_name
@@ -211,7 +208,11 @@ class Sandbox(object):
         return "/" + os.path.relpath(os.path.abspath(path), os.path.abspath(self.root_directory))
 
     def which(self, file):
-        """Locates a program <file> in the sandbox and returns his path in the sandbox's basis"""
+        """Locates a program <file> in the sandbox and returns his path in the sandbox's basis
+
+        Parameters:
+            - <file>: file name to look at
+        """
 
         for path in self.shell_environment["PATH"].split(os.pathsep):
             path += "/" + file
@@ -221,19 +222,23 @@ class Sandbox(object):
 
         return None
 
-    def recover(self):
-        """Recover the sandbox from scratch"""
-
-        self._clean()
-        self._build()
-
     def isfile(self, path):
-        """Tests if a file exists in sandbox"""
+        """Tests if a file exists in sandbox
+
+        Parameters:
+            - <path>: path of the file to test in the sandbox's basis
+        """
         assert path.startswith('/')
 
         return os.path.isfile(self.to_main_basis(path))
 
     def makedirs(self, directory):
+        """Tests if a file exists in sandbox
+
+        Parameters:
+            - <directory>: path of the directory to make in the sandbox's basis
+        """
+
         directory = self.to_main_basis(directory)
 
         if not os.path.isdir(directory):
@@ -243,15 +248,33 @@ class Sandbox(object):
             os.chmod(directory, 0755)
 
     def open(self, path, mode):
+        """Opens a file in the sandbox
+
+        Parameters:
+            - <path>: path of the file to open
+            - <mode>: desired open file mode
+        """
+
         return open(self.to_main_basis(path), mode)
 
     def chmod(self, path, mode):
+        """Sets file's CHMOD in the sandbox
+
+        Parameters:
+            - <path>: path of the file to open
+            - <mode>: desired file mode
+        """
+
         return os.chmod(self.to_main_basis(path), mode)
 
     def mktemp(self, prefix='tmp', suffix=''):
         """Allocates a temporary file name in the /tmp/ directory of the sand box and return its path
 
         Important: the returned path is in the main basis
+
+        Parameters:
+            - <prefix>: temporary directory's prefix
+            - <suffix>: temporary directory's suffix
         """
 
         return tempfile.mktemp(prefix=prefix, suffix=suffix, dir=self.tmp_directory)
@@ -311,6 +334,15 @@ class Sandbox(object):
         return True
 
     def process(self, cmd, profile=None, stdin=None, stdout=None, stderr=None):
+        """Processes a program securly in the sandbox, and returns its feedback
+
+        Parameters:
+            - cmd: the program invocation command
+            - profile: the environment limits
+            - stdin: a string to give by the stdin
+            - stdout: redirect stdout in a pipe by passing subprocess.PIPE
+            - stdout: redirect stderr in a pipe by passing subprocess.PIPE or in the stdout pipe with subprocess.STDOUT
+        """
         assert len(cmd) >= 1
 
         cmd_exec = cmd[0]
@@ -435,11 +467,17 @@ class Sandbox(object):
             resources=resources
         )
 
+    def recover(self):
+        """Recover the sandbox from scratch"""
+
+        self._clean()
+        self._build()
+
     @property
     def tmp_directory(self):
         """Returns the sandbox's /tmp/ directory in the main basis"""
 
-        return "{}tmp/".format(self.root_directory)
+        return self.to_main_basis('/tmp/')
 
     def __del__(self):
         self._clean()
