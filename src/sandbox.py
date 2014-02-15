@@ -349,13 +349,13 @@ class Sandbox(object):
             os.chroot(self.root_directory)
             os.chdir('/')
 
-            # sets limits
-            for key, name in Profile.params.items():
-                value = profile[key]
-                resource.setrlimit(name, (value, value))
+            resource.setrlimit(resource.RLIMIT_CPU, (profile['max_cpu_time'], profile['max_cpu_time']))
+            resource.setrlimit(resource.RLIMIT_DATA, (profile['max_heap_size'], profile['max_heap_size']))
+            resource.setrlimit(resource.RLIMIT_STACK, (profile['max_stack_size'], profile['max_stack_size']))
 
-            # changes user
+            # os.setuid() mights create pseverals threads on linux, then we limit processes after
             os.setuid(self.uid)
+            resource.setrlimit(resource.RLIMIT_NPROC, (profile['max_processes'], profile['max_processes']))
 
             # launch executable
             os.execv(cmd[0], cmd)
