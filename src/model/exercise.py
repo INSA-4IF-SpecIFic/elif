@@ -1,19 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from mongoengine import Document, StringField, ListField, ReferenceField
+import mongoengine
 
-class Test(Document):
-    input = StringField(required=True)
-    output = StringField(required=True)
+class Test(mongoengine.Document):
+    input = mongoengine.StringField(required=True)
+    output = mongoengine.StringField(required=True)
+    cpu_time = mongoengine.FloatField(default=0.0)  # seconds
+    memory_used = mongoengine.FloatField(default=0.0)  # kilobytes * ticks-of-execution
 
-class Exercise(Document):
-    title = StringField(required=True, unique=True)
-    description = StringField(required=True)
 
-    boilerplate_code = StringField(default=str)
-    reference_code = StringField(required=True)
+class TestResult(mongoengine.Document):
+    test = mongoengine.ReferenceField(Test, required=True)
+    stdout = mongoengine.StringField(default=str)
+    stderr = mongoengine.StringField(default=str)
+    successed = mongoengine.BooleanField(default=True)
+    return_code = mongoengine.IntField(default=0)
+    report = mongoengine.StringField(default=str)
+    cpu_time = mongoengine.FloatField(default=0.0)  # seconds
+    memory_used = mongoengine.FloatField(default=0.0)  # kilobytes * ticks-of-execution
 
-    tests = ListField(ReferenceField('Test'), required=True)
 
-    tags = ListField(StringField())
+class Exercise(mongoengine.Document):
+    title = mongoengine.StringField(required=True, unique=True)
+    description = mongoengine.StringField(required=True)
+
+    boilerplate_code = mongoengine.StringField(default=str)
+    reference_code = mongoengine.StringField(required=True)
+
+    tests = mongoengine.ListField(mongoengine.ReferenceField('Test'), required=True)
+
+    tags = mongoengine.ListField(mongoengine.StringField())
