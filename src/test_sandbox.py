@@ -181,12 +181,18 @@ def test_clobbering():
 def test_infinte_loop():
     profile = Profile({'max_cpu_time': 1})
     s = Sandbox()
-
     s.clone_bin("/bin/sh")
-    shutil.copy(os.path.join(os.path.dirname(__file__), "test_scripts/sandbox_infinite.sh"), s.to_main_basis("/sandbox_infinite.sh"))
+
+    with s.open("/sandbox_infinite.sh", 'w') as f:
+        f.write('\n'.join([
+            '#!/bin/sh',
+            'while :',
+            'do',
+            '    echo "hello"',
+            'done'
+        ]))
 
     feedback = s.process(["/bin/sh", "/sandbox_infinite.sh"], profile=profile)
-
     assert feedback.killing_signal != 0
     assert not feedback.ended_correctly
     assert feedback.return_code == 0
