@@ -364,6 +364,9 @@ class Sandbox(object):
         if stdin_r:
             os.close(stdin_r)
 
+        if stdin_w:
+            stdin_w = os.fdopen(stdin_w, 'w')
+
         if isinstance(stdin, str):
             stdin_w.write(stdin)
 
