@@ -153,12 +153,37 @@ def test_jail_pwd():
 
     del s
 
+def test_clobbering():
+    s = Sandbox()
+    s.clone_bin("/bin/echo")
+    s.clone_bin("/bin/cat")
+    s.clone_bin("/bin/sh")
+
+    cat_size = os.stat(s.to_main_basis('/bin/cat'))
+
+    with s.open("/sandbox_clobber.sh", 'w') as f:
+        f.write('\n'.join([
+            '#!/bin/sh',
+            'echo "clobbering $1 ..."',
+            'echo "$0 $*" > $1',
+            'echo "$?"'
+        ]))
+
+    feedback = s.process(["/bin/sh", "/sandbox_clobber.sh", "/bin/cat"], stdout=subprocess.PIPE)
+    stdout = feedback.stdout.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
+    assert stdout == "clobbering /bin/cat ...\n1\n"
+    assert os.stat(s.to_main_basis('/bin/cat')) == cat_size
+
+    del s
+
 def test_infinte_loop():
     profile = Profile({'max_cpu_time': 1})
     s = Sandbox()
 
     s.clone_bin("/bin/sh")
-    shutil.copy(os.path.join(os.path.dirname(__file__), "test_scripts/sandbox_infinite.sh"), s.root_directory + "sandbox_infinite.sh")
+    shutil.copy(os.path.join(os.path.dirname(__file__), "test_scripts/sandbox_infinite.sh"), s.to_main_basis("/sandbox_infinite.sh"))
 
     feedback = s.process(["/bin/sh", "/sandbox_infinite.sh"], profile=profile)
 
