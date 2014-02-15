@@ -76,12 +76,14 @@ def test_jail_security():
     s = Sandbox()
 
     s.clone_bin("/bin/cat")
-    p = s.process(["/bin/cat", "/bin/cat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    assert p.return_code == 0
+    feedback = s.process(["/bin/cat", "/bin/cat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
 
     s.clone_bin("/bin/cat")
-    p = s.process(["/bin/cat", os.path.abspath(__file__)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    assert p.return_code != 0
+    feedback = s.process(["/bin/cat", os.path.abspath(__file__)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    assert feedback.ended_correctly
+    assert feedback.return_code != 0
 
     del s
 
@@ -92,11 +94,11 @@ def test_infinte_loop():
     s.clone_bin("/bin/sh")
     shutil.copy(os.path.join(os.path.dirname(__file__), "test_scripts/sandbox_infinite.sh"), s.root_directory + "sandbox_infinite.sh")
 
-    p = s.process(["/bin/sh", "/sandbox_infinite.sh"], profile=profile)
+    feedback = s.process(["/bin/sh", "/sandbox_infinite.sh"], profile=profile)
 
-    assert p.return_code == 0
-    assert p.killing_signal != 0
-    assert not p.ended_correctly
+    assert feedback.killing_signal != 0
+    assert not feedback.ended_correctly
+    assert feedback.return_code == 0
     del s
 
 def test_run_time_context():
