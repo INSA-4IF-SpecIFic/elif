@@ -62,9 +62,9 @@ def test_sandbox_which():
 
 def test_basic_stdout():
     s = Sandbox()
-    s.clone_bin("/bin/ls")
+    s.clone_bin("ls")
 
-    feedback = s.process(["/bin/ls", "/"], stdout=subprocess.PIPE)
+    feedback = s.process(["ls", "/"], stdout=subprocess.PIPE)
     assert feedback.stdout
     assert not feedback.stderr
     stdout = feedback.stdout.read()
@@ -74,7 +74,7 @@ def test_basic_stdout():
     assert "tmp" in stdout
     assert "usr" in stdout
 
-    feedback = s.process(["/bin/ls", "/hello"], stdout=subprocess.PIPE)
+    feedback = s.process(["ls", "/hello"], stdout=subprocess.PIPE)
     stdout = feedback.stdout.read()
     assert feedback.ended_correctly
     assert feedback.return_code != 0
@@ -84,9 +84,9 @@ def test_basic_stdout():
 
 def test_basic_stderr():
     s = Sandbox()
-    s.clone_bin("/bin/ls")
+    s.clone_bin("ls")
 
-    feedback = s.process(["/bin/ls", "/"], stderr=subprocess.PIPE)
+    feedback = s.process(["ls", "/"], stderr=subprocess.PIPE)
     assert not feedback.stdout
     assert feedback.stderr
     stderr = feedback.stderr.read()
@@ -94,7 +94,7 @@ def test_basic_stderr():
     assert feedback.return_code == 0
     assert "" == stderr
 
-    feedback = s.process(["/bin/ls", "/hello"], stderr=subprocess.PIPE)
+    feedback = s.process(["ls", "/hello"], stderr=subprocess.PIPE)
     stderr = feedback.stderr.read()
     assert feedback.ended_correctly
     assert feedback.return_code != 0
@@ -104,9 +104,9 @@ def test_basic_stderr():
 
 def test_basic_stderr_in_stdout():
     s = Sandbox()
-    s.clone_bin("/bin/ls")
+    s.clone_bin("ls")
 
-    feedback = s.process(["/bin/ls", "/"], stderr=subprocess.STDOUT)
+    feedback = s.process(["ls", "/"], stderr=subprocess.STDOUT)
     assert feedback.stdout
     assert not feedback.stderr
     stdout = feedback.stdout.read()
@@ -114,7 +114,7 @@ def test_basic_stderr_in_stdout():
     assert feedback.return_code == 0
     assert stdout == ""
 
-    feedback = s.process(["/bin/ls", "/hello"], stderr=subprocess.STDOUT)
+    feedback = s.process(["ls", "/hello"], stderr=subprocess.STDOUT)
     assert feedback.stdout
     assert not feedback.stderr
     stdout = feedback.stdout.read()
@@ -122,7 +122,7 @@ def test_basic_stderr_in_stdout():
     assert feedback.return_code != 0
     assert "/hello" in stdout
 
-    feedback = s.process(["/bin/ls", "/"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    feedback = s.process(["ls", "/"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     assert feedback.stdout
     assert not feedback.stderr
     stdout = feedback.stdout.read()
@@ -132,7 +132,7 @@ def test_basic_stderr_in_stdout():
     assert "tmp" in stdout
     assert "usr" in stdout
 
-    feedback = s.process(["/bin/ls", "/hello"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    feedback = s.process(["ls", "/hello"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     assert feedback.stdout
     assert not feedback.stderr
     stdout = feedback.stdout.read()
@@ -144,8 +144,8 @@ def test_basic_stderr_in_stdout():
 
 def test_environment():
     s = Sandbox()
-    s.clone_bin("/bin/echo")
-    s.clone_bin("/bin/sh")
+    s.clone_bin("echo")
+    s.clone_bin("sh")
 
     assert s.shell_environment['USER'] == s.user_name
     assert s.user_name != 'root'
@@ -160,7 +160,7 @@ def test_environment():
             'echo $SHELL'
         ]))
 
-    feedback = s.process(["/bin/sh", "/sandbox_env.sh"], stdout=subprocess.PIPE)
+    feedback = s.process(["sh", "/sandbox_env.sh"], stdout=subprocess.PIPE)
     assert feedback.ended_correctly
     assert feedback.return_code == 0
 
@@ -176,13 +176,13 @@ def test_environment():
 
 def test_jail_security():
     s = Sandbox()
-    s.clone_bin("/bin/cat")
+    s.clone_bin("cat")
 
-    feedback = s.process(["/bin/cat", "/bin/cat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    feedback = s.process(["cat", "/bin/cat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     assert feedback.ended_correctly
     assert feedback.return_code == 0
 
-    feedback = s.process(["/bin/cat", os.path.abspath(__file__)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    feedback = s.process(["cat", os.path.abspath(__file__)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     assert feedback.ended_correctly
     assert feedback.return_code != 0
 
@@ -191,9 +191,9 @@ def test_jail_security():
 def test_jail_whoami():
     profile = Profile({'max_processes': 10})
     s = Sandbox()
-    s.clone_bin("/usr/bin/id")
+    s.clone_bin("id")
 
-    feedback = s.process(["/usr/bin/id", "-u"], profile=profile, stdout=subprocess.PIPE)
+    feedback = s.process(["id", "-u"], profile=profile, stdout=subprocess.PIPE)
     stdout = feedback.stdout.read()
     assert feedback.ended_correctly
     assert feedback.return_code == 0
@@ -203,9 +203,9 @@ def test_jail_whoami():
 
 def test_jail_pwd():
     s = Sandbox()
-    s.clone_bin("/bin/pwd")
+    s.clone_bin("pwd")
 
-    feedback = s.process(["/bin/pwd"], stdout=subprocess.PIPE)
+    feedback = s.process(["pwd"], stdout=subprocess.PIPE)
     stdout = feedback.stdout.read()
     assert feedback.ended_correctly
     assert feedback.return_code == 0
@@ -215,9 +215,9 @@ def test_jail_pwd():
 
 def test_clobbering():
     s = Sandbox()
-    s.clone_bin("/bin/echo")
-    s.clone_bin("/bin/cat")
-    s.clone_bin("/bin/sh")
+    s.clone_bin("echo")
+    s.clone_bin("cat")
+    s.clone_bin("sh")
 
     cat_size = os.stat(s.to_main_basis('/bin/cat'))
 
@@ -229,7 +229,7 @@ def test_clobbering():
             'echo "$?"'
         ]))
 
-    feedback = s.process(["/bin/sh", "/sandbox_clobber.sh", "/bin/cat"], stdout=subprocess.PIPE)
+    feedback = s.process(["sh", "/sandbox_clobber.sh", "/bin/cat"], stdout=subprocess.PIPE)
     assert feedback.ended_correctly
     assert feedback.return_code == 0
 
@@ -246,7 +246,7 @@ def test_clobbering():
 def test_infinte_loop():
     profile = Profile({'max_cpu_time': 1})
     s = Sandbox()
-    s.clone_bin("/bin/sh")
+    s.clone_bin("sh")
 
     with s.open("/sandbox_infinite.sh", 'w') as f:
         f.write('\n'.join([
@@ -257,7 +257,7 @@ def test_infinte_loop():
             'done'
         ]))
 
-    feedback = s.process(["/bin/sh", "/sandbox_infinite.sh"], profile=profile)
+    feedback = s.process(["sh", "/sandbox_infinite.sh"], profile=profile)
     assert feedback.killing_signal != 0
     assert not feedback.ended_correctly
     assert feedback.return_code == 0
