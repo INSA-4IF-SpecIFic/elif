@@ -115,16 +115,27 @@ def test_basic_stderr_in_stdout():
 
 def test_jail_security():
     s = Sandbox()
-
     s.clone_bin("/bin/cat")
+
     feedback = s.process(["/bin/cat", "/bin/cat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     assert feedback.ended_correctly
     assert feedback.return_code == 0
 
-    s.clone_bin("/bin/cat")
     feedback = s.process(["/bin/cat", os.path.abspath(__file__)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     assert feedback.ended_correctly
     assert feedback.return_code != 0
+
+    del s
+
+def test_jail_whoami():
+    s = Sandbox()
+    s.clone_bin("/usr/bin/whoami")
+
+    feedback = s.process(["/usr/bin/whoami"], stdout=subprocess.PIPE)
+    stdout = feedback.stdout.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
+    assert stdout == "nobody\n"
 
     del s
 
