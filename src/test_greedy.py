@@ -53,15 +53,18 @@ def test_exercice_test_job():
 
     assert submission.test_results[0].successed == True
     assert submission.test_results[0].return_code == 0
-    #assert submission.test_results[0]['output'] == '1'
+    assert submission.test_results[0].stdout == ''
+    assert submission.test_results[0].stderr == ''
 
     assert submission.test_results[1].successed == False
     assert submission.test_results[1].return_code == 0
-    #assert submission.test_results[1]['output'] == '2'
+    assert submission.test_results[1].stdout == ''
+    assert submission.test_results[1].stderr == ''
 
     assert submission.test_results[2].successed == False
     assert submission.test_results[2].return_code == 1
-    #assert submission.test_results[2]['output'] == '3'
+    assert submission.test_results[2].stdout == ''
+    assert submission.test_results[2].stderr == ''
 
     submission = job.SubmissionProf(tests=[exercise.tests[0], exercise.tests[2]], code=code)
     submission.save()
