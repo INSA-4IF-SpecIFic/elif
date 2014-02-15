@@ -30,18 +30,46 @@ def test_basises():
     else:
         assert False
 
-def test_basic_ls():
+def test_basic_stdout():
     s = Sandbox()
-
     s.clone_bin("/bin/ls")
-    p = s.process(["/bin/ls", "/"], stdout=subprocess.PIPE)
 
-    assert p.return_code == 0
-
-    stdout = p.stdout.read()
+    feedback = s.process(["/bin/ls", "/"], stdout=subprocess.PIPE)
+    assert feedback.stdout
+    assert not feedback.stderr
+    stdout = feedback.stdout.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
     assert "bin" in stdout
     assert "tmp" in stdout
     assert "usr" in stdout
+
+    feedback = s.process(["/bin/ls", "/hello"], stdout=subprocess.PIPE)
+    stdout = feedback.stdout.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code != 0
+    assert not "/hello" in stdout
+
+    del s
+
+def test_basic_stderr():
+    s = Sandbox()
+    s.clone_bin("/bin/ls")
+
+    feedback = s.process(["/bin/ls", "/"], stderr=subprocess.PIPE)
+    assert not feedback.stdout
+    assert feedback.stderr
+    stderr = feedback.stderr.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
+    assert "" == stderr
+
+    feedback = s.process(["/bin/ls", "/hello"], stderr=subprocess.PIPE)
+    stderr = feedback.stderr.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code != 0
+    assert "/hello" in stderr
+
     del s
 
 def test_jail_security():
