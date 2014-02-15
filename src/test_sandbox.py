@@ -3,7 +3,15 @@ import os
 import shutil
 import subprocess
 import pwd
-from sandbox import Sandbox, Profile
+from sandbox import which, Sandbox, Profile
+
+
+def test_which():
+    assert which('sh') == '/bin/sh'
+    assert which('ls') == '/bin/ls'
+    assert which('cat') == '/bin/cat'
+    assert which('echo') == '/bin/echo'
+    assert which('id') == '/usr/bin/id'
 
 def test_root_dir():
     s = Sandbox()

@@ -9,6 +9,16 @@ import shutil
 import pwd
 
 
+def which(file):
+    """Locates a program <file> in the user's path"""
+
+    for path in os.environ["PATH"].split(os.pathsep):
+        if os.path.exists(path + "/" + file):
+            return path + "/" + file
+
+    return None
+
+
 def lib_dependencies_osx(binary_path, deps):
     """Get executable's dynamic libraries list (Mac OS X specific code)"""
 
