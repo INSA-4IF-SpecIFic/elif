@@ -1,9 +1,9 @@
 language: python
 python:
   - "2.7"
+services: mongodb
 # command to install dependencies
 install:
-  - "sudo apt-get install mongodb"
   - "sudo pip install pytest"
   - "sudo pip install -r requirements.txt"
 # command to run tests
