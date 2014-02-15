@@ -10,4 +10,5 @@ install:
 script: "cd src; sudo python -m pytest;"
 notifications:
   email:
+    - guillaume.abadie@gmail.com
     - ahmed.kachkach@gmail.com
