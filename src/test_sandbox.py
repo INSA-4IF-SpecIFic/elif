@@ -40,6 +40,26 @@ def test_basises():
     else:
         assert False
 
+def test_sandbox_which():
+    s = Sandbox()
+
+    assert s.which('sh') == None
+    assert s.which('id') == None
+
+    s.clone_bin('sh')
+    s.clone_bin('id')
+
+    assert s.isfile('/bin/sh')
+    assert s.isfile('/usr/bin/id')
+    assert s.which('sh') == '/bin/sh'
+    assert s.which('id') == '/usr/bin/id'
+
+    feedback = s.process(["id", "-u"])
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
+
+    del s
+
 def test_basic_stdout():
     s = Sandbox()
     s.clone_bin("/bin/ls")
