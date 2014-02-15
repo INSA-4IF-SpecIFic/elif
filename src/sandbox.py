@@ -291,6 +291,12 @@ class Sandbox(object):
         if profile == None:
             profile = Profile()
 
+        env = dict()
+        env['PATH'] = '/usr/bin:/bin'
+        env['USER'] = 'nobody'
+        env['HOME'] = '/'
+        env['SHELL'] = '/bin/sh'
+
         stdin_r = None
         stdin_w = None
 
@@ -358,7 +364,7 @@ class Sandbox(object):
             resource.setrlimit(resource.RLIMIT_NPROC, (profile['max_processes'], profile['max_processes']))
 
             # launch executable
-            os.execv(cmd[0], cmd)
+            os.execve(cmd[0], cmd, env)
 
         # stdin setup
         if stdin_r:
@@ -416,6 +422,7 @@ class Sandbox(object):
         self.makedirs('/tmp/')
         self.makedirs('/bin/')
         self.makedirs('/usr/lib/')
+        self.makedirs('/usr/bin/')
 
         if platform.system() == "Darwin":
             """ Mac OS X specific environment """
