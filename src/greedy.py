@@ -15,6 +15,7 @@ class Greedy(object):
 
     def __init__(self, db):
         self.sandbox = sandbox.Sandbox()
+        self.dirty_sandbox = False
         self.db = db
 
     def fetch_and_process(self):
@@ -35,13 +36,23 @@ class Greedy(object):
 
     def run(self):
         logger.info("Greedy started !")
+
         while True:
             try:
                 time.sleep(0.01)
             except KeyboardInterrupt:
                 break
 
-            self.fetch_and_process()
+            if self.fetch_and_process() == 0:
+                if self.dirty_sandbox:
+                    self.sandbox.recover()
+                    self.dirty_sandbox = False
+
+                    logger.info("Sandbox recovered !")
+
+            else:
+                self.dirty_sandbox = True
+
 
     def __del__(self):
         del self.sandbox
