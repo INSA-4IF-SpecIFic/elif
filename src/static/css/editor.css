@@ -50,6 +50,7 @@
 
 .output .alert {
   margin-bottom: 10px;
+  word-wrap: break-word;
 }
 
 .output .label-danger {

@@ -14,9 +14,10 @@ class TestResult(mongoengine.Document):
     test = mongoengine.ReferenceField(Test, required=True)
     stdout = mongoengine.StringField(default=str)
     stderr = mongoengine.StringField(default=str)
-    successed = mongoengine.BooleanField(default=True)
+    passed = mongoengine.BooleanField(default=True)
     return_code = mongoengine.IntField(default=0)
     report = mongoengine.StringField(default=str)
+
     cpu_time = mongoengine.FloatField(default=0.0)  # seconds
     memory_used = mongoengine.FloatField(default=0.0)  # kilobytes * ticks-of-execution
 

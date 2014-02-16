@@ -1,5 +1,5 @@
 var submitCode = function(exerciseId, code) {
-    var params = {exerciseId: exerciseId, code: code};
+    var params = {exercise_id: exerciseId, code: code};
     apiCall('/api/submission', 'POST', params, function(data) {
         console.log(data);
 

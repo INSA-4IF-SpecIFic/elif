@@ -3,7 +3,7 @@ import mongoengine
 import model.exercise
 import model.user
 import compilation
-
+import json
 
 class Job(mongoengine.Document):
     date_created = mongoengine.DateTimeField(default=datetime.datetime.now)
@@ -65,16 +65,21 @@ class Submission(Job):
         result.return_code = feedback.return_code
 
         if not feedback.ended_correctly:
-            result.successed = False
+            result.passed = False
             result.report = "Process has exited unexpectly (killed by signal {})".format(feedback.killing_signal)
 
         elif feedback.return_code != 0:
-            result.successed = False
+            result.passed = False
             result.report = "Return code is not 0 : got {}".format(feedback.return_code)
 
         self.test_results.append(result)
 
         return result, feedback
+
+    def to_dict(self):
+        result = super(Submission, self).to_dict()
+        result['test_results'] = [test_r.to_dict() for test_r in self.test_results]
+        return result
 
     def save(self):
         """Overloads mongoengine.Document.save()"""
@@ -82,7 +87,7 @@ class Submission(Job):
         for result in self.test_results:
             result.save()
 
-        Job.save(self)
+        super(Submission, self).save()
 
 
 class SubmissionStudent(Submission):
@@ -96,9 +101,9 @@ class SubmissionStudent(Submission):
         for test in self.exercise.tests:
             result, feedback = self.test_result(comp, test)
 
-            if result.successed and feedback.stdout.read() != test.output:
+            if result.passed and feedback.stdout.read() != test.output:
                 # to prevent output leaks, we don't save stdout and stderr
-                result.successed = False
+                result.passed = False
                 result.report = "Invalid output"
 
 

@@ -51,17 +51,17 @@ def test_exercice_test_job():
 
     assert not submission.compilation_error
 
-    assert submission.test_results[0].successed == True
+    assert submission.test_results[0].passed == True
     assert submission.test_results[0].return_code == 0
     assert submission.test_results[0].stdout == ''
     assert submission.test_results[0].stderr == ''
 
-    assert submission.test_results[1].successed == False
+    assert submission.test_results[1].passed == False
     assert submission.test_results[1].return_code == 0
     assert submission.test_results[1].stdout == ''
     assert submission.test_results[1].stderr == ''
 
-    assert submission.test_results[2].successed == False
+    assert submission.test_results[2].passed == False
     assert submission.test_results[2].return_code == 1
     assert submission.test_results[2].stdout == ''
     assert submission.test_results[2].stderr == ''
@@ -75,11 +75,11 @@ def test_exercice_test_job():
 
     assert not submission.compilation_error
 
-    assert submission.test_results[0].successed == True
+    assert submission.test_results[0].passed == True
     assert submission.test_results[0].return_code == 0
     assert submission.test_results[0].stdout == '1'
 
-    assert submission.test_results[1].successed == False
+    assert submission.test_results[1].passed == False
     assert submission.test_results[1].return_code == 1
     assert submission.test_results[1].stdout == '3'
 

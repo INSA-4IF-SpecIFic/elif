@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import json
 from functools import wraps
 
 from flask import Flask, request, session, render_template, redirect
@@ -9,11 +8,11 @@ import mongoengine
 import config
 from model.user import User
 from model.exercise import Exercise
-from utils import test_db
+import utils
 from api import rest_api
 
 # \ ! / Monkey patching mongoengine to make json dumping easier
-mongoengine.Document.to_dict = lambda s : json.loads(s.to_json())
+mongoengine.Document.to_dict = utils.to_dict
 
 
 # Initializing the web app and the database
@@ -95,6 +94,6 @@ def exercise(exercise_id):
     return render_template('exercise.html', exercise=exercise)
 
 if __name__ == "__main__":
-    test_db()
+    utils.test_db()
     app.run(debug=True)
 

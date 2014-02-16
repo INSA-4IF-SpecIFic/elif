@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import json
 import os
 import logging
 
@@ -15,6 +15,9 @@ log_format = '%(asctime)s :: %(levelname)s - %(message)s'
 log_formatter = logging.Formatter(log_format)
 logging.basicConfig(level=logging.DEBUG, format=log_format)
 
+def to_dict(self):
+    return json.loads(self.to_json())
+
 def get_logger(name):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
@@ -24,8 +27,6 @@ def get_logger(name):
     handler.setFormatter(log_formatter)
 
     return logger
-
-
 
 def test_db():
     """ Wipes the database and initializes it with some dummy data """
