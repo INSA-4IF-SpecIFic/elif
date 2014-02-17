@@ -63,7 +63,7 @@
         {{#each test_results}}
         {{#if passed}}
           <li class="alert label-success">
-            Test n&deg;{{@index}}: Passed!
+            Test n&deg;{{@index}}: Passed in {{fixedDecimal cpu_time}} seconds.
           </li>
         {{else}}
           <li class="alert label-danger">
