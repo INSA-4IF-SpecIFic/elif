@@ -6,7 +6,7 @@ import mongoengine
 from flask import request, jsonify, Blueprint
 from model.user import User
 from model.exercise import Exercise
-from job import SubmissionStudent
+from job import Submission
 import utils
 
 rest_api = Blueprint('rest_api', __name__)
@@ -31,23 +31,24 @@ def submit_code():
     exercise = Exercise.objects.get(id=exercise_id)
 
     # Saving the compilation/execution job in the database
-    submission = SubmissionStudent(exercise=exercise, code=code)
+    submission = Submission(exercise=exercise, code=code)
     submission.save()
 
     return jsonify(ok=True, result=submission.to_dict())
 
 @rest_api.route('/api/submission/', methods=['GET'])
 def submissions():
-    for sub in SubmissionStudent.objects:
+    # Dumping TestResult objects to JSON
+    for sub in Submission.objects:
         sub.test_results = [test_r.to_dict() for test_r in sub.test_results]
-    submissions = [sub.to_dict() for sub in SubmissionStudent.objects()]
+    submissions = [sub.to_dict() for sub in Submission.objects()]
     return jsonify(ok=True, result=submissions)
 
 
 @rest_api.route('/api/submission/<submission_id>', methods=['GET'])
 def submission_state(submission_id):
     try:
-        submission = SubmissionStudent.objects.get(id=submission_id)
+        submission = Submission.objects.get(id=submission_id)
         return jsonify(ok=True, result=submission.to_dict())
     except mongoengine.DoesNotExist as e:
         return jsonify(ok=False, result=e.message)
