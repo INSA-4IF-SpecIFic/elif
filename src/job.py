@@ -51,8 +51,8 @@ class Submission(Job):
         result.cpu_time = feedback.resources.ru_utime
         result.memory_used = feedback.resources.ru_ixrss + feedback.resources.ru_idrss
         result.return_code = feedback.return_code
-        result.stdout = feedback.stdout.read()
-        result.stderr = feedback.stdout.read()
+        stdout = feedback.stdout.read()
+        stderr = feedback.stdout.read()
 
         result.passed = True
 
@@ -62,9 +62,14 @@ class Submission(Job):
         elif feedback.return_code != 0:
             result.passed = False
             result.report = "Program didn't return 0: returned {}".format(feedback.return_code)
-        elif result.stdout != test.output:
+        elif stdout != test.output:
             result.passed = False
             result.report = "Program's output didn't match expected output"
+
+        if self.user.editor:
+            print 'IS EDITOR !'
+            result.stdout = stdout
+            result.stderr = stderr
 
         return result
 
@@ -95,7 +100,3 @@ class Submission(Job):
             result.save()
 
         super(Submission, self).save()
-
-
-#####
-

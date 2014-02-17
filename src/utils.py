@@ -61,7 +61,7 @@ def test_db():
 
 
     # Ex 3
-    exercise = Exercise(title="Double the given number",
+    exercise = Exercise(title="Return n^2",
                     description="## Just double the freaking number !\n\n* You get a\n* Print a x 2\n![Alt text](/static/img/cat.jpeg)",
                     boilerplate_code='#include <iostream>\nint main() {\n}', reference_code='int main() {    // lol   }',
                     tags=['algorithms'])
@@ -79,6 +79,8 @@ def test_db():
 
     # Dummy user
     User.new_user(email="dummy@{}".format(config.email_domain),
-                  username="dummy_username", password="123456", editor=True).save()
-
+                  username="dummy_username", password="123456", editor=False).save()
+    # Editor user
+    User.new_user(email="editor@{}".format(config.email_domain),
+              username="editor_user", password="123456", editor=False).save()
     return exercise
