@@ -40,7 +40,7 @@ def requires_login(f):
 @app.context_processor
 def inject_user():
     """ Injects a 'user' variable in templates' context when a user is logged in """
-    if session.get('logged_in', False):
+    if session.get('logged_in', None):
         return dict(user=User.objects.get(email=session['logged_in']))
     else:
         return dict(user=None)

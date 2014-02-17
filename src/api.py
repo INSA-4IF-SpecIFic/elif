@@ -3,7 +3,7 @@
 
 import mongoengine
 
-from flask import request, jsonify, Blueprint
+from flask import request, session, jsonify, Blueprint, g
 from model.user import User
 from model.exercise import Exercise
 from job import Submission
@@ -13,6 +13,11 @@ rest_api = Blueprint('rest_api', __name__)
 
 # \ ! / Monkey patching mongoengine to make json dumping easier
 mongoengine.Document.to_dict = utils.to_dict
+
+@rest_api.before_request
+def load_user():
+    """ Injects the current logged in user (if any) to the request context """
+    g.user = User.objects(email=session.get('logged_in')).first()
 
 @rest_api.route('/api/user', methods=['POST'])
 def create_user():
@@ -29,9 +34,10 @@ def submit_code():
     code = request.json['code']
     exercise_id = request.json['exercise_id']
     exercise = Exercise.objects.get(id=exercise_id)
+    user = g.user
 
     # Saving the compilation/execution job in the database
-    submission = Submission(exercise=exercise, code=code)
+    submission = Submission(exercise=exercise, user=user, code=code)
     submission.save()
 
     return jsonify(ok=True, result=submission.to_dict())

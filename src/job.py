@@ -1,7 +1,8 @@
 import datetime
 import mongoengine
 from model.exercise import Exercise, TestResult
-import compilation
+from model.user import User
+from compilation import Compilation
 
 class Job(mongoengine.Document):
     date_created = mongoengine.DateTimeField(default=datetime.datetime.now)
@@ -28,8 +29,11 @@ class Submission(Job):
 
     exercise = mongoengine.ReferenceField(Exercise, required=True)
     code = mongoengine.StringField(required=True)
-    compilation_log = mongoengine.StringField(default=None)
+    user = mongoengine.ReferenceField(User, required=True)
+
     compilation_error = mongoengine.BooleanField(default=False)
+    compilation_log = mongoengine.StringField(default=None)
+
     test_results = mongoengine.ListField(mongoengine.ReferenceField(TestResult), default=list)
 
     def test_result(self, comp, test):
@@ -67,7 +71,7 @@ class Submission(Job):
     def process(self, sandbox):
         """ Processes the Submission job"""
 
-        comp = compilation.Compilation(sandbox, self.code)
+        comp = Compilation(sandbox, self.code)
 
         if comp.return_code != 0:
             self.compilation_error = True

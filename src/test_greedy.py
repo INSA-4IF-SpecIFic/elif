@@ -4,7 +4,7 @@ import greedy
 import job
 import config
 import model.exercise
-
+import model.user
 
 def test_exercice_test_job():
     config.db_name = 'test'
@@ -41,7 +41,10 @@ def test_exercice_test_job():
         '}'
     ])
 
-    submission = job.Submission(exercise=exercise, code=code)
+    user = model.user.User(email='test@{}'.format(config.email_domain), username='test', secret_hash='hash', salt='salt')
+    user.save()
+
+    submission = job.Submission(exercise=exercise, code=code, user=user)
     submission.save()
 
     greedy_app = greedy.Greedy(db)
