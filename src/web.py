@@ -65,7 +65,7 @@ def process_login():
         session['logged_in'] = user.email
         return redirect('/')
 
-@app.route('/sign')
+@app.route('/sign', methods=['POST'])
 def sign():
     return render_template('sign.html')
 
