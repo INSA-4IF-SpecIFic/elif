@@ -33,6 +33,7 @@ class Submission(Job):
 
     compilation_error = mongoengine.BooleanField(default=False)
     compilation_log = mongoengine.StringField(default=None)
+    errors = mongoengine.ListField(mongoengine.DictField(), default=list)
 
     test_results = mongoengine.ListField(mongoengine.ReferenceField(TestResult), default=list)
 
@@ -81,6 +82,7 @@ class Submission(Job):
         if comp.return_code != 0:
             self.compilation_error = True
             self.compilation_log = comp.log
+            self.errors = comp.errors
             return
 
         for test in self.exercise.tests:
