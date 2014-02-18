@@ -43,7 +43,7 @@
             {% for exercise in exercises %}
 
             <li>
-                <span class="badge pull-left"><img src="/static/img/coin.png" width="20px"/>42</span>
+                <span class="badge pull-left"><img src="/static/img/coin.png" width="20px"/>{{exercise.score}}</span>
                 <a href="/exercise/{{exercise.id}}">
                     <span class="title">{{exercise.title}}</span>
                 </a>

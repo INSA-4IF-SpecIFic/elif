@@ -14,7 +14,8 @@ from api import rest_api
 # \ ! / Monkey patching mongoengine to make json dumping easier
 mongoengine.Document.to_dict = utils.to_dict
 
-
+# Static tags
+tags = ["algorithms", "trees", "sort"]
 # Initializing the web app and the database
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -24,8 +25,8 @@ db = mongoengine.connect(config.db_name)
 # Adding the REST API to our web app
 app.register_blueprint(rest_api)
 
-# Static tags
-tags = ["algorithms", "trees", "sort"]
+def get_all_tags() :
+    tags = list(set([t for e in Exercise.objects for t in e.tags]))
 
 def requires_login(f):
     """  Decorator for views that requires the user to be logged in """
@@ -48,6 +49,7 @@ def inject_user():
 @app.route('/')
 def index():
     exercises = Exercise.objects
+    get_all_tags()
     return render_template('index.html', exercises=exercises, tags=tags)
 
 @app.route('/login', methods=['GET'])

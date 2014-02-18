@@ -32,3 +32,4 @@ class Exercise(mongoengine.Document):
     tests = mongoengine.ListField(mongoengine.ReferenceField('Test'), required=True)
 
     tags = mongoengine.ListField(mongoengine.StringField())
+    score = mongoengine.IntField(default=0)
