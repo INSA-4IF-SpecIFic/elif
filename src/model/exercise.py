@@ -17,6 +17,8 @@ class TestResult(mongoengine.Document):
     passed = mongoengine.BooleanField(default=True)
     return_code = mongoengine.IntField(default=0)
     report = mongoengine.StringField(default=str)
+    max_cpu_time = mongoengine.BooleanField(default=False)
+    max_duration = mongoengine.BooleanField(default=False)
 
     cpu_time = mongoengine.FloatField(default=0.0)  # seconds
     memory_used = mongoengine.FloatField(default=0.0)  # kilobytes * ticks-of-execution
@@ -29,7 +31,7 @@ class Exercise(mongoengine.Document):
     boilerplate_code = mongoengine.StringField(default=str)
     reference_code = mongoengine.StringField(required=True)
 
-    tests = mongoengine.ListField(mongoengine.ReferenceField('Test'), required=True)
+    tests = mongoengine.ListField(mongoengine.ReferenceField(Test), default=list)
 
     tags = mongoengine.ListField(mongoengine.StringField())
     score = mongoengine.IntField(default=0)

@@ -67,9 +67,17 @@ def process_login():
         session['logged_in'] = user.email
         return redirect('/')
 
-@app.route('/sign', methods=['POST'])
+@app.route('/sign', methods=['GET'])
 def sign():
     return render_template('sign.html')
+
+@app.route('/sign', methods=['POST'])
+def process_sign():
+    return render_template('sign.html')
+
+@app.route('/welcome')
+def welcome():
+    return render_template('welcome.html')
 
 @app.route('/logout')
 def logout():
@@ -97,6 +105,13 @@ def search_tag(tag):
 def exercise(exercise_id):
     exercise = Exercise.objects.get(id=exercise_id)
     return render_template('exercise.html', exercise=exercise)
+
+@app.route('/new_exercise', methods=['POST'])
+def new_exercise():
+    sample_exercise = utils.sample_exercise()
+    sample_exercise.save()
+    return render_template('exercise.html', exercise=sample_exercise)
+
 
 if __name__ == "__main__":
     utils.test_db()

@@ -15,8 +15,13 @@
 
     <div class="col-md-8">
         <!-- Text editor -->
+
+
         <div id="editor" class="code-area"></div>
+
+
         <button class="btn btn-submit pull-right" id="test-button">Test</button>
+
     </div>
 
     <div class="col-md-4">
@@ -24,19 +29,34 @@
         <!-- Nav tabs -->
         <ul class="nav nav-tabs">
           <li class="active"><a href="#description" data-toggle="tab">Description</a></li>
+          {% if user.editor %}
+          <li><a href="#tests" data-toggle="tab">Tests</a></li>
+          {% endif %}
           <li><a href="#output" data-toggle="tab">Output</a></li>
         </ul>
 
         <!-- Tab panes -->
         <div class="tab-content">
 
-          <div class="tab-pane active description" id="description">
+          <div class="tab-pane active " id="description">
+
+          <h3>{{exercise.title}}</h3>
+
+<div class="description">
 {{exercise.description}}
+</div>
           </div>
+
+          {% if user.editor %}
+          <div class="tab-pane" id="tests">
+            Tests here
+          </div>
+          {% endif %}
 
           <div class="tab-pane output" id="output">
             No output
           </div>
+
 
         </div>
 

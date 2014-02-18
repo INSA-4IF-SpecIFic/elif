@@ -1,7 +1,6 @@
 import os
 import subprocess
 import tempfile
-from collections import namedtuple
 
 class Compilation(object):
 
