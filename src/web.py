@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from functools import wraps
 
-from flask import Flask, request, session, render_template, redirect
+from flask import Flask, request, session, render_template, redirect, jsonify
 import mongoengine
 
 import config
@@ -78,14 +78,13 @@ def logout():
 
 @app.route('/searchByWords', methods=['POST'])
 def search_words():
-    words = request.form['search']
+    words = request.json['words']
     words = words.lower()
     find = [words] + words.split()
-
     exercises = Exercise.objects
     found = list(set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()]))
-
-    return render_template('index.html', exercises=found, tags=tags)
+    found = [f.to_dict() for f in found]
+    return jsonify(ok=True, result=found)
 
 @app.route('/searchByTag/<tag>')
 def search_tag(tag):

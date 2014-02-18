@@ -15,14 +15,12 @@
     <!-- Text editor -->
     <div class="form-group">
         <div class="well" style=\padding: 8px 0;>
-            <form action="/searchByWords" method="post">
-                <input type="text" class="form-control" id="parTags" placeholder="Search" name="search" onkeydown="if (event.keyCode == 13) document.getElementById('btnSearch').click()">
-                    <button type="submit" id="btnSearch" class="btn btn-default">
-                        <span class="glyphicon glyphicon-search"></span>
-                        <span class="glyphicon-class"></span>
-                        Submit
-                    </button>
-            </form>
+            <input type="text" class="form-control" id="search" placeholder="Search" name="search">
+                <button type="submit" id="btnSearch" class="btn btn-default">
+                    <span class="glyphicon glyphicon-search"></span>
+                    <span class="glyphicon-class"></span>
+                    Submit
+                </button>
             {% for tag in tags %}
             <li class="list-group-item">
                 <a class="tag" href="/searchByTag/{{tag}}">
@@ -41,7 +39,6 @@
 
         <ul class="exercises">
             {% for exercise in exercises %}
-
             <li>
                 <span class="badge pull-left"><img src="/static/img/coin.png" width="20px"/>{{exercise.score}}</span>
                 <a href="/exercise/{{exercise.id}}">
@@ -58,12 +55,29 @@
 
     </div>
 
-
 </div>
 
 {% endblock body %}
 
 
 {% block javascript %}
+{% raw %}
+<script id="exercise-template" type="text/x-handlebars-template">
+
+    <li>
+        <span class="badge pull-left"><img src="/static/img/coin.png" width="20px"/>{{score}}</span>
+        <a href="/exercise/{{exercise.id}}">
+            <span class="title">{{title}}</span>
+        </a>
+        <p><img class="pull-left" src="/static/img/tag.png" width="20px"/>
+        {{#each tags}}
+            <a class="tags" href="/searchByTag/{{this}}">{{this}}</a>
+        {{/each}}
+        </p>
+    </li>
+
+</script>
+{% endraw %}
+
 <script src="/static/js/search.js"></script>
 {% endblock %}
