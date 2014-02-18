@@ -90,7 +90,10 @@ def search_words():
     tag = request.json['tags']
     words = words.lower()
     find = [words] + words.split()
-    exercises = Exercise.objects(tags=tag)
+    if tag == "" : 
+        exercises = Exercise.objects
+    else : 
+        exercises = Exercise.objects(tags=tag)
     found = list(set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()]))
     found = [f.to_dict() for f in found]
     return jsonify(ok=True, result=found)
