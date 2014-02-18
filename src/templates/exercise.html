@@ -38,8 +38,13 @@
         <!-- Tab panes -->
         <div class="tab-content">
 
-          <div class="tab-pane active description" id="description">
+          <div class="tab-pane active " id="description">
+
+          <h3>{{exercise.title}}</h3>
+
+<div class="description">
 {{exercise.description}}
+</div>
           </div>
 
           {% if user.editor %}

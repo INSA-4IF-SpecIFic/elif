@@ -29,7 +29,7 @@ def get_logger(name):
     return logger
 
 def sample_exercise():
-    exercise = Exercise(title="Sample title",
+    exercise = Exercise(title="#{} - Sample exercise".format(len(Exercise.objects)),
                     description="## Just double the freaking number !\n\n* You get a\n* Print a x 2\n![Alt text](/static/img/cat.jpeg)",
                     boilerplate_code='#include <iostream>\nint main() {\n  int a;\n  std::cin >> a;\n}',
                     reference_code='int main() {}',
