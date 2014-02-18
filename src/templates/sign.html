@@ -8,8 +8,8 @@
 
 {% include "header.html" %}
 
-<div class="jumbotron">
-  <form action="/sign" method="post" autocomplete="on">
+
+  <form action="/sign" method="post" autocomplete="on" role="form">
 
         <div class="form-group">
             <label for="email-input">Email address</label>
@@ -33,7 +33,7 @@
 
         <input class="form-control" type="submit" value="Sign in" />
     </form>
-</div>
+
 
 {% endblock body %}
 
