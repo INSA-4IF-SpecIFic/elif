@@ -272,18 +272,49 @@ def test_sleep_abort():
     s.clone_bin("sh")
     s.clone_bin("sleep")
 
-    with s.open("/sandbox_infinite.sh", 'w') as f:
+    with s.open("/sandbox_sleep.sh", 'w') as f:
         f.write('\n'.join([
             '#!/bin/sh',
             'sleep 5'
         ]))
 
-    feedback = s.process(["sh", "/sandbox_infinite.sh"], profile=profile)
+    feedback = s.process(["sh", "/sandbox_sleep.sh"], profile=profile)
     assert feedback.killing_signal == signal.SIGKILL
     assert not feedback.ended_correctly
     assert feedback.return_code == 0
     assert 'max_cpu_time' not in feedback.report
     assert 'max_duration' in feedback.report
+    del s
+
+def test_subprocess():
+    profile = Profile({'max_processes': 32})
+    s = Sandbox()
+    s.clone_bin("sh")
+    s.clone_bin("echo")
+    s.clone_bin("cat")
+
+    with s.open("/sandbox_subprocess.sh", 'w') as f:
+        f.write('\n'.join([
+            '#!/bin/sh',
+            'echo "visible";',
+            'cat $0;',
+            'echo "hidden";'
+        ]))
+
+    feedback = s.process(["sh", "/sandbox_subprocess.sh"], stdout=subprocess.PIPE)
+    stdout = feedback.stdout.read()
+    assert 'visible' in stdout
+    assert 'hidden' not in stdout
+    assert feedback.ended_correctly
+    assert feedback.return_code != 0
+
+    feedback = s.process(["sh", "/sandbox_subprocess.sh"], profile=profile, stdout=subprocess.PIPE)
+    stdout = feedback.stdout.read()
+    assert 'visible' in stdout
+    assert 'hidden' in stdout
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
+
     del s
 
 def test_run_time_context():
