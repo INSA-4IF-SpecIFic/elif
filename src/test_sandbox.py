@@ -254,7 +254,7 @@ def test_infinite_loop():
             '#!/bin/sh',
             'while :',
             'do',
-            '    echo "hello"',
+            '    echo "hello" > /dev/null',
             'done'
         ]))
 

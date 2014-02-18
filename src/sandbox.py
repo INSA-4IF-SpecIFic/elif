@@ -493,6 +493,8 @@ class Sandbox(object):
         return_code = int((exit_status >> 8) & 0xFF)
         killing_signal = int(exit_status & 0xFF)
 
+        print 'killing_signal = ({} == {})'.format(killing_signal, signal.SIGXCPU)
+
         if killing_signal == signal.SIGXCPU:
             report.append('max_cpu_time')
 
