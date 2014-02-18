@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import shutil
 import pwd
+import signal
 
 
 def which(file):
@@ -138,14 +139,16 @@ class ProcessFeedback(object):
         stdout: the stdout's pipe
         stderr: the stderr's pipe
         ressources: used ressources information (CF offcial documentation resource.getrusage())
+        report: running report flags
     """
 
-    def __init__(self, return_code, killing_signal, stdout, stderr, resources):
+    def __init__(self, return_code, killing_signal, stdout, stderr, resources, report):
         self.return_code = return_code
         self.killing_signal = killing_signal
         self.stdout = stdout
         self.stderr = stderr
         self.resources = resources
+        self.report = report
 
     @property
     def ended_correctly(self):
@@ -454,17 +457,23 @@ class Sandbox(object):
         if stderr_w and stderr_w != stdout_w:
             os.close(stderr_w)
 
+        report = list()
+
         pid, exit_status, resources = os.wait4(pid, 0)
 
         return_code = int((exit_status >> 8) & 0xFF)
         killing_signal = int(exit_status & 0xFF)
+
+        if killing_signal == signal.SIGXCPU:
+            report.append('max_cpu_time')
 
         return ProcessFeedback(
             return_code=return_code,
             killing_signal=killing_signal,
             stdout=stdout_r,
             stderr=stderr_r,
-            resources=resources
+            resources=resources,
+            report=report
         )
 
     def recover(self):

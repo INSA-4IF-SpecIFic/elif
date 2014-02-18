@@ -261,6 +261,7 @@ def test_infinte_loop():
     assert feedback.killing_signal != 0
     assert not feedback.ended_correctly
     assert feedback.return_code == 0
+    assert 'max_cpu_time' in feedback.report
     del s
 
 def test_run_time_context():
