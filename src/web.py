@@ -101,6 +101,12 @@ def exercise(exercise_id):
     exercise = Exercise.objects.get(id=exercise_id)
     return render_template('exercise.html', exercise=exercise)
 
+@app.route('/new_exercise', methods=['GET'])
+def new_exercise():
+    sample_exercise = utils.sample_exercise()
+    return render_template('exercise.html', exercise=sample_exercise)
+
+
 if __name__ == "__main__":
     utils.test_db()
     app.run(debug=True)

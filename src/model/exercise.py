@@ -29,6 +29,6 @@ class Exercise(mongoengine.Document):
     boilerplate_code = mongoengine.StringField(default=str)
     reference_code = mongoengine.StringField(required=True)
 
-    tests = mongoengine.ListField(mongoengine.ReferenceField('Test'), required=True)
+    tests = mongoengine.ListField(mongoengine.ReferenceField(Test), default=list)
 
     tags = mongoengine.ListField(mongoengine.StringField())

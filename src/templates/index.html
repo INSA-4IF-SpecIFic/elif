@@ -11,6 +11,10 @@
 
 <h2>Exercises</h2>
 
+{% if user and user.editor %}
+<a href="/new_exercise">New exercise</a>
+{% endif %}
+
 <div class="col-md-4">
     <!-- Text editor -->
     <div class="form-group">
