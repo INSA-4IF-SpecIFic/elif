@@ -301,19 +301,49 @@ def test_subprocess():
             'echo "hidden";'
         ]))
 
-    feedback = s.process(["sh", "/sandbox_subprocess.sh"], stdout=subprocess.PIPE)
+    feedback = s.process(["sh", "/sandbox_subprocess.sh"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout = feedback.stdout.read()
     assert 'visible' in stdout
     assert 'hidden' not in stdout
+    assert 'fork' in feedback.stderr.read()
     assert feedback.ended_correctly
     assert feedback.return_code != 0
 
-    feedback = s.process(["sh", "/sandbox_subprocess.sh"], profile=profile, stdout=subprocess.PIPE)
+    feedback = s.process(["sh", "/sandbox_subprocess.sh"], profile=profile, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout = feedback.stdout.read()
     assert 'visible' in stdout
     assert 'hidden' in stdout
+    assert 'fork' not in feedback.stderr.read()
     assert feedback.ended_correctly
     assert feedback.return_code == 0
+
+    del s
+
+    return True
+
+def test_fork_bombe():
+    # we do not launch the fork bomb if the subprocess test is not working
+    assert test_subprocess()
+
+    s = Sandbox()
+    s.clone_bin("sh")
+    s.clone_bin("echo")
+
+    with s.open("/sandbox_subprocess.sh", 'w') as f:
+        f.write('\n'.join([
+            '#!/bin/sh',
+            'echo "visible";',
+            'sh $1 &',
+            'echo "hidden";'
+        ]))
+
+    feedback = s.process(["sh", "/sandbox_subprocess.sh"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = feedback.stdout.read()
+    assert 'visible' in stdout
+    assert 'hidden' not in stdout
+    assert 'fork' in feedback.stderr.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code != 0
 
     del s
 
