@@ -26,7 +26,7 @@ db = mongoengine.connect(config.db_name)
 app.register_blueprint(rest_api)
 
 def get_all_tags() :
-    tags = list(set([t for e in Exercise.objects for t in e.tags]))
+    tags = set([t for e in Exercise.objects for t in e.tags])
 
 def requires_login(f):
     """  Decorator for views that requires the user to be logged in """
@@ -87,18 +87,13 @@ def logout():
 @app.route('/searchByWords', methods=['POST'])
 def search_words():
     words = request.json['words']
+    tag = request.json['tags']
     words = words.lower()
     find = [words] + words.split()
-    exercises = Exercise.objects
+    exercises = Exercise.objects(tags=tag)
     found = list(set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()]))
     found = [f.to_dict() for f in found]
     return jsonify(ok=True, result=found)
-
-@app.route('/searchByTag/<tag>')
-def search_tag(tag):
-    exercises = Exercise.objects(tags = tag)
-    #found = [e for e in exercises if tag in e.tags]
-    return render_template('index.html', exercises=exercises, tags=tags)
 
 @app.route('/exercise/<exercise_id>')
 @requires_login
