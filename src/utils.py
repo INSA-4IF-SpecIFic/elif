@@ -3,17 +3,20 @@
 import json
 import os
 import logging
+import sys
 
 import mongoengine
 from model.exercise import Exercise, Test
 from model.user import User
 
+from rainbow_logging_handler import RainbowLoggingHandler
+
 import config
 
-
-log_format = '%(asctime)s :: %(levelname)s - %(message)s'
+log_format = '[%(asctime)s] %(levelname)s - %(message)s'
 log_formatter = logging.Formatter(log_format)
 logging.basicConfig(level=logging.DEBUG, format=log_format)
+logging.getLogger().handlers = []
 
 def to_dict(self):
     return json.loads(self.to_json())
@@ -21,10 +24,21 @@ def to_dict(self):
 def get_logger(name):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
+
     handler = logging.FileHandler(os.path.join(config.logs_dir, '{}.log'.format(name)))
-    handler.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
     handler.setFormatter(log_formatter)
+    handler.setLevel(logging.DEBUG)
+
+    handler2 = RainbowLoggingHandler(
+            sys.stdout,
+            '%Y-%m-%d %H:%M:%S',
+            color_asctime=('black', None, True)
+    )
+    handler2.setFormatter(log_formatter)
+    handler2.setLevel(logging.DEBUG)
+
+    logger.addHandler(handler)
+    logger.addHandler(handler2)
 
     return logger
 
