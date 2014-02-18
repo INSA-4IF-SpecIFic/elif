@@ -1,6 +1,8 @@
 function searchWords() {
 	var search = $('#search').val();
-	apiCall('/searchByWords', 'POST', { words : search}, function(data) {
+	var tags = $('.tag.selected').text();
+	console.log(tags);
+	apiCall('/searchByWords', 'POST', {words : search, tags: tags}, function(data) {
 		var exercises = data.result;
 		console.log(exercises);
 		var $exercises = $(".exercises");
@@ -14,4 +16,11 @@ function searchWords() {
 $(document).ready(function() {
 	$('#search').on("keyup", searchWords);
 	exerciseTemplate = loadTemplate('#exercise-template'); 
+
+	$('.tag').click(function()  {
+		$('#search').val('');
+		$(".tag").removeClass('selected');
+		$(this).addClass('selected');
+		searchWords();
+	})
 })

@@ -27,14 +27,14 @@
                     <span class="glyphicon-class"></span>
                     Submit
                 </button>
-            {% for tag in tags %}
-            <li class="list-group-item">
-                <a class="tag" href="/searchByTag/{{tag}}">
-                    <span class="title">{{tag}}</span>
-                </a>
-                <span class="badge pull-right">42</span>
-            </li>
-            {% endfor %}
+            <ul class="tags">
+                {% for tag in tags %}
+                <li class="list-group-item">
+                    <a class="tag" href="#">{{tag}}</a>
+                    <span class="badge pull-right">42</span>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 </div>
@@ -51,7 +51,7 @@
                     <span class="title">{{exercise.title}}</span>
                 </a>
                 <p><img class="pull-left" src="/static/img/tag.png" width="20px"/>
-                {% for tag in tags %}
+                {% for tag in exercise.tags %}
                     <a class="tags" href="/searchByTag/{{tag}}">{{tag}}</a>
                 {% endfor %}
                 </p>
