@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import shutil
 import pwd
+import time
 import signal
 
 
@@ -124,6 +125,7 @@ class Profile(object):
 
     default_values = {
         'max_cpu_time': 10,
+        'max_duration': 20,
         'max_heap_size': 16 * 1024 * 1024,
         'max_stack_size': 32 * 1024,
         'max_processes': 0,
@@ -458,8 +460,35 @@ class Sandbox(object):
             os.close(stderr_w)
 
         report = list()
+        exit_status = None
+        resources = None
+        duration_quantum = 0.1
+        duration = 0.0
 
-        pid, exit_status, resources = os.wait4(pid, 0)
+        while True:
+            pid_s, exit_status, resources = os.wait4(pid, os.WNOHANG)
+
+            if pid_s != 0:
+                print "cute ending"
+
+                break
+
+            if duration <= profile['max_duration']:
+                duration += duration_quantum
+                time.sleep(duration_quantum)
+
+                print "sleep {}".format(duration)
+
+                continue
+
+            print "kill"
+
+            os.kill(pid, signal.SIGKILL)
+            report.append('max_duration')
+
+            pid_s, exit_status, resources = os.wait4(pid, 0)
+
+            break
 
         return_code = int((exit_status >> 8) & 0xFF)
         killing_signal = int(exit_status & 0xFF)

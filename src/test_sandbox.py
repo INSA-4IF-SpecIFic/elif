@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 import pwd
+import signal
 from sandbox import which, Sandbox, Profile
 
 
@@ -243,8 +244,8 @@ def test_clobbering():
 
     del s
 
-def test_infinte_loop():
-    profile = Profile({'max_cpu_time': 1})
+def test_infinite_loop():
+    profile = Profile({'max_cpu_time': 1, 'max_duration': 10})
     s = Sandbox()
     s.clone_bin("sh")
 
@@ -262,6 +263,27 @@ def test_infinte_loop():
     assert not feedback.ended_correctly
     assert feedback.return_code == 0
     assert 'max_cpu_time' in feedback.report
+    assert 'max_duration' not in feedback.report
+    del s
+
+def test_sleep_abort():
+    profile = Profile({'max_cpu_time': 10, 'max_duration': 1, 'max_processes': 32})
+    s = Sandbox()
+    s.clone_bin("sh")
+    s.clone_bin("sleep")
+
+    with s.open("/sandbox_infinite.sh", 'w') as f:
+        f.write('\n'.join([
+            '#!/bin/sh',
+            'sleep 5'
+        ]))
+
+    feedback = s.process(["sh", "/sandbox_infinite.sh"], profile=profile)
+    assert feedback.killing_signal == signal.SIGKILL
+    assert not feedback.ended_correctly
+    assert feedback.return_code == 0
+    assert 'max_cpu_time' not in feedback.report
+    assert 'max_duration' in feedback.report
     del s
 
 def test_run_time_context():
