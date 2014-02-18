@@ -72,6 +72,9 @@ class Submission(Job):
             result.stdout = stdout
             result.stderr = stderr
 
+        result.max_cpu_time = ('max_cpu_time' in feedback.report)
+        result.max_duration = ('max_duration' in feedback.report)
+
         return result
 
     def process(self, sandbox):

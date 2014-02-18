@@ -73,6 +73,10 @@ def sign():
 def process_sign():
     return render_template('sign.html')
 
+@app.route('/welcome')
+def welcome():
+    return render_template('welcome.html')
+
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)

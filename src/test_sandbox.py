@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 import pwd
+import signal
 from sandbox import which, Sandbox, Profile
 
 
@@ -243,8 +244,8 @@ def test_clobbering():
 
     del s
 
-def test_infinte_loop():
-    profile = Profile({'max_cpu_time': 1})
+def test_infinite_loop():
+    profile = Profile({'max_cpu_time': 1, 'max_duration': 10})
     s = Sandbox()
     s.clone_bin("sh")
 
@@ -261,6 +262,89 @@ def test_infinte_loop():
     assert feedback.killing_signal != 0
     assert not feedback.ended_correctly
     assert feedback.return_code == 0
+    assert 'max_cpu_time' in feedback.report
+    assert 'max_duration' not in feedback.report
+    del s
+
+def test_sleep_abort():
+    profile = Profile({'max_cpu_time': 10, 'max_duration': 1, 'max_processes': 32})
+    s = Sandbox()
+    s.clone_bin("sh")
+    s.clone_bin("sleep")
+
+    with s.open("/sandbox_sleep.sh", 'w') as f:
+        f.write('\n'.join([
+            '#!/bin/sh',
+            'sleep 5'
+        ]))
+
+    feedback = s.process(["sh", "/sandbox_sleep.sh"], profile=profile)
+    assert feedback.killing_signal == signal.SIGKILL
+    assert not feedback.ended_correctly
+    assert feedback.return_code == 0
+    assert 'max_cpu_time' not in feedback.report
+    assert 'max_duration' in feedback.report
+    del s
+
+def test_subprocess():
+    profile = Profile({'max_processes': 32})
+    s = Sandbox()
+    s.clone_bin("sh")
+    s.clone_bin("echo")
+    s.clone_bin("cat")
+
+    with s.open("/sandbox_subprocess.sh", 'w') as f:
+        f.write('\n'.join([
+            '#!/bin/sh',
+            'echo "visible";',
+            'cat $0;',
+            'echo "hidden";'
+        ]))
+
+    feedback = s.process(["sh", "/sandbox_subprocess.sh"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = feedback.stdout.read()
+    assert 'visible' in stdout
+    assert 'hidden' not in stdout
+    assert 'fork' in feedback.stderr.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code != 0
+
+    feedback = s.process(["sh", "/sandbox_subprocess.sh"], profile=profile, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = feedback.stdout.read()
+    assert 'visible' in stdout
+    assert 'hidden' in stdout
+    assert 'fork' not in feedback.stderr.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
+
+    del s
+
+    return True
+
+def test_fork_bombe():
+    # we do not launch the fork bomb if the subprocess test is not working
+    assert test_subprocess()
+
+    s = Sandbox()
+    s.clone_bin("sh")
+    s.clone_bin("echo")
+
+    with s.open("/sandbox_subprocess.sh", 'w') as f:
+        f.write('\n'.join([
+            '#!/bin/sh',
+            'echo "visible";',
+            'sh $1 &',
+            'echo "hidden";'
+        ]))
+
+    feedback = s.process(["sh", "/sandbox_subprocess.sh"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = feedback.stdout.read()
+    assert 'visible' in stdout
+    assert 'hidden' not in stdout
+    assert 'fork' in feedback.stderr.read()
+    assert feedback.ended_correctly
+    assert feedback.return_code != 0
+
     del s
 
 def test_run_time_context():
