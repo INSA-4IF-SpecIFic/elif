@@ -3,8 +3,6 @@ import subprocess
 import tempfile
 from collections import namedtuple
 
-ErrorStruct = namedtuple('ErrorStruct', 'line column type message')
-
 class Compilation(object):
 
     def __init__(self, sandbox, code, compiler_cmd='clang++'):
@@ -46,5 +44,11 @@ class Compilation(object):
         return self.sandbox.process(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def parse_output(self):
-        error_lines = (line for line in self.log.split('\n') if line.startswith(self.source_file) and len(line.split(':')) == 5)
-        return [ErrorStruct(*map(str.strip, error_line.split(':', 4)[1:])) for error_line in error_lines]
+        error_lines = (line for line in self.log.split('\n')
+                            if line.startswith(self.source_file) and len(line.split(':')) == 5)
+        errors = list()
+        for error_line in error_lines:
+            line, column, type, message = map(str.strip, error_line.split(':', 4)[1:])
+            errors.append(dict(line=line, column=column, type=type, message=message))
+
+        return errors

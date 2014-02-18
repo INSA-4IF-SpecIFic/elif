@@ -40,7 +40,7 @@ def requires_login(f):
 @app.context_processor
 def inject_user():
     """ Injects a 'user' variable in templates' context when a user is logged in """
-    if session.get('logged_in', False):
+    if session.get('logged_in', None):
         return dict(user=User.objects.get(email=session['logged_in']))
     else:
         return dict(user=None)
@@ -65,8 +65,12 @@ def process_login():
         session['logged_in'] = user.email
         return redirect('/')
 
-@app.route('/sign', methods=['POST'])
+@app.route('/sign', methods=['GET'])
 def sign():
+    return render_template('sign.html')
+
+@app.route('/sign', methods=['POST'])
+def process_sign():
     return render_template('sign.html')
 
 @app.route('/logout')
@@ -76,7 +80,7 @@ def logout():
 
 @app.route('/searchByWords', methods=['POST'])
 def search_words():
-    words = request.form['recherche']
+    words = request.form['search']
     words = words.lower()
     find = [words] + words.split()
 

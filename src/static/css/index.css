@@ -32,6 +32,12 @@ h2 {
     right : 10%;
 }
 
-#tag {
-    display: block;
+.tags {
+    font-size:12px;
+    color : #606060;
+    text-decoration:underline;
+}
+
+.pull-left {
+    margin: 0px 8px 0px 0px;
 }

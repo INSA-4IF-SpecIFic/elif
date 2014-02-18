@@ -1,9 +1,8 @@
 import datetime
 import mongoengine
-import model.exercise
-import model.user
-import compilation
-import json
+from model.exercise import Exercise, TestResult
+from model.user import User
+from compilation import Compilation
 
 class Job(mongoengine.Document):
     date_created = mongoengine.DateTimeField(default=datetime.datetime.now)
@@ -28,53 +27,68 @@ class Job(mongoengine.Document):
 class Submission(Job):
     """Abtract submission class factorising compilation and test execution"""
 
+    exercise = mongoengine.ReferenceField(Exercise, required=True)
     code = mongoengine.StringField(required=True)
-    compilation_log = mongoengine.StringField(default=None)
+    user = mongoengine.ReferenceField(User, required=True)
+
     compilation_error = mongoengine.BooleanField(default=False)
-    test_results = mongoengine.ListField(mongoengine.ReferenceField(model.exercise.TestResult), default=list)
+    compilation_log = mongoengine.StringField(default=None)
+    errors = mongoengine.ListField(mongoengine.DictField(), default=list)
 
-    def process(self, sandbox):
-        """Code compilation stage (Overloads Job.process())"""
-
-        comp = compilation.Compilation(sandbox, self.code)
-
-        if comp.return_code != 0:
-            self.compilation_error = True
-            self.compilation_log = comp.log
-            return
-
-        self.process_tests(comp)
-
-    def process_tests(self, comp):
-        """Tests execution stage (to be implemented in sub classes)"""
-        raise NotImplemented
+    test_results = mongoengine.ListField(mongoengine.ReferenceField(TestResult), default=list)
 
     def test_result(self, comp, test):
-        """Runs a <test> and starts to fill a result
+        """
+            Runs a <test> and starts to fill a result
 
-        Parameters:
-            - <comp>: the compiled code
-            - <test>: the test to execute
+            Parameters:
+                - <comp>: the compiled code (Compilation object)
+                - <test>: the test to execute
         """
 
         feedback = comp.run(stdin=str(test.input))
 
-        result = model.exercise.TestResult(test=test)
+        result = TestResult(test=test)
         result.cpu_time = feedback.resources.ru_utime
         result.memory_used = feedback.resources.ru_ixrss + feedback.resources.ru_idrss
         result.return_code = feedback.return_code
+        stdout = feedback.stdout.read()
+        stderr = feedback.stdout.read()
+
+        result.passed = True
 
         if not feedback.ended_correctly:
             result.passed = False
-            result.report = "Process has exited unexpectly (killed by signal {})".format(feedback.killing_signal)
-
+            result.report = "Process has exited unexpectedly (killed by signal {})".format(feedback.killing_signal)
         elif feedback.return_code != 0:
             result.passed = False
-            result.report = "Return code is not 0 : got {}".format(feedback.return_code)
+            result.report = "Program didn't return 0: returned {}".format(feedback.return_code)
+        elif stdout != test.output:
+            result.passed = False
+            result.report = "Program's output didn't match expected output"
 
-        self.test_results.append(result)
+        if self.user.editor:
+            print 'IS EDITOR !'
+            result.stdout = stdout
+            result.stderr = stderr
 
-        return result, feedback
+        return result
+
+    def process(self, sandbox):
+        """ Processes the Submission job"""
+
+        comp = Compilation(sandbox, self.code)
+
+        if comp.return_code != 0:
+            self.compilation_error = True
+            self.compilation_log = comp.log
+            self.errors = comp.errors
+            return
+
+        for test in self.exercise.tests:
+            test_result = self.test_result(comp, test)
+
+            self.test_results.append(test_result)
 
     def to_dict(self):
         result = super(Submission, self).to_dict()
@@ -88,35 +102,3 @@ class Submission(Job):
             result.save()
 
         super(Submission, self).save()
-
-
-class SubmissionStudent(Submission):
-    """Submission to compile and execute tests on a student code"""
-
-    exercise = mongoengine.ReferenceField(model.exercise.Exercise, required=True)
-
-    def process_tests(self, comp):
-        """Overloads Submission.process_tests()"""
-
-        for test in self.exercise.tests:
-            result, feedback = self.test_result(comp, test)
-
-            if result.passed and feedback.stdout.read() != test.output:
-                # to prevent output leaks, we don't save stdout and stderr
-                result.passed = False
-                result.report = "Invalid output"
-
-
-class SubmissionProf(Submission):
-    """Submission to let teachers tests specifics input"""
-
-    tests = mongoengine.ListField(mongoengine.ReferenceField(model.exercise.Test), default=list)
-
-    def process_tests(self, comp):
-        """Overloads Submission.process_tests()"""
-
-        for test in self.tests:
-            result, feedback = self.test_result(comp, test)
-
-            result.stdout = feedback.stdout.read()
-            result.stderr = feedback.stdout.read()
