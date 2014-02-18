@@ -470,19 +470,13 @@ class Sandbox(object):
             pid_s, exit_status, resources = os.wait4(pid, os.WNOHANG)
 
             if pid_s != 0:
-                print "cute ending"
-
                 break
 
             if duration <= profile['max_duration']:
                 duration += duration_quantum
                 time.sleep(duration_quantum)
 
-                print "sleep {}".format(duration)
-
                 continue
-
-            print "kill"
 
             os.kill(pid, signal.SIGKILL)
             exit_cause = 'max_duration'
@@ -493,9 +487,6 @@ class Sandbox(object):
 
         return_code = int((exit_status >> 8) & 0xFF)
         killing_signal = int(exit_status & 0xFF)
-
-        print 'killing_signal = ({} == {})'.format(killing_signal, signal.SIGXCPU)
-        print 'cpu_time = {} {}'.format(resources.ru_utime, resources.ru_stime)
 
         if killing_signal == signal.SIGXCPU:
             report.add('max_cpu_time')
