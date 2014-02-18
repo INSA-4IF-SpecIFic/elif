@@ -421,7 +421,7 @@ class Sandbox(object):
             os.chroot(self.root_directory)
             os.chdir('/')
 
-            resource.setrlimit(resource.RLIMIT_CPU, (profile['max_cpu_time'], profile['max_cpu_time']))
+            resource.setrlimit(resource.RLIMIT_CPU, (profile['max_cpu_time'], profile['max_cpu_time'] + 2))
             resource.setrlimit(resource.RLIMIT_DATA, (profile['max_heap_size'], profile['max_heap_size']))
             resource.setrlimit(resource.RLIMIT_STACK, (profile['max_stack_size'], profile['max_stack_size']))
 
@@ -459,11 +459,12 @@ class Sandbox(object):
         if stderr_w and stderr_w != stdout_w:
             os.close(stderr_w)
 
-        report = list()
+        report = set()
         exit_status = None
         resources = None
         duration_quantum = 0.1
         duration = 0.0
+        exit_cause = None
 
         while True:
             pid_s, exit_status, resources = os.wait4(pid, os.WNOHANG)
@@ -484,7 +485,7 @@ class Sandbox(object):
             print "kill"
 
             os.kill(pid, signal.SIGKILL)
-            report.append('max_duration')
+            exit_cause = 'max_duration'
 
             pid_s, exit_status, resources = os.wait4(pid, 0)
 
@@ -494,9 +495,16 @@ class Sandbox(object):
         killing_signal = int(exit_status & 0xFF)
 
         print 'killing_signal = ({} == {})'.format(killing_signal, signal.SIGXCPU)
+        print 'cpu_time = {} {}'.format(resources.ru_utime, resources.ru_stime)
 
         if killing_signal == signal.SIGXCPU:
-            report.append('max_cpu_time')
+            report.add('max_cpu_time')
+
+        if exit_cause != None:
+            report.add(exit_cause)
+
+        if (resources.ru_utime + resources.ru_stime) > profile['max_cpu_time']:
+            report.add('max_cpu_time')
 
         return ProcessFeedback(
             return_code=return_code,
@@ -504,7 +512,7 @@ class Sandbox(object):
             stdout=stdout_r,
             stderr=stderr_r,
             resources=resources,
-            report=report
+            report=list(report)
         )
 
     def recover(self):
