@@ -321,9 +321,44 @@ def test_subprocess():
 
     return True
 
+def test_subprocess_series():
+    profile = Profile({'max_processes': 5})
+    s = Sandbox()
+    s.clone_bin("sh")
+    s.clone_bin("echo")
+    s.clone_bin("cat")
+
+    with s.open("/sandbox_content.txt", 'w') as f:
+        f.write('\n'.join([
+            'hello',
+            ''
+        ]))
+
+    with s.open("/sandbox_subprocess.sh", 'w') as f:
+        f.write('\n'.join([
+            '#!/bin/sh',
+        ]))
+
+        for i in range(0, 10):
+            f.write('\n'.join([
+                '#!/bin/sh',
+                'cat /sandbox_content.txt &',
+            ]))
+
+    feedback = s.process(["sh", "/sandbox_subprocess.sh"], profile=profile, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = feedback.stdout.read()
+    assert len(stdout.split('hello')) <= (5 + 1)
+    assert feedback.ended_correctly
+    assert feedback.return_code != 0
+
+    del s
+
+    return True
+
 def test_fork_bombe():
     # we do not launch the fork bomb if the subprocess test is not working
     assert test_subprocess()
+    assert test_subprocess_series()
 
     s = Sandbox()
     s.clone_bin("sh")
