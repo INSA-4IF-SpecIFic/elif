@@ -324,6 +324,8 @@ def test_subprocess():
 def test_fork_bombe():
     # we do not launch the fork bomb if the subprocess test is not working
     assert test_subprocess()
+    assert Profile.default_values['max_processes'] == 0
+    assert Profile()['max_processes'] == 0
 
     s = Sandbox()
     s.clone_bin("sh")
