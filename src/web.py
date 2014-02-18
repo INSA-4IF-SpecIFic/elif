@@ -76,7 +76,7 @@ def logout():
 
 @app.route('/searchByWords', methods=['POST'])
 def search_words():
-    words = request.form['recherche']
+    words = request.form['search']
     words = words.lower()
     find = [words] + words.split()
 

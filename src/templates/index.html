@@ -14,22 +14,25 @@
 <div class="col-md-4">
     <!-- Text editor -->
     <div class="form-group">
-        <form action="/searchByWords" method="post">
-            <input type="text" class="form-control" id="parTags" placeholder="Recherche" name="recherche" onkeydown="if (event.keyCode == 13) document.getElementById('btnSearch').click()">
-                <button type="submit" id="btnSearch" class="btn btn-default">
-                    <span class="glyphicon glyphicon-search"></span>
-                    <span class="glyphicon-class"></span>
-                    Submit
-                </button>
-        </form>
+        <div class="well" style=\padding: 8px 0;>
+            <form action="/searchByWords" method="post">
+                <input type="text" class="form-control" id="parTags" placeholder="Search" name="search" onkeydown="if (event.keyCode == 13) document.getElementById('btnSearch').click()">
+                    <button type="submit" id="btnSearch" class="btn btn-default">
+                        <span class="glyphicon glyphicon-search"></span>
+                        <span class="glyphicon-class"></span>
+                        Submit
+                    </button>
+            </form>
+            {% for tag in tags %}
+            <li class="list-group-item">
+                <a class="tag" href="/searchByTag/{{tag}}">
+                    <span class="title">{{tag}}</span>
+                </a>
+                <span class="badge pull-right">42</span>
+            </li>
+            {% endfor %}
+        </div>
     </div>
-    {% for tag in tags %}
-        <li>
-            <a class="tag" href="/searchByTag/{{tag}}">
-                <span class="title">{{tag}}</span>
-            </a>
-        </li>
-    {% endfor %}
 </div>
 
 <div class="col-md-8">
@@ -40,15 +43,16 @@
             {% for exercise in exercises %}
 
             <li>
+                <span class="badge pull-left"><img src="/static/img/coin.png" width="20px"/>42</span>
                 <a href="/exercise/{{exercise.id}}">
                     <span class="title">{{exercise.title}}</span>
                 </a>
-
-                <p class="description">
-                    {{exercise.description}}
+                <p><img class="pull-left" src="/static/img/tag.png" width="20px"/>
+                {% for tag in tags %}
+                    <a class="tags" href="/searchByTag/{{tag}}">{{tag}}</a>
+                {% endfor %}
                 </p>
             </li>
-
             {% endfor %}
         </ul>
 
