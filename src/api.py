@@ -19,6 +19,8 @@ def load_user():
     """ Injects the current logged in user (if any) to the request context """
     g.user = User.objects(email=session.get('logged_in')).first()
 
+# Users
+
 @rest_api.route('/api/user', methods=['POST'])
 def create_user():
     email, username, password = request.json['email'], request.json['username'], request.json['password']
@@ -28,6 +30,24 @@ def create_user():
         return jsonify(ok=True, result=user.to_dict())
     except mongoengine.ValidationError as e:
         return jsonify(ok=False, result=e.message)
+
+# Exercises
+
+@rest_api.route('/api/exercise/search', methods=['POST'])
+def search_words():
+    words = request.json['words']
+    tag = request.json['tags']
+    words = words.lower()
+    find = [words] + words.split()
+    if tag == "" :
+        exercises = Exercise.objects
+    else :
+        exercises = Exercise.objects(tags=tag)
+    found = list(set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()]))
+    found = [f.to_dict() for f in found]
+    return jsonify(ok=True, result=found)
+
+# Submissions
 
 @rest_api.route('/api/submission', methods=['POST'])
 def submit_code():

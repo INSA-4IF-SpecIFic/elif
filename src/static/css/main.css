@@ -23,6 +23,10 @@ body {
   position: relative;
 }
 
+a:href {
+  text-decoration: none !important;
+}
+
 .row {
   margin: 0px 0px 0px -15px;
 }

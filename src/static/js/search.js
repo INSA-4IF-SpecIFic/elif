@@ -2,7 +2,7 @@ function searchWords() {
 	var search = $('#search').val();
 	var tags = $('.tag.selected').text();
 	console.log(tags);
-	apiCall('/searchByWords', 'POST', {words : search, tags: tags}, function(data) {
+	apiCall('/api/exercise/search', 'POST', {words : search, tags: tags}, function(data) {
 		var exercises = data.result;
 		console.log(exercises);
 		var $exercises = $(".exercises");
@@ -15,12 +15,16 @@ function searchWords() {
 
 $(document).ready(function() {
 	$('#search').on("keyup", searchWords);
-	exerciseTemplate = loadTemplate('#exercise-template'); 
+	exerciseTemplate = loadTemplate('#exercise-template');
 
+	// Initializing exercises
+	searchWords();
+
+	// Binding the click on a tag
 	$('.tag').click(function()  {
 		$('#search').val('');
 		$(".tag").removeClass('selected');
 		$(this).addClass('selected');
 		searchWords();
-	})
+	});
 })

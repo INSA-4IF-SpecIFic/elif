@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from functools import wraps
 
-from flask import Flask, request, session, render_template, redirect, jsonify
+from flask import Flask, request, session, render_template, redirect
 import mongoengine
 
 import config
@@ -25,9 +25,6 @@ db = mongoengine.connect(config.db_name)
 # Adding the REST API to our web app
 app.register_blueprint(rest_api)
 
-def get_all_tags() :
-    tags = set([t for e in Exercise.objects for t in e.tags])
-
 def requires_login(f):
     """  Decorator for views that requires the user to be logged in """
     @wraps(f)
@@ -49,7 +46,7 @@ def inject_user():
 @app.route('/')
 def index():
     exercises = Exercise.objects
-    get_all_tags()
+    tags = set(t for e in Exercise.objects for t in e.tags)
     return render_template('index.html', exercises=exercises, tags=tags)
 
 @app.route('/login', methods=['GET'])
@@ -83,20 +80,6 @@ def welcome():
 def logout():
     session.pop('logged_in', None)
     return redirect('/')
-
-@app.route('/searchByWords', methods=['POST'])
-def search_words():
-    words = request.json['words']
-    tag = request.json['tags']
-    words = words.lower()
-    find = [words] + words.split()
-    if tag == "" : 
-        exercises = Exercise.objects
-    else : 
-        exercises = Exercise.objects(tags=tag)
-    found = list(set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()]))
-    found = [f.to_dict() for f in found]
-    return jsonify(ok=True, result=found)
 
 @app.route('/exercise/<exercise_id>')
 @requires_login

@@ -27,12 +27,16 @@
                     <span class="glyphicon-class"></span>
                     Submit
                 </button>
-            <ul class="tags">
+            <ul class="tagsmenu">
                 {% for tag in tags %}
-                <li class="list-group-item">
-                    <a class="tag" href="#">{{tag}}</a>
-                    <span class="badge pull-right">42</span>
-                </li>
+
+                <a href="#">
+                    <li class="list-group-item">
+                        <span class="tag">{{tag}}</span>
+                        <span class="badge pull-right">42</span>
+                    </li>
+                </a>
+
                 {% endfor %}
             </ul>
         </div>
@@ -44,19 +48,6 @@
     <div class="tab-content">
 
         <ul class="exercises">
-            {% for exercise in exercises %}
-            <li>
-                <span class="badge pull-left"><img src="/static/img/coin.png" width="20px"/>{{exercise.score}}</span>
-                <a href="/exercise/{{exercise.id}}">
-                    <span class="title">{{exercise.title}}</span>
-                </a>
-                <p><img class="pull-left" src="/static/img/tag.png" width="20px"/>
-                {% for tag in exercise.tags %}
-                    <a class="tags" href="/searchByTag/{{tag}}">{{tag}}</a>
-                {% endfor %}
-                </p>
-            </li>
-            {% endfor %}
         </ul>
 
     </div>
@@ -71,15 +62,30 @@
 <script id="exercise-template" type="text/x-handlebars-template">
 
     <li>
-        <span class="badge pull-left"><img src="/static/img/coin.png" width="20px"/>{{score}}</span>
+
+        <span class="badge coins pull-left">
+            <img src="/static/img/coin.png"/>
+            <span class="value">{{score}}
+                <br>
+                coins
+            </span>
+        </span>
+
         <a href="/exercise/{{exercise.id}}">
             <span class="title">{{title}}</span>
         </a>
-        <p><img class="pull-left" src="/static/img/tag.png" width="20px"/>
-        {{#each tags}}
-            <a class="tags" href="/searchByTag/{{this}}">{{this}}</a>
-        {{/each}}
-        </p>
+        <div>
+            <img class="tag-icon pull-left" src="/static/img/tag.png"/>
+
+            <ul class="tags">
+            {{#each tags}}
+                <a href="javascript:void(0)">
+                    <li class="tag">{{this}}</li>
+                </a>
+            {{/each}}
+            </ul>
+
+        </div>
     </li>
 
 </script>
