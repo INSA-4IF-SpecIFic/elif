@@ -69,13 +69,21 @@ h2 {
 .coins {
     background: #EBEBEB;
     color: #3A3A3A;
-    font-weight: bold;
     padding: 5px 10px;
     border-radius: 5px;
+    text-align: center;
+    min-width: 60px;
+    font-weight: lighter;
+
+    display: block;
+}
+
+.exercises .coins {
+    margin-top: 5px;
 }
 
 .coins .value {
-    top: 2px;
+    font-weight: bold;
 }
 
 .pull-left {

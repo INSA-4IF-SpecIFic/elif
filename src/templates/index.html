@@ -30,12 +30,12 @@
             <ul class="tagsmenu">
                 {% for tag in tags %}
 
-                <a href="#">
-                    <li class="list-group-item">
+                <li class="list-group-item">
+                    <a href="#">
                         <span class="tag">{{tag}}</span>
                         <span class="badge pull-right">42</span>
-                    </li>
-                </a>
+                    </a>
+                </li>
 
                 {% endfor %}
             </ul>
@@ -65,10 +65,9 @@
 
         <span class="badge coins pull-left">
             <img src="/static/img/coin.png"/>
-            <span class="value">{{score}}
-                <br>
-                coins
-            </span>
+            <span class="value">{{score}}</span><br>
+            coins
+
         </span>
 
         <a href="/exercise/{{exercise.id}}">
