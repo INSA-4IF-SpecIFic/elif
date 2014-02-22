@@ -86,10 +86,27 @@ h2 {
     font-weight: bold;
 }
 
+.tags {
+    padding: 0;
+}
+
 .pull-left {
     margin: 0px 8px 0px 0px;
 }
 
 .tag-icon {
     top: 3px;
+}
+
+.left-inner-addon {
+    position: relative;
+}
+.left-inner-addon input {
+    padding-left: 30px;  
+    border-radius: 10px;  
+}
+.left-inner-addon i {
+    position: absolute;
+    padding: 10px 12px;
+    pointer-events: none;
 }

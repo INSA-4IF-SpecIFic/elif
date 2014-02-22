@@ -4,7 +4,6 @@ function searchWords() {
 	console.log(tags);
 	apiCall('/api/exercise/search', 'POST', {words : search, tags: tags}, function(data) {
 		var exercises = data.result;
-		console.log(exercises);
 		var $exercises = $(".exercises");
 		$exercises.html('');
 		for (var i = 0; i < exercises.length; i++) {

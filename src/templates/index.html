@@ -21,12 +21,10 @@
     <!-- Text editor -->
     <div class="form-group">
         <div class="well" style=\padding: 8px 0;>
-            <input type="text" class="form-control" id="search" placeholder="Search" name="search">
-                <button type="submit" id="btnSearch" class="btn btn-default">
-                    <span class="glyphicon glyphicon-search"></span>
-                    <span class="glyphicon-class"></span>
-                    Submit
-                </button>
+            <div class="left-inner-addon" >
+                <i class="glyphicon glyphicon-search"></i>
+                <input type="text" class="form-control" id="search" placeholder="Search" name="search">
+            </div>
             <ul class="tagsmenu">
                 {% for tag in tags %}
 
