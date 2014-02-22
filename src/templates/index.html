@@ -26,12 +26,12 @@
                 <input type="text" class="form-control" id="search" placeholder="Search" name="search">
             </div>
             <ul class="tagsmenu">
-                {% for tag in tags %}
+                {% for key, value in occurrences.iteritems() %}
 
                 <li class="list-group-item">
                     <a href="#">
-                        <span class="tag">{{tag}}</span>
-                        <span class="badge pull-right">42</span>
+                        <span class="tag">{{key}}</span>
+                        <span class="badge pull-right">{{value}}</span>
                     </a>
                 </li>
 
