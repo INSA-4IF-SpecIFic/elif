@@ -64,13 +64,13 @@ def process_login():
         session['logged_in'] = user.email
         return redirect('/')
 
-@app.route('/sign', methods=['GET'])
-def sign():
-    return render_template('sign.html')
+@app.route('/signup', methods=['GET'])
+def signup():
+    return render_template('signup.html')
 
-@app.route('/sign', methods=['POST'])
-def process_sign():
-    return render_template('sign.html')
+@app.route('/signup', methods=['POST'])
+def process_signup():
+    return render_template('signup.html')
 
 @app.route('/welcome')
 def welcome():

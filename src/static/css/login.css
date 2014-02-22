@@ -1,0 +1,23 @@
+.loginbox {
+    margin-top: 50px;
+}
+
+.loginbox .panel-body {
+    padding-top:30px;
+}
+
+.loginform .input-group {
+    margin-bottom: 25px;
+}
+
+.loginform .form-group {
+    margin-top:10px;
+}
+
+
+.dummy {
+    display: block;
+    font-size: 11px;
+    opacity: 0.4;
+    margin-left: 20px;
+}
