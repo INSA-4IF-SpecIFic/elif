@@ -1,6 +1,7 @@
 function searchWords() {
 	var search = $('#search').val();
-	var tags = $('.tag.selected').text();
+	var tags = $('.tag.selected').children(".name").text();
+	console.log(tags);
 	apiCall('/api/exercise/search', 'POST', {words : search, tags: tags}, function(data) {
 		var exercises = data.result;
 		var $exercises = $(".exercises");

@@ -26,12 +26,12 @@
             </div>
             <ul class="tagsmenu">
                 {% for key, value in occurrences.iteritems() %}
-                <li class="list-group-item">
-                    <a href="#">
-                        <span class="tag">{{key}}</span>
+                <a href="#">
+                    <li class="list-group-item tag">
+                        <span class="name">{{key}}</span>
                         <span class="badge pull-right">{{value}}</span>
-                    </a>
-                </li>
+                    </li>
+                </a>
                 {% endfor %}
             </ul>
         </div>
