@@ -1,6 +1,6 @@
 function searchWords() {
 	var search = $('#search').val();
-	var tags = $('.tag.selected').text();
+	var tags = $('.tag.selected').children(".name").text();
 	console.log(tags);
 	apiCall('/api/exercise/search', 'POST', {words : search, tags: tags}, function(data) {
 		var exercises = data.result;
@@ -13,14 +13,14 @@ function searchWords() {
 }
 
 $(document).ready(function() {
-	$('#search').on("keyup", searchWords);
 	exerciseTemplate = loadTemplate('#exercise-template');
 
 	// Initializing exercises
 	searchWords();
 
+	$('#search').on("keyup", searchWords);
 	// Binding the click on a tag
-	$('.tag').click(function()  {
+	$(document).on("click", '.tag', function()  {
 		$('#search').val('');
 		$(".tag").removeClass('selected');
 		$(this).addClass('selected');
