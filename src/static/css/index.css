@@ -47,7 +47,6 @@ h2 {
 }
 
 #search {
-	width : 70%;
 	display: inline;
 }
 
@@ -102,8 +101,7 @@ h2 {
     position: relative;
 }
 .left-inner-addon input {
-    padding-left: 30px;  
-    border-radius: 10px;  
+    text-indent: 22px;
 }
 .left-inner-addon i {
     position: absolute;

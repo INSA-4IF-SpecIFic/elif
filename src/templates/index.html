@@ -18,7 +18,6 @@
 {% endif %}
 
 <div class="col-md-4">
-    <!-- Text editor -->
     <div class="form-group">
         <div class="well" style=\padding: 8px 0;>
             <div class="left-inner-addon" >
@@ -27,14 +26,12 @@
             </div>
             <ul class="tagsmenu">
                 {% for key, value in occurrences.iteritems() %}
-
                 <li class="list-group-item">
                     <a href="#">
                         <span class="tag">{{key}}</span>
                         <span class="badge pull-right">{{value}}</span>
                     </a>
                 </li>
-
                 {% endfor %}
             </ul>
         </div>
@@ -68,7 +65,7 @@
 
         </span>
 
-        <a href="/exercise/{{exercise.id}}">
+        <a href="/exercise/{{_id.$oid}}">
             <span class="title">{{title}}</span>
         </a>
         <div>
