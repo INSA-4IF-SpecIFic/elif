@@ -36,13 +36,13 @@ def create_user():
 @rest_api.route('/api/exercise/search', methods=['POST'])
 def search_words():
     words = request.json['words']
-    tag = request.json['tags']
+    tags = request.json['tags'].split()
     words = words.lower()
     find = [words] + words.split()
-    if tag == "" :
+    if tags == [] :
         exercises = Exercise.objects
     else :
-        exercises = Exercise.objects(tags=tag)
+        exercises = Exercise.objects(tags__in=tags)
     found = list(set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()]))
     found = [f.to_dict() for f in found]
     return jsonify(ok=True, result=found)

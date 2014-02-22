@@ -1,7 +1,10 @@
 function searchWords() {
 	var search = $('#search').val();
-	var tags = $('.tag.selected').children(".name").text();
-	console.log(tags);
+	var tags = "";
+	$('.tag.selected').each( function() {
+		var name = $(".name", this).text();
+		tags += name + " ";
+	})
 	apiCall('/api/exercise/search', 'POST', {words : search, tags: tags}, function(data) {
 		var exercises = data.result;
 		var $exercises = $(".exercises");
@@ -22,8 +25,12 @@ $(document).ready(function() {
 	// Binding the click on a tag
 	$(document).on("click", '.tag', function()  {
 		$('#search').val('');
-		$(".tag").removeClass('selected');
-		$(this).addClass('selected');
+		$element = $(this);
+		if ($element.hasClass('selected')) {
+			$element.removeClass('selected');
+		} else {
+			$element.addClass('selected');
+		}
 		searchWords();
 	});
 })
