@@ -43,7 +43,7 @@
   margin: 5px;
 }
 
-.tests {
+.tests-output {
   font-family: "Ubuntu Mono", monospace;
   padding: 0;
   list-style: none;
@@ -66,3 +66,35 @@
   color: #EDFCEE;
 }
 
+/* Tests */
+
+.tests li {
+    list-style: none;
+}
+
+.tests li .heading {
+	background-color: rgba(39, 174, 96, 1);
+	box-shadow: 0 0 80px rgba(0, 0, 0, 0.2);
+	padding: 10px;
+
+	color: #FFF;
+	border-bottom: none;
+
+    -webkit-transition: all 0.5s ease-out;
+       -moz-transition: all 0.5s ease-out;
+        -ms-transition: all 0.5s ease-out;
+         -o-transition: all 0.5s ease-out;
+            transition: all 0.5s ease-out;
+}
+
+.tests li .heading .glyphicon {
+    float: right;
+	text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+	opacity: 0.5;
+	color: #FFF;
+	margin: 0 3px;
+}
+
+.details {
+    display: none;
+}
