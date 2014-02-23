@@ -40,6 +40,8 @@ $(document).ready(function() {
 
     /* Getting Handlebar templates */
     output_template = loadTemplate('#output-template');
+    tests_template = loadTemplate('#tests-template');
+    $('#tests_placeholder').html(tests_template());
 
     /* Editor initialization and configuration */
     var editor = ace.edit("editor");
