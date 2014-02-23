@@ -21,6 +21,14 @@ logging.getLogger().handlers = []
 def to_dict(self):
     return json.loads(self.to_json())
 
+def dump_exercise(exercise):
+    s_json = json.loads(exercise.to_json())
+
+    s_json['tests'] = [json.loads(test.to_json()) for test in exercise.tests]
+
+    return s_json
+
+
 def get_logger(name):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
