@@ -61,6 +61,26 @@ def exercise(exercise_id):
         #pass
 
 # Tests
+
+@rest_api.route('/api/test/', methods=['POST'])
+def new_test():
+    input = request.json['input']
+    output = request.json['output']
+    exercise_id = request.json['exercise_id']
+
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    test = Test(input=input, output=output)
+    test.save()
+    exercise.tests.append(test)
+    exercise.save()
+
+    return jsonify(ok=True, result=utils.dump_exercise(exercise))
+
 @rest_api.route('/api/test/<test_id>', methods=['DELETE'])
 def test(test_id):
     test = None

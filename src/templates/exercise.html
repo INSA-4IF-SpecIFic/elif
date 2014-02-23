@@ -60,7 +60,7 @@
                 <textarea class="form-control" id="test-output" name="test-output" rows="4" placeholder="Test output"></textarea>
               </div>
               <div class="form-group">
-                <button type="button" class="btn btn-primary form-control">Add test</button>
+                <button type="button" id="btn-add-test" class="btn btn-primary form-control">Add test</button>
               </div>
             </form>
 
@@ -117,13 +117,12 @@
 </script>
 {% endraw %}
 
-<!-- Tests list's template -->
 {% raw %}
-<script id="tests-template" type="text/x-handlebars-template">
+<script id="tests-list-template" type="text/x-handlebars-template">
   {{#each tests}}
     <li class="test" data-test-id="{{_id.$oid}}">
       <div class="heading">
-        <span class="test-id">Test {{_id.$oid}}</span>
+        <span class="test-id">Test {{@index}}</span>
         <span class="delete glyphicon glyphicon-remove"></span>
       </div>
       <div class="details">

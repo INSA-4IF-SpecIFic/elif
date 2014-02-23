@@ -33,6 +33,10 @@ var submissionState = function(submission_id) {
 
 var exerciseTests = function(exercise_id) {
 
+    // Disable add button
+    $('#btn-add-test').attr('disabled', 'disabled');
+
+    // Load the exercise's test list
     apiCall('/api/exercise/' + exercise_id, 'GET', {}, function(data) {
         console.log(data);
 
@@ -40,7 +44,26 @@ var exerciseTests = function(exercise_id) {
 
         console.log(exercise);
 
-        $('#tests_placeholder').html(tests_template(exercise));
+        $('#tests_placeholder').html(tests_list_template(exercise));
+    });
+
+    // Check if the test's input and output are set (not empty) and
+    // enable/disable the "Add test" button accordingly
+    var validateSettings = function() {
+        if($('#test-input').val() > 0 && $('#test-output').val() > 0) {
+            $('#btn-add-test').removeAttr('disabled');
+        }
+        else {
+            $('#btn-add-test').attr('disabled', 'disabled');
+        }
+    };
+
+    $('#test-input').on('input', function() {
+        validateSettings()
+    });
+
+    $('#test-output').on('input', function() {
+        validateSettings()
     });
 
 
@@ -51,6 +74,27 @@ var exerciseTests = function(exercise_id) {
         $li.find('.details').stop();
         $li.find('.details').toggle(400);
     });
+
+    // Add a test
+    $('#btn-add-test').click(function() {
+        var $this = $(this)
+        var input  = $("#test-input").val();
+        var output = $("#test-output").val();
+        var exercise_id = $('#exercise').attr('data-id');
+
+        var params = { input: input, output: output, exercise_id: exercise_id };
+
+        apiCall('/api/test/', 'POST', params, function(data) {
+            if(data.ok) {
+                var exercise = data.result
+                $('#tests_placeholder').html(tests_list_template(exercise));
+            }
+            else {
+                notification.error("Failed to add test: " + data.result);
+            }
+        });
+    });
+
 
     // Delete a test
     $('.tests').on('click', '.heading .delete', function(e) {
@@ -82,8 +126,9 @@ $(document).ready(function() {
 
     /* Getting Handlebar templates */
     output_template = loadTemplate('#output-template');
-    tests_template = loadTemplate('#tests-template');
+    tests_list_template = loadTemplate('#tests-list-template');
 
+    /* Initialize tests interface */
     exerciseTests(exercise_id);
 
     /* Editor initialization and configuration */
