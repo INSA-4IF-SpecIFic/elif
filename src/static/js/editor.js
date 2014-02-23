@@ -38,19 +38,19 @@ var exerciseTests = function(exercise_id) {
 
     // Load the exercise's test list
     apiCall('/api/exercise/' + exercise_id, 'GET', {}, function(data) {
-        console.log(data);
-
-        var exercise = data.result;
-
-        console.log(exercise);
-
-        $('#tests_placeholder').html(tests_list_template(exercise));
+        if(data.ok) {
+            var exercise = data.result;
+            $('#tests_placeholder').html(tests_list_template(exercise));
+        }
+        else {
+            notification.error("Failed to load exercise: " + data.result);
+        }
     });
 
     // Check if the test's input and output are set (not empty) and
     // enable/disable the "Add test" button accordingly
     var validateSettings = function() {
-        if($('#test-input').val() > 0 && $('#test-output').val() > 0) {
+        if($('#test-input').val().length > 0 && $('#test-output').val().length > 0) {
             $('#btn-add-test').removeAttr('disabled');
         }
         else {
@@ -59,11 +59,11 @@ var exerciseTests = function(exercise_id) {
     };
 
     $('#test-input').on('input', function() {
-        validateSettings()
+        validateSettings();
     });
 
     $('#test-output').on('input', function() {
-        validateSettings()
+        validateSettings();
     });
 
 
