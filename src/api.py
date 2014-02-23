@@ -47,6 +47,14 @@ def search_words():
     found = [f.to_dict() for f in found]
     return jsonify(ok=True, result=found)
 
+@rest_api.route('/api/exercise/<exercise_id>', methods=['GET'])
+def get_exercise(exercise_id):
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+        return jsonify(ok=True, result=utils.dump_exercise(exercise))
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
 # Submissions
 
 @rest_api.route('/api/submission', methods=['POST'])
