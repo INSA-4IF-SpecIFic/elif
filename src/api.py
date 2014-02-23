@@ -5,7 +5,7 @@ import mongoengine
 
 from flask import request, session, jsonify, Blueprint, g
 from model.user import User
-from model.exercise import Exercise
+from model.exercise import Exercise, Test
 from job import Submission
 import utils
 
@@ -48,12 +48,40 @@ def search_words():
     return jsonify(ok=True, result=found)
 
 @rest_api.route('/api/exercise/<exercise_id>', methods=['GET'])
-def get_exercise(exercise_id):
+def exercise(exercise_id):
+    exercise = None
     try:
         exercise = Exercise.objects.get(id=exercise_id)
-        return jsonify(ok=True, result=utils.dump_exercise(exercise))
     except mongoengine.DoesNotExist as e:
         return jsonify(ok=False, result=e.message)
+
+    if request.method == 'GET':
+        return jsonify(ok=True, result=utils.dump_exercise(exercise))
+    #elif request.method == 'DELETE':
+        #pass
+
+# Tests
+@rest_api.route('/api/test/<test_id>', methods=['DELETE'])
+def test(test_id):
+    test = None
+    try:
+        test = Test.objects.get(id=test_id)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    if request.method == 'DELETE':
+        exercise = None
+        try:
+            exercise = Exercise.objects.get(id=request.json['exercise_id'])
+        except mongoengine.DoesNotExist as e:
+            return jsonify(ok=False, result=e.message)
+
+        exercise.tests.remove(test)
+        exercise.save()
+
+        test.delete()
+
+        return jsonify(ok=True, result=utils.dump_exercise(exercise))
 
 # Submissions
 
