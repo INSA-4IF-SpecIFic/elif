@@ -50,7 +50,7 @@ var exerciseTests = function(exercise_id) {
     // Check if the test's input and output are set (not empty) and
     // enable/disable the "Add test" button accordingly
     var validateSettings = function() {
-        if($('#test-input').val().length > 0 && $('#test-output').val().length > 0) {
+        if ($('#test-input').val().length > 0 && $('#test-output').val().length > 0) {
             $('#btn-add-test').removeAttr('disabled');
         }
         else {
@@ -58,13 +58,9 @@ var exerciseTests = function(exercise_id) {
         }
     };
 
-    $('#test-input').on('input', function() {
-        validateSettings();
-    });
+    $('#test-input').on('input', validateSettings);
 
-    $('#test-output').on('input', function() {
-        validateSettings();
-    });
+    $('#test-output').on('input', validateSettings);
 
 
     // Expand a test's view (by clicking on its heading)
