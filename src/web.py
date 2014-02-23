@@ -41,6 +41,10 @@ def inject_user():
     else:
         return dict(user=None)
 
+@app.context_processor
+def inject_configuration():
+    return dict(config=config)
+
 @app.route('/')
 def index():
     occurrences = {}
@@ -51,7 +55,7 @@ def index():
 
 @app.route('/login', methods=['GET'])
 def login():
-    return render_template('login.html', error=False)
+    return render_template('login.html', error=None)
 
 @app.route('/login', methods=['POST'])
 def process_login():
@@ -59,7 +63,7 @@ def process_login():
     user = User.objects(email=email).first()
     if user is None or not user.valid_password(password):
         app.logger.warning("Couldn't login : {}".format(user))
-        return render_template('login.html', error=True, email=email)
+        return render_template('login.html', error="Wrong password or username.", email=email)
     else:
         session['logged_in'] = user.email
         return redirect('/')
@@ -70,6 +74,7 @@ def signup():
 
 @app.route('/signup', methods=['POST'])
 def process_signup():
+    # TODO : create a new user
     return render_template('signup.html')
 
 @app.route('/welcome')
