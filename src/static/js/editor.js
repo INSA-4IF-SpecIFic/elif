@@ -1,5 +1,5 @@
-var submitCode = function(exerciseId, code) {
-    var params = {exercise_id: exerciseId, code: code};
+var submitCode = function(exercise_id, code) {
+    var params = {exercise_id: exercise_id, code: code};
     apiCall('/api/submission', 'POST', params, function(data) {
         console.log(data);
 
@@ -31,17 +31,46 @@ var submissionState = function(submission_id) {
 
 }
 
+var exerciseTests = function(exercise_id) {
+
+    apiCall('/api/exercise/' + exercise_id, 'GET', {}, function(data) {
+        console.log(data);
+
+        var exercise = data.result;
+
+        console.log(exercise);
+
+        $('#tests_placeholder').html(tests_template(exercise));
+    });
+
+
+    // Expanding a test's view (by clicking on its heading)
+    $('.tests').on('click', 'li', function(e) {
+        console.log("ON CLICK");
+        $li = $(this).closest('li');
+        $('.tests li').not($li).find('.details').hide(200);
+
+        $li.find('.details').stop();
+
+        $li.find('.details').toggle(400);
+    });
+
+
+
+};
+
 
 $(document).ready(function() {
     /* Getting the current exercise's data */
     var $exercise = $('#exercise');
-    var exerciseId = $exercise.data('id');
+    var exercise_id = $exercise.data('id');
     var boilerplateCode = $exercise.data('boilerplate-code');
 
     /* Getting Handlebar templates */
     output_template = loadTemplate('#output-template');
     tests_template = loadTemplate('#tests-template');
-    $('#tests_placeholder').html(tests_template());
+
+    exerciseTests(exercise_id);
 
     /* Editor initialization and configuration */
     var editor = ace.edit("editor");
@@ -64,11 +93,11 @@ $(document).ready(function() {
     })
 
     /* Binding the submit button */
-    $('.btn-submit').click(function() {
+    $('#test-button').click(function() {
         $(this).attr('disabled', 'disabled');
 
         var code = editor.getValue();
-        submitCode(exerciseId, code);
+        submitCode(exercise_id, code);
 
     });
 

@@ -30,7 +30,7 @@
         <ul class="nav nav-tabs">
           <li class="active"><a href="#description" data-toggle="tab">Description</a></li>
           {% if user.editor %}
-          <li><a href="#tests_placeholder" data-toggle="tab">Tests</a></li>
+          <li><a href="#tests" data-toggle="tab">Tests</a></li>
           {% endif %}
           <li><a href="#output" data-toggle="tab">Output</a></li>
         </ul>
@@ -48,8 +48,20 @@
           </div>
 
           {% if user.editor %}
-          <div class="tab-pane" id="tests_placeholder">
-              Tests here
+          <div class="tab-pane" id="tests">
+
+            <form id ="test_settings" class="form-horizontal" role="form">
+                <textarea class="form-control" name="test-input" rows="4" placeholder="Test input"></textarea>
+                <textarea class="form-control" name="test-output" rows="4" placeholder="Test output"></textarea>
+                <button type="submit" class="btn btn-primary form-control">Add test</button>
+            </form>
+
+            <ul class="tests">
+              <div id="tests_placeholder">
+                <!-- Populated by JS Handlebars -->
+                Tests here
+              </div>
+            </ul>
           </div>
           {% endif %}
 
@@ -79,7 +91,7 @@
   {{else}}
 
     <h4>Test results</h4>
-    <ul class="tests">
+    <ul class="tests-output">
         {{#each test_results}}
         {{#if passed}}
           <li class="alert label-success">
@@ -101,13 +113,20 @@
 
 {% raw %}
 <script id="tests-template" type="text/x-handlebars-template">
-
-    <form id ="test_settings" class="form-inline" action="" method="POST">
-        <input type="text" class="form-control" name="input" placeholder="Test input" />
-        <input type="text" class="form-control" name="output" placeholder="Test output" />
-        <!--<button type="submit" class="btn btn-primary form-control">Submit</button>-->
-    </form>
-
+  {{#each tests}}
+    <li class="test" data-test-id="{{_id.$oid}}">
+      <div class="heading">
+        <span class="test-id">Test {{_id.$oid}}</span>
+        <span class="delete glyphicon glyphicon-remove"></span>
+      </div>
+      <div class="details">
+        <ul class="list-group infos">
+          <li class="list-group-item">{{input}}</li>
+          <li class="list-group-item">{{output}}</li>
+        </ul>
+      </div>
+    </li>
+  {{/each}}
 </script>
 {% endraw %}
 
