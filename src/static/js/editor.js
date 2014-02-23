@@ -44,18 +44,32 @@ var exerciseTests = function(exercise_id) {
     });
 
 
-    // Expanding a test's view (by clicking on its heading)
-    $('.tests').on('click', 'li', function(e) {
-        console.log("ON CLICK");
+    // Expand a test's view (by clicking on its heading)
+    $('.tests').on('click', 'li .heading', function(e) {
         $li = $(this).closest('li');
         $('.tests li').not($li).find('.details').hide(200);
-
         $li.find('.details').stop();
-
         $li.find('.details').toggle(400);
     });
 
+    // Delete a test
+    $('.tests').on('click', '.heading .delete', function(e) {
+        $this = $(this).closest('li');
+        var test_id = $this.attr('data-test-id');
 
+        var exercise_id = $('#exercise').attr('data-id');
+
+        var params = {exercise_id: exercise_id };
+
+        apiCall('/api/test/' + test_id, 'DELETE', params, function(data) {
+            $this.hide(200, function() {
+                $this.remove();
+            });
+        });
+
+        // Avoid triggering an event on the parent li
+        e.stopPropagation();
+    });
 
 };
 
