@@ -3,15 +3,21 @@ import subprocess
 import tempfile
 
 class Compilation(object):
+    """Code compilation object"""
 
     def __init__(self, sandbox, code, compiler_cmd='clang++'):
-        self.sandbox = sandbox
+        """Compiles the code
 
+        Parameters:
+            - code must be encoded in UTF8
+        """
+
+        self.sandbox = sandbox
         self.source_file = tempfile.mktemp(suffix='.cpp', prefix='elif_code_')
         self.exec_file = self.sandbox.mktemp(prefix='exec_')
 
         with open(self.source_file, 'w') as f:
-            f.write(code.encode('utf-8'))
+            f.write(code)
 
         self.errors = None
         if self._launch_process([compiler_cmd, '-x', 'c++', '-o', self.exec_file, self.source_file]) == 0:
@@ -35,6 +41,7 @@ class Compilation(object):
         return self.return_code
 
     def run(self, params=list(), stdin=None):
+        """Runs the code in the sandbox and return its process's feedback"""
         assert self.return_code == 0
 
         cmd = [self.sandbox.to_sandbox_basis(self.exec_file)]
@@ -43,6 +50,8 @@ class Compilation(object):
         return self.sandbox.process(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def parse_output(self):
+        """Parses clang/clang++ compilation log"""
+
         error_lines = (line for line in self.log.split('\n')
                             if line.startswith(self.source_file) and len(line.split(':')) == 5)
         errors = list()

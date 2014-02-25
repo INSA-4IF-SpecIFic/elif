@@ -35,7 +35,7 @@ def test_utf8_compilation():
         '}'
     ])
 
-    tutil_code(code.decode('utf-8'), 0)
+    tutil_code(code, 0)
 
 def test_executable_file():
     s = sandbox.Sandbox()
