@@ -562,3 +562,49 @@ class Sandbox(object):
     def _clean(self):
         if os.path.isdir(self.root_directory):
             shutil.rmtree(self.root_directory)
+
+
+def python_env(sandbox):
+    sandbox.clone_bin("python")
+
+    ignores = [
+        '/bin',  # dirty py.test's sys.path
+        '/usr/bin',  # dirty py.test's sys.path
+        '/usr/local/bin',  # dirty py.test's sys.path
+        '/System/Library/Frameworks/Python.framework/Versions/2.7/Extras',
+        '/usr/local/Cellar'  # dirty py.test's sys.path
+    ]
+
+    for p in sys.path:
+        if not p.startswith('/'):
+            continue
+
+        if not os.path.isdir(p):
+            continue
+
+        if __file__.startswith(p):
+            continue
+
+        if '/site-packages/' in (p + '/'):
+            continue
+
+        ignored = False
+
+        for i in ignores:
+            if p.startswith(i):
+                ignored = True
+                break
+
+        if ignored:
+            continue
+
+        sandbox.clone_dir(p)
+
+    if platform.system() == "Darwin":
+        """ Mac OS X specific environment """
+
+        sandbox.clone_dir("/System/Library/Frameworks/Python.framework/Versions/2.7/Resources")
+        sandbox.clone_dir("/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7")
+        sandbox.clone_bin_dependencies(
+            "/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python"
+        )
