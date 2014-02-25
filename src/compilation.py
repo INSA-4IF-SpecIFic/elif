@@ -11,7 +11,7 @@ class Compilation(object):
         self.exec_file = self.sandbox.mktemp(prefix='exec_')
 
         with open(self.source_file, 'w') as f:
-            f.write(code)
+            f.write(code.encode('utf-8'))
 
         self.errors = None
         if self._launch_process([compiler_cmd, '-x', 'c++', '-o', self.exec_file, self.source_file]) == 0:
