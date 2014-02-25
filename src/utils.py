@@ -40,7 +40,7 @@ def get_logger(name):
     handler2 = RainbowLoggingHandler(
             sys.stdout,
             '%Y-%m-%d %H:%M:%S',
-            color_asctime=('black', None, True)
+            color_asctime=('white', None, False)
     )
     handler2.setFormatter(log_formatter)
     handler2.setLevel(logging.DEBUG)
@@ -50,8 +50,9 @@ def get_logger(name):
 
     return logger
 
-def sample_exercise():
-    exercise = Exercise(title="#{} - Sample exercise".format(len(Exercise.objects)),
+def sample_exercise(author):
+    exercise = Exercise(author=author,
+                    title="#{} - Sample exercise".format(len(Exercise.objects)),
                     description="## Just double the freaking number !\n\n* You get a\n* Print a x 2\n![Alt text](/static/img/cat.jpeg)",
                     boilerplate_code='#include <iostream>\nint main() {\n  int a;\n  std::cin >> a;\n  return 0;\n}',
                     reference_code='int main() {}',
@@ -62,14 +63,29 @@ def sample_exercise():
     exercise.tests.append(test)
     return exercise
 
+def sample_user():
+    user = User(email='dummy{}@{}'.format(len(User.objects), config.email_domain),
+                username='imadummy{}'.format(len(User.objects)),
+                secret_hash='hashhash',
+                salt='salty',
+                editor=True)
+
+    return user
 
 def test_db():
     """ Wipes the database and initializes it with some dummy data """
     db = mongoengine.connect(config.db_name)
     db.drop_database(config.db_name)
 
+    # Dummy user
+    User.new_user(email="dummy@{}".format(config.email_domain),
+                  username="dummy_username", password="123456", editor=False).save()
+
+    # Editor user
+    editor = User.new_user(email="editor@{}".format(config.email_domain),
+              username="editor_user", password="123456", editor=True).save()
     # Ex 1
-    exercise = Exercise(title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
+    exercise = Exercise(author=editor, title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
                         boilerplate_code='b', reference_code='#', tags=['sort','trees'])
 
     test = Test(input='1\n', output='1').save()
@@ -81,7 +97,7 @@ def test_db():
     exercise.save()
 
     # Ex 2
-    exercise = Exercise(title="Another exercise's title",
+    exercise = Exercise(author=editor, title="Another exercise's title",
                     description="## This is an exercise\n\n* El1\n* El2\n![Alt text](/static/img/cat.jpeg)",
                     boilerplate_code='int main() {\n}', reference_code='int main() {    // lol   }',
                     tags=['algorithms','trees'])
@@ -96,7 +112,7 @@ def test_db():
 
 
     # Ex 3
-    exercise = Exercise(title="Return n*2",
+    exercise = Exercise(author=editor, title="Return n*2",
                     description="## Just double the freaking number !\n\n* You get a\n* Print a x 2\n![Alt text](/static/img/cat.jpeg)",
                     boilerplate_code='#include <iostream>\nint main() {\n  int a;\n  std::cin >> a;\n}',
                     reference_code='int main() {}',
@@ -113,11 +129,5 @@ def test_db():
 
     exercise.save()
 
-    # Dummy user
-    User.new_user(email="dummy@{}".format(config.email_domain),
-                  username="dummy_username", password="123456", editor=False).save()
 
-    # Editor user
-    User.new_user(email="editor@{}".format(config.email_domain),
-              username="editor_user", password="123456", editor=True).save()
     return exercise

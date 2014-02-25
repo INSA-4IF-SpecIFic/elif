@@ -11,13 +11,33 @@
 <div class="exercise row">
 
     <!-- Meta-data about the exercise, to be used by JS -->
-    <div id="exercise" data-id="{{exercise.id}}" data-boilerplate-code="{{exercise.boilerplate_code}}" ></div>
+    <div id="exercise" data-id="{{exercise.id}}" data-boilerplate-code="{{exercise.boilerplate_code}}"
+      {% if user.editor %} data-reference-code="{{exercise.reference_code}}" {% endif %} ></div>
 
     <div class="col-md-8">
         <!-- Text editor -->
 
+        {% if user.editor %}
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#reference-editor-tab" data-toggle="tab">Reference code</a></li>
+            <li><a href="#exercise-editor-tab" data-toggle="tab">Exercice code</a></li>
+          </ul>
 
-        <div id="editor" class="code-area"></div>
+          <div class="tab-content">
+
+            <div class="tab-pane active" id="reference-editor-tab">
+              <div id="main-editor" class="code-area"></div>
+            </div>
+
+            <div class="tab-pane" id="exercise-editor-tab">
+              <div id="exercise-editor" class="code-area"></div>
+            </div>
+
+          </div>
+
+        {% else %}
+          <div id="main-editor" class="code-area"></div>
+        {% endif %}
 
 
         <button class="btn btn-submit pull-right" id="test-button">Test</button>
@@ -36,6 +56,7 @@
         </ul>
 
         <!-- Tab panes -->
+
         <div class="tab-content">
 
           <div class="tab-pane active " id="description">
@@ -142,4 +163,10 @@
 {% block javascript %}
 <script src="/static/js/ace/ace.js"></script>
 <script src="/static/js/editor.js"></script>
+{% if user.editor %}
+<script src="/static/js/teacher_editor.js"></script>
+{% else %}
+<script src="/static/js/student_editor.js"></script>
+{% endif %}
+
 {% endblock %}

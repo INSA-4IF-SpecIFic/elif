@@ -10,11 +10,12 @@ class Job(mongoengine.Document):
 
     meta = {'allow_inheritance': True}
 
-    def process(self, sandbox):
+    def process(self, sandbox, logger):
         """Process execution code (to be implemented in sub classes)
 
         Parameters:
             - <sandbox>: the sandbox to play in
+            - <logger>: the logger I should use to display messages.
         """
         raise NotImplemented
 
@@ -37,13 +38,14 @@ class Submission(Job):
 
     test_results = mongoengine.ListField(mongoengine.ReferenceField(TestResult), default=list)
 
-    def test_result(self, comp, test):
+    def test_result(self, comp, test, logger):
         """
             Runs a <test> and starts to fill a result
 
             Parameters:
                 - <comp>: the compiled code (Compilation object)
                 - <test>: the test to execute
+                - <logger>: the logger I should use to report issues
         """
 
         feedback = comp.run(stdin=str(test.input))
@@ -68,20 +70,29 @@ class Submission(Job):
             result.report = "Program's output didn't match expected output"
 
         if self.user.editor:
-            print 'IS EDITOR !'
+            #print 'IS EDITOR !'
             result.stdout = stdout
             result.stderr = stderr
 
         result.max_cpu_time = ('max_cpu_time' in feedback.report)
         result.max_duration = ('max_duration' in feedback.report)
 
+        if result.max_cpu_time:
+            logger.warn("Process of <{}> exceeded the max CPU time".format(self.user.username))
+
+        if result.max_duration:
+            logger.warn("Process of <{}> exceeded the max duration".format(self.user.username))
+
+        if not feedback.ended_correctly:
+            logger.warn("Process of <{}> was killed by signal {}".format(self.user.username, feedback.killing_signal))
+
         return result
 
-    def process(self, sandbox):
+    def process(self, sandbox, logger):
         """ Processes the Submission job"""
 
-        comp = Compilation(sandbox, self.code)
-        progress,_ = ExerciseProgress.objects.get_or_create(user=self.user, exercise=self.exercise)
+        logger.info("Processing exercise submitted by <{}>".format(self.user.username))
+        comp = Compilation(sandbox, self.code.encode('utf-8'))
 
         if comp.return_code != 0:
             self.compilation_error = True
@@ -90,10 +101,12 @@ class Submission(Job):
             return
 
         for test in self.exercise.tests:
-            test_result = self.test_result(comp, test)
+            test_result = self.test_result(comp, test, logger)
 
             self.test_results.append(test_result)
 
+        # Updating best performance
+        progress,_ = ExerciseProgress.objects.get_or_create(user=self.user, exercise=self.exercise)
         progress.update_progress(self)
         progress.save()
 

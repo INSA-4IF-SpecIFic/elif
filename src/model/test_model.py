@@ -42,8 +42,11 @@ def test_exercise_progress():
     # User
     user = User.new_user(username="hAlflIngs", email="MonMel@{}".format(config.email_domain), password="KikOo").save()
 
-    # Exercise
-    exercise = Exercise(title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
+    # Editor user
+    editor = User.new_user(email="editor@{}".format(config.email_domain),
+              username="editor_user", password="123456", editor=True).save()
+    # Ex 1
+    exercise = Exercise(author=editor, title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
                         boilerplate_code='b', reference_code='#', tags=['sort','trees'])
 
     # Test

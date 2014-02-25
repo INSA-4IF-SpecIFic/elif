@@ -3,6 +3,8 @@
 import mongoengine
 from user import User
 
+from user import User
+
 class Test(mongoengine.Document):
     input = mongoengine.StringField(required=True)
     output = mongoengine.StringField(required=True)
@@ -25,6 +27,7 @@ class TestResult(mongoengine.Document):
 
 
 class Exercise(mongoengine.Document):
+    author = mongoengine.ReferenceField(User, required=True)
     title = mongoengine.StringField(required=True, unique=True)
     description = mongoengine.StringField(required=True)
 

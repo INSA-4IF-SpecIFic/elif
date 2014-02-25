@@ -181,6 +181,7 @@ class Sandbox(object):
         else:
             self.root_directory = root_directory
 
+        self.running_envs = list()
         self.user_name = 'nobody'
         self.env_paths = [
             '/usr/bin',
@@ -506,6 +507,13 @@ class Sandbox(object):
             report=list(report)
         )
 
+    def add_running_env(self, env_callback):
+        assert env_callback not in self.running_envs
+
+        env_callback(self)
+
+        self.running_envs.append(env_callback)
+
     def recover(self):
         """Recover the sandbox from scratch"""
 
@@ -527,6 +535,9 @@ class Sandbox(object):
         self.makedirs('/tmp/')
         self.makedirs('/usr/bin/')
         self.makedirs('/usr/lib/')
+
+        for env_callback in self.running_envs:
+            env_callback(self)
 
         if platform.system() == "Darwin":
             """ Mac OS X specific environment """
