@@ -1,3 +1,4 @@
+pytest
 mongoengine
 flask
 rainbow_logging_handler
