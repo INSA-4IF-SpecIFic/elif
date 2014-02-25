@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from functools import wraps
 
-from flask import Flask, request, session, render_template, redirect
+from flask import Flask, request, session, render_template, redirect, g
 import mongoengine
 
 import config
@@ -24,7 +24,7 @@ db = mongoengine.connect(config.db_name)
 app.register_blueprint(rest_api)
 
 def requires_login(f):
-    """  Decorator for views that requires the user to be logged in """
+    """  Decorator for views that requires the user to be logged-in """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in', None):
@@ -35,11 +35,16 @@ def requires_login(f):
 
 @app.context_processor
 def inject_user():
-    """ Injects a 'user' variable in templates' context when a user is logged in """
+    """ Injects a 'user' variable in templates' context when a user is logged-in """
     if session.get('logged_in', None):
         return dict(user=User.objects.get(email=session['logged_in']))
     else:
         return dict(user=None)
+
+@app.before_request
+def load_user():
+    """ Injects the current logged-in user (if any) to the request context """
+    g.user = User.objects(email=session.get('logged_in')).first()
 
 @app.context_processor
 def inject_configuration():
@@ -94,7 +99,7 @@ def exercise(exercise_id):
 
 @app.route('/new_exercise', methods=['POST'])
 def new_exercise():
-    sample_exercise = utils.sample_exercise()
+    sample_exercise = utils.sample_exercise(g.user)
     sample_exercise.save()
     return render_template('exercise.html', exercise=sample_exercise)
 

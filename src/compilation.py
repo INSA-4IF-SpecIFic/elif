@@ -57,6 +57,6 @@ class Compilation(object):
         errors = list()
         for error_line in error_lines:
             line, column, type, message = map(str.strip, error_line.split(':', 4)[1:])
-            errors.append(dict(line=line, column=column, type=type, message=message))
+            errors.append(dict(row=line, column=column, type=type, message=message))
 
         return errors

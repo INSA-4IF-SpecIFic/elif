@@ -1,10 +1,11 @@
-
 import mongoengine
+
+import config
 import greedy
 import job
-import config
 import model.exercise
 import model.user
+import utils
 
 def test_exercice_test_job():
     config.db_name = 'test'
@@ -12,7 +13,10 @@ def test_exercice_test_job():
     db = mongoengine.connect(config.db_name)
     db.drop_database(config.db_name)
 
-    exercise = model.exercise.Exercise(title='Blah Bleh', description='Bleuh', boilerplate_code='b', reference_code='#')
+    user = utils.sample_user()
+    user.save()
+
+    exercise = model.exercise.Exercise(author=user, title='Blah Bleh', description='Bleuh', boilerplate_code='b', reference_code='#')
 
     test = model.exercise.Test(input='1\n', output='1')
     test.save()
