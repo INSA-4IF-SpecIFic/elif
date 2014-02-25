@@ -110,11 +110,11 @@ $(document).ready(function() {
       textarea: 'description-editor-content',
       basePath: '/static/css/',
       clientSideStorage: true,
-      localStorageName: 'epiceditor',
+      localStorageName: 'description-editor',
       useNativeFullscreen: true,
       parser: marked,
       file: {
-        name: 'epiceditor',
+        name: 'description-editor',
         defaultContent: '',
         autoSave: 100
       },
@@ -145,4 +145,38 @@ $(document).ready(function() {
     editor.load();
     editor._setupTextareaSync();
     editor.preview();
+
+    $('#save-button').click(function() {
+        var $this = $(this)
+
+        $this.attr('disabled', 'disabled');
+
+        //TODO: Edit tags, score ?
+
+        var title = $("#exercise-title").text();
+        var description = editor.getElement('editor').body.innerText;
+        var boilerplateCode  = exerciseEditor.getValue();
+        var referenceCode = referenceEditor.getValue();
+
+        console.log("title : " + title);
+        console.log("description : " + description);
+        console.log("exercise code : " + boilerplateCode);
+        console.log("reference code : " + referenceCode);
+
+        params = { title: title, description: description,
+                   boilerplate_code: boilerplateCode, reference_code: referenceCode };
+
+        apiCall('/api/exercise/' + exerciseId, 'POST', params, function(data) {
+            if(data.ok) {
+                /* Nothing to do */
+            }
+            else {
+                notification.error("Failed to load exercise: " + data.result);
+            }
+
+            $this.removeAttr('disabled', 'disabled');
+        });
+    });
+
+
 });

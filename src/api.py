@@ -55,6 +55,24 @@ def exercise(exercise_id):
     #elif request.method == 'DELETE':
         #pass
 
+@rest_api.route('/api/exercise/<exercise_id>', methods=['POST'])
+def update_exercise(exercise_id):
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    exercise.title = request.json['title']
+    exercise.description = request.json['description']
+    exercise.boilerplate_code = request.json['boilerplate_code']
+    exercise.reference_code = request.json['reference_code']
+
+    exercise.save()
+
+    return jsonify(ok=True, result=utils.dump_exercise(exercise))
+
+
 # Tests
 
 @rest_api.route('/api/test/', methods=['POST'])

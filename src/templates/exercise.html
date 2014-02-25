@@ -40,6 +40,7 @@
         {% endif %}
 
 
+        <button class="btn btn-submit pull-right" id="save-button">Save</button>
         <button class="btn btn-submit pull-right" id="test-button">Test</button>
 
     </div>
@@ -60,18 +61,18 @@
         <div class="tab-content">
 
           <div class="tab-pane active " id="description">
-          {% if user.editor %}
-          <div class="description" id="description-editor"></div>
-          <textarea id="description-editor-content" style="display:none">
+            <h3 id="exercise-title">{{exercise.title}}</h3>
+            {% if user.editor %}
+            <div class="description" id="description-editor"></div>
+            <textarea id="description-editor-content" style="display:none">
 {{exercise.description}}
-          </textarea>
-          {% else %}
-          <h3>{{exercise.title}}</h3>
-            <div class="description">
+            </textarea>
+            {% else %}
+              <div class="description">
 {{exercise.description}}
+              </div>
+            {% endif %}
             </div>
-          {% endif %}
-          </div>
 
 
           {% if user.editor %}
