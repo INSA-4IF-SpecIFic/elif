@@ -508,7 +508,7 @@ class Sandbox(object):
         )
 
     def add_running_env(self, env_callback):
-        assert env_callback not in self.self.environment
+        assert env_callback not in self.running_envs
 
         env_callback(self)
 
