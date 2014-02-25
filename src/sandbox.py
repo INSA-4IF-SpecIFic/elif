@@ -49,7 +49,7 @@ def lib_dependencies_osx(binary_path, deps):
 def lib_dependencies_linux(binary_path, deps):
     """Get executable's dynamic libraries list (Linux specific code)"""
 
-    otool = subprocess.Popen(['ldd', binary_path], stdout=subprocess.PIPE)
+    otool = subprocess.Popen(['ldd', binary_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     otool.wait()
 
     for l in otool.stdout:
