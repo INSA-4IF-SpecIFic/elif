@@ -1,6 +1,6 @@
 /* \!/ You must include student.js before this file !!! */
 
-var exerciseTests = function(exerciseId) {
+var initExercise = function(exerciseId) {
 
     // Disable add button
     $('#btn-add-test').attr('disabled', 'disabled');
@@ -18,7 +18,7 @@ var exerciseTests = function(exerciseId) {
 
     // Check if the test's input and output are set (not empty) and
     // enable/disable the "Add test" button accordingly
-    var validateSettings = function() {
+    var validateTestParams = function() {
         if ($('#test-input').val().length > 0 && $('#test-output').val().length > 0) {
             $('#btn-add-test').removeAttr('disabled');
         }
@@ -27,9 +27,8 @@ var exerciseTests = function(exerciseId) {
         }
     };
 
-    $('#test-input').on('input', validateSettings);
-
-    $('#test-output').on('input', validateSettings);
+    $('#test-input').on('input', validateTestParams);
+    $('#test-output').on('input', validateTestParams);
 
 
     // Expand a test's view (by clicking on its heading)
@@ -79,7 +78,6 @@ var exerciseTests = function(exerciseId) {
         // Avoid triggering an event on the parent li
         e.stopPropagation();
     });
-
 };
 
 
@@ -88,12 +86,13 @@ $(document).ready(function() {
     var $exercise = $('#exercise');
     var exerciseId = $exercise.data('id');
     var boilerplateCode = $exercise.data('boilerplate-code');
+    var referenceCode   = $exercise.data('reference-code');
 
     /* Getting Handlebar templates */
     testsListTemplate = loadTemplate('#tests-list-template');
 
     /* Initialize tests interface */
-    exerciseTests(exerciseId);
+    initExercise(exerciseId);
 
     /* Editor initialization and configuration */
     var exerciseEditor = ace.edit("exercise-editor");
@@ -101,10 +100,11 @@ $(document).ready(function() {
     exerciseEditor.setFontSize(15);
     exerciseEditor.setShowPrintMargin(false);
     exerciseEditor.getSession().setMode("ace/mode/c_cpp");
+    exerciseEditor.setValue(boilerplateCode);
 
-    exerciseEditor.setValue("Exercise code here");
+    var referenceEditor = ace.edit("main-editor");
+    referenceEditor.setValue(referenceCode);
 
-    // TODO: make it editable
     /* Formatting the markdown description */
     var descriptionMarkdown = $('.description').text();
     var descriptionHtml = markdown.makeHtml(descriptionMarkdown);
