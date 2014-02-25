@@ -40,7 +40,7 @@ def get_logger(name):
     handler2 = RainbowLoggingHandler(
             sys.stdout,
             '%Y-%m-%d %H:%M:%S',
-            color_asctime=('black', None, True)
+            color_asctime=('white', None, False)
     )
     handler2.setFormatter(log_formatter)
     handler2.setLevel(logging.DEBUG)

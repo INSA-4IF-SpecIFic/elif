@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# coding=utf8
 
 import os
 import sandbox
@@ -23,6 +25,17 @@ def test_basic_compilation():
     tutil_code("int main() { return 0; }\n", 0)
     tutil_code("int main() { return }\n", 1)
     tutil_code("int hello() { return 0; }\n", 1)
+
+def test_utf8_compilation():
+    code = '\n'.join([
+        '#include <stdio.h>',
+        'int main() {',
+        'printf("héllo world\\n");',
+        'return 0;',
+        '}'
+    ])
+
+    tutil_code(code, 0)
 
 def test_executable_file():
     s = sandbox.Sandbox()

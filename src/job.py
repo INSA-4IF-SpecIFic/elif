@@ -80,7 +80,7 @@ class Submission(Job):
     def process(self, sandbox):
         """ Processes the Submission job"""
 
-        comp = Compilation(sandbox, self.code)
+        comp = Compilation(sandbox, self.code.encode('utf-8'))
 
         if comp.return_code != 0:
             self.compilation_error = True
