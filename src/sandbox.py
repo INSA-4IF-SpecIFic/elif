@@ -300,6 +300,21 @@ class Sandbox(object):
 
         return True
 
+    def clone_dir(self, path_src):
+        """Clones a directory to the sandbox
+
+        Important:
+            - <path_src> must be in the main basis
+        """
+        assert path_src[0] == '/'
+
+        path_dest = self.to_main_basis(path_src)
+
+        if os.path.exists(path_dest):
+            return
+
+        shutil.copytree(path_src, path_dest)
+
     def clone_bin(self, bin_path_src):
         """Clones a binary file and its dependencies to the sandbox
 
