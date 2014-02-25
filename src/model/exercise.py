@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import mongoengine
+from user import User
 
 class Test(mongoengine.Document):
     input = mongoengine.StringField(required=True)
@@ -35,3 +35,27 @@ class Exercise(mongoengine.Document):
 
     tags = mongoengine.ListField(mongoengine.StringField())
     score = mongoengine.IntField(default=0)
+
+class ExerciseProgress(mongoengine.Document):
+    user = mongoengine.ReferenceField(User, required=True)
+    exercise = mongoengine.ReferenceField(Exercise, required=True)
+
+    best_results = mongoengine.ListField(mongoengine.ReferenceField(TestResult), default=list)
+    score = mongoengine.IntField(default=0)
+
+    def update_progress(self,last_submission):
+        if last_submission.compilation_error:
+            pass
+        last_results = last_submission.test_results
+        last_score = self.get_score(last_results)
+        if self.score < last_score :
+            self.score = last_score
+            self.best_results = last_results
+
+    def get_score(self,results) :
+        nb_passed = len([t for t in results if t.passed])
+        nb_total = len(results)
+        score_total = self.exercise.score
+        if nb_passed < nb_total :
+            return  score_total * nb_passed / nb_total
+        return score_total

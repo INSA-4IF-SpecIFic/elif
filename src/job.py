@@ -1,6 +1,6 @@
 import datetime
 import mongoengine
-from model.exercise import Exercise, TestResult
+from model.exercise import Exercise, TestResult, ExerciseProgress
 from model.user import User
 from compilation import Compilation
 
@@ -81,6 +81,7 @@ class Submission(Job):
         """ Processes the Submission job"""
 
         comp = Compilation(sandbox, self.code)
+        progress,_ = ExerciseProgress.objects.get_or_create(user=self.user, exercise=self.exercise)
 
         if comp.return_code != 0:
             self.compilation_error = True
@@ -92,6 +93,9 @@ class Submission(Job):
             test_result = self.test_result(comp, test)
 
             self.test_results.append(test_result)
+
+        progress.update_progress(self)
+        progress.save()
 
     def to_dict(self):
         result = super(Submission, self).to_dict()
