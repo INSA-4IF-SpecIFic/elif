@@ -608,3 +608,6 @@ def python_env(sandbox):
         sandbox.clone_bin_dependencies(
             "/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python"
         )
+
+    else: # Linux
+        sandbox.clone_dir("/usr/include/python2.7")
