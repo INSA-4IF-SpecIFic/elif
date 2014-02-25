@@ -60,13 +60,19 @@
         <div class="tab-content">
 
           <div class="tab-pane active " id="description">
-
+          {% if user.editor %}
+          <div class="description" id="description-editor"></div>
+          <textarea id="description-editor-content" style="display:none">
+{{exercise.description}}
+          </textarea>
+          {% else %}
           <h3>{{exercise.title}}</h3>
-
             <div class="description">
 {{exercise.description}}
             </div>
+          {% endif %}
           </div>
+
 
           {% if user.editor %}
           <div class="tab-pane tests" id="tests">
@@ -166,6 +172,7 @@
 {% block javascript %}
 <script src="/static/js/ace/ace.js"></script>
 <script src="/static/js/editor.js"></script>
+<script src="/static/js/epiceditor.min.js"></script>
 {% if user.editor %}
 <script src="/static/js/teacher_editor.js"></script>
 {% else %}
