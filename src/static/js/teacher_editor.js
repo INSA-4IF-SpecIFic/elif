@@ -105,8 +105,44 @@ $(document).ready(function() {
     var referenceEditor = ace.edit("main-editor");
     referenceEditor.setValue(referenceCode);
 
-    /* Formatting the markdown description */
-    var descriptionMarkdown = $('.description').text();
-    var descriptionHtml = markdown.makeHtml(descriptionMarkdown);
-    $('.description').html(descriptionHtml);
+    var opts = {
+      container: 'description-editor',
+      textarea: 'description-editor-content',
+      basePath: '/static/css/',
+      clientSideStorage: true,
+      localStorageName: 'epiceditor',
+      useNativeFullscreen: true,
+      parser: marked,
+      file: {
+        name: 'epiceditor',
+        defaultContent: '',
+        autoSave: 100
+      },
+      theme: {
+        base: 'epiceditor/base/epiceditor.css',
+        preview: 'bootstrap.min.css',
+        editor: 'epiceditor/editor/epic-light.css'
+      },
+      button: {
+        preview: true,
+        fullscreen: true,
+        bar: "auto"
+      },
+      focusOnLoad: false,
+      shortcut: {
+        modifier: 18,
+        fullscreen: 70,
+        preview: 80
+      },
+      string: {
+        togglePreview: 'Toggle Preview Mode',
+        toggleEdit: 'Toggle Edit Mode',
+        toggleFullscreen: 'Enter Fullscreen'
+      },
+      autogrow: true
+    }
+    var editor = new EpicEditor(opts);
+    editor.load();
+    editor._setupTextareaSync();
+    editor.preview();
 });
