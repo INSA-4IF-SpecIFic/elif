@@ -102,7 +102,7 @@ class Submission(Job):
 
         for test in self.exercise.tests:
             test_result = self.test_result(comp, test, logger)
-
+            test_result.save()
             self.test_results.append(test_result)
 
         # Updating best performance
@@ -114,11 +114,3 @@ class Submission(Job):
         result = super(Submission, self).to_dict()
         result['test_results'] = [test_r.to_dict() for test_r in self.test_results]
         return result
-
-    def save(self):
-        """Overloads mongoengine.Document.save()"""
-
-        for result in self.test_results:
-            result.save()
-
-        super(Submission, self).save()

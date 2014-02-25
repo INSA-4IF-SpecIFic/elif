@@ -111,10 +111,13 @@
 
 
     <h4>Compilation error</h4>
-    <div class="alert label-danger">
-        {{breaklines compilation_log}}
-    </div>
-
+    <ul class="errors">
+      {{#each errors}}
+      <li class="alert label-danger">
+          <span class="type">{{type}}</span> - <span class="line">{{row}}</span>:{{column}} - <span class="message">{{breaklines message}}</span>
+      </li>
+      {{/each}}
+    </ul>
   {{else}}
 
     <h4>Test results</h4>

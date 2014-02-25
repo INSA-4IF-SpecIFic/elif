@@ -37,7 +37,7 @@ class Exercise(mongoengine.Document):
     tests = mongoengine.ListField(mongoengine.ReferenceField(Test), default=list)
 
     tags = mongoengine.ListField(mongoengine.StringField())
-    score = mongoengine.IntField(default=0)
+    score = mongoengine.IntField(default=42)
 
 class ExerciseProgress(mongoengine.Document):
     user = mongoengine.ReferenceField(User, required=True)

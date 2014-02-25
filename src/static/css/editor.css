@@ -109,3 +109,17 @@
   max-height: 200px;
   overflow-y: auto;
 }
+
+.errors {
+  padding: 0;
+  list-style: none;
+}
+
+.errors .type {
+  text-transform: capitalize;
+  font-weight: bold;
+}
+
+.errors .message {
+  font-style: italic;
+}
