@@ -3,7 +3,7 @@
 
 import mongoengine
 
-from flask import request, session, jsonify, Blueprint, g
+from flask import request, jsonify, Blueprint, g
 from model.user import User
 from model.exercise import Exercise, Test
 from job import Submission
@@ -13,11 +13,6 @@ rest_api = Blueprint('rest_api', __name__)
 
 # \ ! / Monkey patching mongoengine to make json dumping easier
 mongoengine.Document.to_dict = utils.to_dict
-
-@rest_api.before_request
-def load_user():
-    """ Injects the current logged in user (if any) to the request context """
-    g.user = User.objects(email=session.get('logged_in')).first()
 
 # Users
 
