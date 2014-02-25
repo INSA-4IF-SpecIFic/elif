@@ -26,6 +26,23 @@ var submissionState = function(submission_id) {
         $('#test-button').removeAttr('disabled');
 
         $('#output').html(output_template(submission));
+
+        var annotations = [];
+        $.each(submission.errors, function(i, error) {
+            annotations.push({
+              row: error.row - 1,
+              column: error.column,
+              text: error.message,
+              type: "error"
+            });
+        });
+
+        console.log(annotations);
+
+        editor.getSession().setAnnotations(annotations);
+
+
+
         $('.nav-tabs a[href="#output"]').tab('show');
     });
 
@@ -128,7 +145,7 @@ $(document).ready(function() {
     exerciseTests(exercise_id);
 
     /* Editor initialization and configuration */
-    var editor = ace.edit("editor");
+    editor = ace.edit("editor");
     editor.setTheme("ace/theme/textmate");
     editor.setFontSize(15);
     editor.setShowPrintMargin(false);
