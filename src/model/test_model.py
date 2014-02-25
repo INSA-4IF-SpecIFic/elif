@@ -5,6 +5,7 @@ import pytest
 import mongoengine
 
 from user import User, generate_salt, hash_password
+from exercise import ExerciseProgress, Exercise, Test, TestResult
 import config
 
 # Connecting to a test db
@@ -34,3 +35,32 @@ def test_user():
     assert user.valid_password('KikOo')
     assert not user.valid_password('Lolilol')
     assert not user.valid_password('kikoo')
+
+def test_exercise_progress():
+    mongoengine.connect(config.db_name)
+
+    # User
+    user = User.new_user(username="hAlflIngs", email="MonMel@{}".format(config.email_domain), password="KikOo").save()
+
+    # Editor user
+    editor = User.new_user(email="editor@{}".format(config.email_domain),
+              username="editor_user", password="123456", editor=True).save()
+    # Ex 1
+    exercise = Exercise(author=editor, title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
+                        boilerplate_code='b', reference_code='#', tags=['sort','trees'])
+
+    # Test
+    test = Test(input='1\n', output='1').save()
+    exercise.tests.append(test)
+
+    exercise.save()
+
+    # Result test
+    result = TestResult(test=test).save()
+
+    # Progression for this user
+    progress = ExerciseProgress(user=user, exercise=exercise)
+
+    progress.best_results.append(result)
+
+    progress.save()
