@@ -46,7 +46,7 @@
                 {% set status = "none" if not p else "passed" if p.completion == 1 else "partial" if p.completion > 0 else "failed"%}
 
                 <td class="{{status}}">
-                    {{status|capitalize}}
+                    {{status|capitalize}} {% if p and 0 < p.completion < 1 %}<span class="completion">{{(100*p.completion)|round(1)}}%</span>{% endif %}
                 </td>
 
                 {% endfor %}

@@ -1,15 +1,15 @@
 .progress-table td {
 }
 
-.progress-table td.failed, .progress-table td.passed {
+.progress-table td.failed, .progress-table td.passed, .progress-table td.partial {
     font-weight: bold;
     color: #FFF;
 }
 
 .progress-table td.partial {
   background: #D84A0A;
-  border: 1px solid #FFCDB6;
-  color: #FFCDB6;
+  border: 1px solid #9F3403;
+  color: #FAE5DB;
 }
 
 .progress-table td.failed {
