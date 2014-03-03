@@ -19,10 +19,12 @@
 <div class="col-md-4">
     <div class="form-group">
         <div class="well">
+
             <div class="left-inner-addon" >
                 <i class="glyphicon glyphicon-search"></i>
                 <input type="text" class="form-control" id="search" placeholder="Search" name="search">
             </div>
+
             <ul class="tagsmenu">
                 {% for key, value in occurrences.iteritems() %}
                 <li class="list-group-item tag">
@@ -33,18 +35,15 @@
                 </li>
                 {% endfor %}
             </ul>
+
         </div>
     </div>
 </div>
 
 <div class="col-md-8">
-    <!-- Tab panes -->
-    <div class="tab-content">
 
-        <ul class="exercises">
-        </ul>
-
-    </div>
+    <ul class="exercises">
+    </ul>
 
 </div>
 

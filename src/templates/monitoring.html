@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block style %}
+<link href="/static/css/index.css" rel="stylesheet">
+<link href="/static/css/monitoring.css" rel="stylesheet">
+
+{% endblock %}
+
+{% block body %}
+
+{% include "header.html" %}
+
+<div class="col-md-4">
+    <h2>Exercises</h2>
+
+    <ul class="exercises">
+        {% for exercise in exercises %}
+        <li class="list-group-item tag">
+            <a href="#">
+                <span class="name">{{exercise.title}}</span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+
+</div>
+
+<div class="col-md-8">
+    <h2>Students progress</h2>
+
+    <table class="table progress-table">
+        <thead>
+            <th>Username</th>
+            {% for exercise in exercises %}
+            <th>{{exercise.title}}</th>
+            {% endfor %}
+        </thead>
+
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{user.username}}</td>
+                {% for exercise in exercises %}
+
+                {% set p = progress[user].get(exercise, None) %}
+                {% set status = "none" if not p else "passed" if p.completion == 1 else "partial" if p.completion > 0 else "failed"%}
+
+                <td class="{{status}}">
+                    {{status|capitalize}}
+                </td>
+
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock body %}
+
+
+{% block javascript %}
+<script src="/static/js/monitoring.js"></script>
+{% endblock %}

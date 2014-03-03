@@ -81,6 +81,16 @@ def test_db():
     User.new_user(email="dummy@{}".format(config.email_domain),
                   username="dummy_username", password="123456", editor=False).save()
 
+    # Other dummmy users
+    User.new_user(email="dummy1@{}".format(config.email_domain),
+                  username="dummy_username1", password="123456", editor=False).save()
+
+    User.new_user(email="dummy2@{}".format(config.email_domain),
+                  username="dummy_username2", password="123456", editor=False).save()
+
+    User.new_user(email="dummy3@{}".format(config.email_domain),
+                  username="dummy_username3x", password="123456", editor=False).save()
+
     # Editor user
     editor = User.new_user(email="editor@{}".format(config.email_domain),
               username="editor_user", password="123456", editor=True).save()

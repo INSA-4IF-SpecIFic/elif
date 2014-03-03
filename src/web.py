@@ -7,7 +7,7 @@ import mongoengine
 
 import config
 from model.user import User
-from model.exercise import Exercise
+from model.exercise import Exercise, ExerciseProgress
 import utils
 from api import rest_api
 
@@ -86,10 +86,22 @@ def process_signup():
 def welcome():
     return render_template('welcome.html')
 
+@app.route('/monitoring')
+@requires_login
+def monitoring():
+    if not g.user.editor:
+        redirect('/')
+
+    users = User.objects(editor=False)
+    exercises = Exercise.objects()
+    progress = {user: {p.exercise: p for p in ExerciseProgress.objects(user=user)} for user in users}
+
+    return render_template('monitoring.html', users=users, exercises=exercises, progress=progress)
+
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
-    return redirect('/')
+    return redirect('/login')
 
 @app.route('/exercise/<exercise_id>')
 @requires_login

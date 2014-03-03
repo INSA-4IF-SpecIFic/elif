@@ -1,0 +1,25 @@
+.progress-table td {
+}
+
+.progress-table td.failed, .progress-table td.passed {
+    font-weight: bold;
+    color: #FFF;
+}
+
+.progress-table td.partial {
+  background: #D84A0A;
+  border: 1px solid #FFCDB6;
+  color: #FFCDB6;
+}
+
+.progress-table td.failed {
+  background: #C01B3A;
+  border: 1px solid #881C30;
+  color: #FCEDF0;
+}
+
+.progress-table td.passed {
+  background: #5cb85c;
+  border: 1px solid #2ecc71;
+  color: #EDFCEE;
+}
