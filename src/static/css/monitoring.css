@@ -1,25 +1,27 @@
-.progress-table td {
+.progress-cell {
+    background: #F1F1F1;
+    border: 1px solid #CACACA;
 }
 
-.progress-table td.failed, .progress-table td.passed, .progress-table td.partial {
+.progress-cell.failed, .progress-cell.passed, .progress-cell.partial {
     font-weight: bold;
     color: #FFF;
 }
 
-.progress-table td.partial {
+.progress-cell.partial {
   background: #D84A0A;
-  border: 1px solid #9F3403;
+  border-color: #9F3403;
   color: #FAE5DB;
 }
 
-.progress-table td.failed {
+.progress-cell.failed {
   background: #C01B3A;
-  border: 1px solid #881C30;
+  border-color: #881C30;
   color: #FCEDF0;
 }
 
-.progress-table td.passed {
+.progress-cell.passed {
   background: #5cb85c;
-  border: 1px solid #2ecc71;
+  border-color: #2ecc71;
   color: #EDFCEE;
 }

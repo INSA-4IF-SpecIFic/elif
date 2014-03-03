@@ -15,7 +15,7 @@
 
     <ul class="exercises">
         {% for exercise in exercises %}
-        <li class="list-group-item tag">
+        <li class="list-group-item tag" data-exercise-id="{{exercise.id}}">
             <a href="#">
                 <span class="name">{{exercise.title}}</span>
             </a>
@@ -32,7 +32,7 @@
         <thead>
             <th>Username</th>
             {% for exercise in exercises %}
-            <th>{{exercise.title}}</th>
+            <th data-exercise-id="{{exercise.id}}">{{exercise.title}}</th>
             {% endfor %}
         </thead>
 
@@ -45,7 +45,7 @@
                 {% set p = progress[user].get(exercise, None) %}
                 {% set status = "none" if not p else "passed" if p.completion == 1 else "partial" if p.completion > 0 else "failed"%}
 
-                <td class="{{status}}">
+                <td class="progress-cell {{status}}">
                     {{status|capitalize}} {% if p and 0 < p.completion < 1 %}<span class="completion">{{(100*p.completion)|round(1)}}%</span>{% endif %}
                 </td>
 
