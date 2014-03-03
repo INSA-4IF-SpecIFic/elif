@@ -89,7 +89,7 @@ def test_db():
                   username="dummy_username2", password="123456", editor=False).save()
 
     User.new_user(email="dummy3@{}".format(config.email_domain),
-                  username="dummy_username3x", password="123456", editor=False).save()
+                  username="dummy_username3", password="123456", editor=False).save()
 
     # Editor user
     editor = User.new_user(email="editor@{}".format(config.email_domain),
@@ -107,10 +107,12 @@ def test_db():
     exercise.save()
 
     # Ex 2
-    exercise = Exercise(author=editor, title="Another exercise's title",
+    params = dict(author=editor, title="Another exercise's title",
                     description="## This is an exercise\n\n* El1\n* El2\n![Alt text](/static/img/cat.jpeg)",
                     boilerplate_code='int main() {\n}', reference_code='int main() {    // lol   }',
                     tags=['algorithms','trees'])
+
+    exercise = Exercise(**params)
 
     test = Test(input='1\n', output='1').save()
     exercise.tests.append(test)
@@ -120,8 +122,22 @@ def test_db():
 
     exercise.save()
 
-
     # Ex 3
+    params['title'] = "Yet another exercise"
+    exercise = Exercise(**params)
+    exercise.save()
+
+    # Ex 4
+    params['title'] = "And here's another exercise !"
+    exercise = Exercise(**params)
+    exercise.save()
+
+    # Ex 5
+    params['title'] = "And a last random exercise"
+    exercise = Exercise(**params)
+    exercise.save()
+
+    # Ex 6
     exercise = Exercise(author=editor, title="Return n*2",
                     description="## Just double the freaking number !\n\n* You get a\n* Print a x 2\n![Alt text](/static/img/cat.jpeg)",
                     boilerplate_code='#include <iostream>\nint main() {\n  int a;\n  std::cin >> a;\n}',
