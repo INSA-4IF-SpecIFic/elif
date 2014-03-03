@@ -32,7 +32,7 @@ class Exercise(mongoengine.Document):
     boilerplate_code = mongoengine.StringField(default=str)
     reference_code = mongoengine.StringField(required=True)
 
-    tests = mongoengine.ListField(mongoengine.ReferenceField(Test), default=list)
+    tests = mongoengine.ListField(mongoengine.ReferenceField(Test), required=True)
 
     tags = mongoengine.ListField(mongoengine.StringField())
     score = mongoengine.IntField(default=42)
@@ -60,4 +60,4 @@ class ExerciseProgress(mongoengine.Document):
             self.best_results = last_results
 
     def calculate_completion(self, results):
-        return  len([t for t in results if t.passed]) / float(len(results))
+        return 0.0 if not results else len([t for t in results if t.passed]) / float(len(results))
