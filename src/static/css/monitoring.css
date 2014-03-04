@@ -1,0 +1,27 @@
+.progress-cell {
+    background: #F1F1F1;
+    border: 1px solid #CACACA;
+}
+
+.progress-cell.failed, .progress-cell.passed, .progress-cell.partial {
+    font-weight: bold;
+    color: #FFF;
+}
+
+.progress-cell.partial {
+  background: #D84A0A;
+  border-color: #9F3403;
+  color: #FAE5DB;
+}
+
+.progress-cell.failed {
+  background: #C01B3A;
+  border-color: #881C30;
+  color: #FCEDF0;
+}
+
+.progress-cell.passed {
+  background: #5cb85c;
+  border-color: #2ecc71;
+  color: #EDFCEE;
+}
