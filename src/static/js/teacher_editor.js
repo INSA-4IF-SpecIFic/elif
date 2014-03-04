@@ -120,7 +120,7 @@ $(document).ready(function() {
       },
       theme: {
         base: 'epiceditor/base/epiceditor.css',
-        preview: 'bootstrap.min.css',
+        preview: 'description-editor.css',
         editor: 'epiceditor/editor/epic-light.css'
       },
       button: {
