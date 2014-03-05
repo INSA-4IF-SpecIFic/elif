@@ -1,6 +1,15 @@
-/* \!/ You must include student.js before this file !!! */
+/* \!/ You must include editor.js before this file !!! */
 
 var initExercise = function(exerciseId) {
+
+    // Unpublish exercise
+    params = { exercise_id: exerciseId };
+    apiCall('/api/exercise/unpublish', 'POST', params, function(data) {
+        if(!data.ok) {
+            notification.error("Failed to unpublish exercise: " + data.result);
+        }
+    });
+
 
     // Disable add button
     $('#btn-add-test').attr('disabled', 'disabled');
@@ -146,7 +155,7 @@ $(document).ready(function() {
     editor._setupTextareaSync();
     editor.preview();
 
-    $('#save-button').click(function() {
+    $('#publish-button').click(function() {
         var $this = $(this)
 
         $this.attr('disabled', 'disabled');
@@ -164,7 +173,7 @@ $(document).ready(function() {
         console.log("reference code : " + referenceCode);
 
         params = { title: title, description: description,
-                   boilerplate_code: boilerplateCode, reference_code: referenceCode };
+                   boilerplate_code: boilerplateCode, reference_code: referenceCode, published: true };
 
         apiCall('/api/exercise/' + exerciseId, 'POST', params, function(data) {
             if(data.ok) {

@@ -37,6 +37,8 @@ class Exercise(mongoengine.Document):
     tags = mongoengine.ListField(mongoengine.StringField())
     score = mongoengine.IntField(default=42)
 
+    published = mongoengine.BooleanField(default=False);
+
     def __hash__(self):
         return hash(self.title)
 

@@ -54,8 +54,8 @@
 {% raw %}
 <script id="exercise-template" type="text/x-handlebars-template">
 
+    {{#if published }}
     <li>
-
         <span class="badge coins pull-left">
             <img src="/static/img/coin.png"/>
             <span class="value">{{score}}</span><br>
@@ -79,6 +79,7 @@
 
         </div>
     </li>
+    {{/if}}
 
 </script>
 {% endraw %}

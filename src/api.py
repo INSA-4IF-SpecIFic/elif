@@ -42,6 +42,33 @@ def search_words():
     found = [f.to_dict() for f in found]
     return jsonify(ok=True, result=found)
 
+@rest_api.route('/api/exercise/publish', methods=['POST'])
+def publish_exercise():
+    exercise_id = request.json['exercise_id']
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    exercise.published = True
+    exercise.save()
+    return jsonify(ok=True, result=utils.dump_exercise(exercise))
+
+@rest_api.route('/api/exercise/unpublish', methods=['POST'])
+def unpublish_exercise():
+    exercise_id = request.json['exercise_id']
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    exercise.published = False
+    exercise.save()
+    return jsonify(ok=True, result=utils.dump_exercise(exercise))
+
+
 @rest_api.route('/api/exercise/<exercise_id>', methods=['GET'])
 def exercise(exercise_id):
     exercise = None
@@ -67,6 +94,7 @@ def update_exercise(exercise_id):
     exercise.description = request.json['description']
     exercise.boilerplate_code = request.json['boilerplate_code']
     exercise.reference_code = request.json['reference_code']
+    exercise.published = request.json['published']
 
     exercise.save()
 

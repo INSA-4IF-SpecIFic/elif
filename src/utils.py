@@ -62,6 +62,7 @@ def sample_exercise(author):
     test = Test(input="1\n", output="42", cpu_time="100", memory_used="100").save()
     exercise.tests.append(test)
     test = Test(input="2\n", output="43", cpu_time="100", memory_used="100").save()
+    exercise.published = True
     exercise.tests.append(test)
 
     return exercise
@@ -105,6 +106,7 @@ def test_db():
                         boilerplate_code='b', reference_code='#', tags=['sort','trees'])
     exercise.tests.append(test1)
     exercise.tests.append(test2)
+    exercise.published = True
     exercise.save()
 
     # Ex 2
@@ -115,6 +117,7 @@ def test_db():
     exercise = Exercise(**params)
     exercise.tests.append(test1)
     exercise.tests.append(test2)
+    exercise.published = True
     exercise.save()
 
     # Ex 3
@@ -122,6 +125,7 @@ def test_db():
     exercise = Exercise(**params)
     exercise.tests.append(test1)
     exercise.tests.append(test2)
+    exercise.published = True
     exercise.save()
 
     # Ex 4
@@ -129,6 +133,7 @@ def test_db():
     exercise = Exercise(**params)
     exercise.tests.append(test1)
     exercise.tests.append(test2)
+    exercise.published = True
     exercise.save()
 
     # Ex 5
@@ -136,6 +141,7 @@ def test_db():
     exercise = Exercise(**params)
     exercise.tests.append(test1)
     exercise.tests.append(test2)
+    exercise.published = True
     exercise.save()
 
     # Ex 6
@@ -154,6 +160,7 @@ def test_db():
     test = Test(input='-2\n', output='4').save()
     exercise.tests.append(test)
 
+    exercise.published = True
     exercise.save()
 
 
