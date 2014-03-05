@@ -53,15 +53,17 @@ def get_logger(name):
 
 def sample_exercise(author):
     exercise = Exercise(author=author,
-                    title="#{} - Sample exercise".format(len(Exercise.objects)),
-                    description="## Just double the freaking number !\n\n* You get a\n* Print a x 2\n![Alt text](/static/img/cat.jpeg)",
-                    boilerplate_code='#include <iostream>\nint main() {\n  int a;\n  std::cin >> a;\n  return 0;\n}',
-                    reference_code='int main() {}',
+                    title="#{} - New exercise".format(len(Exercise.objects)),
+                    description=config.default_description,
+                    boilerplate_code=config.default_boilerplate_code,
+                    reference_code=config.default_boilerplate_code,
                     tags=['algorithms'])
+
     test = Test(input="1\n", output="42", cpu_time="100", memory_used="100").save()
     exercise.tests.append(test)
     test = Test(input="2\n", output="43", cpu_time="100", memory_used="100").save()
     exercise.tests.append(test)
+
     return exercise
 
 def sample_user():
