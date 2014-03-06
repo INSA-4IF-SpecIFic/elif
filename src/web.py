@@ -55,7 +55,7 @@ def index():
     occurrences = {}
     tags = set(t for e in Exercise.objects for t in e.tags)
     for t in tags :
-        occurrences[t] = str(len(Exercise.objects(tags=t)))
+        occurrences[t] = str(len(Exercise.objects(tags=t,published=True)))
     return render_template('index.html', occurrences=occurrences)
 
 @app.route('/login', methods=['GET'])
@@ -108,6 +108,17 @@ def logout():
 def exercise(exercise_id):
     exercise = Exercise.objects.get(id=exercise_id)
     return render_template('exercise.html', exercise=exercise)
+
+@app.route('/exercise/delete/<exercise_id>')
+def delete_exercise(exercise_id):
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist:
+        return render_template('exercise.html', ok=False)
+
+    exercise.delete()
+    return render_template('exercise.html', ok=True)
 
 @app.route('/new_exercise', methods=['POST'])
 def new_exercise():

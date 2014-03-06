@@ -96,6 +96,13 @@ $(document).ready(function() {
     var exerciseId = $exercise.data('id');
     var boilerplateCode = $exercise.data('boilerplate-code');
     var referenceCode   = $exercise.data('reference-code');
+    apiCall('/api/tags', 'POST', {exercise_id : exerciseId}, function(data) {
+        tags = data.result;
+        // initialize exercise's tags
+        for (var i = 0; i < tags.length; i++) {
+            $(".tagsManager").tagsManager('pushTag',tags[i]);
+        }
+    });
 
     /* Getting Handlebar templates */
     testsListTemplate = loadTemplate('#tests-list-template');
@@ -164,6 +171,7 @@ $(document).ready(function() {
 
         var title = $("#exercise-title").text();
         var description = editor.getElement('editor').body.innerText;
+        var tags = $('[name="hiddenTagList"]').val();
         var boilerplateCode  = exerciseEditor.getValue();
         var referenceCode = referenceEditor.getValue();
 
@@ -171,9 +179,10 @@ $(document).ready(function() {
         console.log("description : " + description);
         console.log("exercise code : " + boilerplateCode);
         console.log("reference code : " + referenceCode);
+        console.log("tags : " + tags);
 
         params = { title: title, description: description,
-                   boilerplate_code: boilerplateCode, reference_code: referenceCode, published: true };
+                   boilerplate_code: boilerplateCode, reference_code: referenceCode, published: true, tags: tags};
 
         apiCall('/api/exercise/' + exerciseId, 'POST', params, function(data) {
             if(data.ok) {
@@ -187,5 +196,21 @@ $(document).ready(function() {
         });
     });
 
+    //tags input configuration
+    $(function () {
+        $(".tagsManager").tagsManager({
+            prefilled: null,
+            CapitalizeFirstLetter: true,
+            preventSubmitOnEnter: true,
+            typeahead: true,
+            typeaheadAjaxSource: "/api/tags",
+            typeaheadSource: ["Algorithms","Trees","Sort"],
+            delimiters: [9, 13, 44], // tab, enter, comma
+            backspace: [8],
+            blinkBGColor_1: '#FFFF9C',
+            blinkBGColor_2: '#CDE69C',
+            hiddenTagListName: 'hiddenTagList'
+        });
+    });
 
 });

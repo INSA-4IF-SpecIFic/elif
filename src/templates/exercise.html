@@ -63,6 +63,7 @@
           <div class="tab-pane active " id="description">
             <h3 id="exercise-title">{{exercise.title}}</h3>
             {% if user.editor %}
+            <input type="text" name="tags" placeholder="Tags" class="tagsManager"/>
             <div class="description" id="description-editor"></div>
             <textarea id="description-editor-content" style="display:none">
 {{exercise.description}}
