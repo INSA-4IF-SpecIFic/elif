@@ -3,18 +3,18 @@
 
 import os
 import sandbox
-from compilation import Compilation
+import compilation
 
 def tutil_code(code, return_code):
     s = sandbox.Sandbox()
-    comp = Compilation(s, code)
+    comp = compilation.create(s, code, 'c++')
 
     assert comp.return_code == return_code
 
 def tutil_run(code, return_code):
     s = sandbox.Sandbox()
 
-    comp = Compilation(s, code)
+    comp = compilation.create(s, code, 'c++')
     assert comp.return_code == 0
 
     feedback = comp.run()
@@ -39,7 +39,7 @@ def test_utf8_compilation():
 
 def test_executable_file():
     s = sandbox.Sandbox()
-    comp = Compilation(s, "int main() { return 0; }\n")
+    comp = compilation.create(s, "int main() { return 0; }\n", 'c++')
 
     exec_file = comp.exec_file
     assert os.path.isfile(exec_file)
@@ -62,7 +62,7 @@ def test_stdout():
     ])
 
     s = sandbox.Sandbox()
-    comp = Compilation(s, code)
+    comp = compilation.create(s, code, 'c++')
     assert comp.return_code == 0
 
     feedback = comp.run()
