@@ -31,6 +31,7 @@ class Exercise(mongoengine.Document):
 
     boilerplate_code = mongoengine.StringField(default=str)
     reference_code = mongoengine.StringField(required=True)
+    code_language = mongoengine.StringField(required=True, default='c++')
 
     tests = mongoengine.ListField(mongoengine.ReferenceField(Test), required=True)
 

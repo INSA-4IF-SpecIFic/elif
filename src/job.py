@@ -2,7 +2,7 @@ import datetime
 import mongoengine
 from model.exercise import Exercise, TestResult, ExerciseProgress
 from model.user import User
-from compilation import Compilation
+import compilation
 
 class Job(mongoengine.Document):
     date_created = mongoengine.DateTimeField(default=datetime.datetime.now)
@@ -92,7 +92,7 @@ class Submission(Job):
         """ Processes the Submission job"""
 
         logger.info("Processing exercise submitted by <{}>".format(self.user.username))
-        comp = Compilation(sandbox, self.code.encode('utf-8'))
+        comp = compilation.create(sandbox, self.code.encode('utf-8'), self.exercise.code_language)
 
         if comp.return_code != 0:
             self.compilation_error = True

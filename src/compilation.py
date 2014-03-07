@@ -1,44 +1,65 @@
 import os
 import subprocess
 import tempfile
+import py_compile
 
 class Compilation(object):
     """Code compilation object"""
 
-    def __init__(self, sandbox, code, compiler_cmd='clang++'):
+    def __init__(self, sandbox):
+        """Compiles the code"""
+
+        self.sandbox = sandbox
+        self.exec_file = None
+        self.errors = None
+        self.log = ''
+        self.return_code = 1
+
+    def __del__(self):
+        if self.exec_file == None:
+            return
+
+        if os.path.isfile(self.exec_file):
+            os.remove(self.exec_file)
+
+
+class ClangCompilation(Compilation):
+    """Code compilation object"""
+
+    language_cmds = {
+        'c': ['clang', '-x', 'c'],
+        'c++': ['clang++', '-x', 'c++'],
+    }
+
+    def __init__(self, sandbox, code, language):
         """Compiles the code
 
         Parameters:
             - code must be encoded in UTF8
         """
+        assert language in ClangCompilation.language_cmds
 
-        self.sandbox = sandbox
+        Compilation.__init__(self, sandbox)
+
         self.source_file = tempfile.mktemp(suffix='.cpp', prefix='elif_code_')
         self.exec_file = self.sandbox.mktemp(prefix='exec_')
 
         with open(self.source_file, 'w') as f:
             f.write(code)
 
-        self.errors = None
-        if self._launch_process([compiler_cmd, '-x', 'c++', '-o', self.exec_file, self.source_file]) == 0:
+        cmd = list()
+        cmd.extend(ClangCompilation.language_cmds[language])
+        cmd.append('-o')
+        cmd.append(self.exec_file)
+        cmd.append(self.source_file)
+
+        if self._launch_process(cmd) == 0:
             self.sandbox.clone_bin_dependencies(self.exec_file)
+
         else:
             self.errors = self.parse_output()
 
         os.remove(self.source_file)
-
-    def __del__(self):
-        if os.path.isfile(self.exec_file):
-            os.remove(self.exec_file)
-
-    def _launch_process(self, cmd):
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        process.wait()
-
-        self.return_code = process.returncode
-        self.log = process.stdout.read()
-
-        return self.return_code
 
     def run(self, params=list(), stdin=None):
         """Runs the code in the sandbox and return its process's feedback"""
@@ -60,3 +81,62 @@ class Compilation(object):
             errors.append(dict(row=line, column=column, type=type, message=message))
 
         return errors
+
+    def _launch_process(self, cmd):
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        process.wait()
+
+        self.return_code = process.returncode
+        self.log = process.stdout.read()
+
+        return self.return_code
+
+
+class PythonCompilation(Compilation):
+
+    def __init__(self, sandbox, code):
+        """Compiles the code
+
+        Parameters:
+            - code must be encoded in UTF8
+        """
+        Compilation.__init__(self, sandbox)
+
+        source_file = tempfile.mktemp(suffix='.py', prefix='elif_code_')
+        self.exec_file = self.sandbox.mktemp(prefix='exec_', suffix='.pyc')
+
+        with open(source_file, 'w') as f:
+            f.write(code)
+
+        try:
+            py_compile.compile(source_file, self.exec_file, doraise=True)
+            self.return_code = 0
+
+        except py_compile.PyCompileError as e:
+            self.log = str(e)
+            self.return_code = 1
+
+        os.remove(source_file)
+
+    def run(self, params=list(), stdin=None):
+        """Runs the code in the sandbox and return its process's feedback"""
+        assert self.return_code == 0
+
+        cmd = ['python']
+        cmd.append(self.sandbox.to_sandbox_basis(self.exec_file))
+        cmd.extend(params)
+
+        return self.sandbox.process(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+
+def create(sandbox, code, language):
+    assert sandbox != None
+    assert isinstance(code, str)
+
+    if language == 'c' or language == 'c++':
+        return ClangCompilation(sandbox, code, language)
+
+    elif language == 'python':
+        return PythonCompilation(sandbox, code)
+
+    assert False
