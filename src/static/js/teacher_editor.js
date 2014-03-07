@@ -194,6 +194,8 @@ $(document).ready(function() {
 
             $this.removeAttr('disabled', 'disabled');
         });
+
+        $(location).attr('href', "/");
     });
 
     //tags input configuration

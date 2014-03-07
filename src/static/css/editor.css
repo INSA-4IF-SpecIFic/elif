@@ -125,3 +125,9 @@
 .errors .message {
   font-style: italic;
 }
+
+/* Unpublished warning */
+.unpublished-warn {
+    width: 50%;
+    margin: auto;
+}
