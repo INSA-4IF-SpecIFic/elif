@@ -92,7 +92,7 @@ class Submission(Job):
         """ Processes the Submission job"""
 
         logger.info("Processing exercise submitted by <{}>".format(self.user.username))
-        comp = compilation.create(sandbox, self.code.encode('utf-8'), 'c++')
+        comp = compilation.create(sandbox, self.code.encode('utf-8'), self.exercise.code_language)
 
         if comp.return_code != 0:
             self.compilation_error = True

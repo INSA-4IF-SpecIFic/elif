@@ -15,6 +15,7 @@ class Thread(threading.Thread):
         threading.Thread.__init__(self)
 
         self.sandbox = sandbox.Sandbox()
+        self.sandbox.add_running_env(sandbox.python_env)
         self.dirty_sandbox = False
         self.greedy = greedy
         self.job = None
@@ -87,6 +88,7 @@ class Greedy(object):
 
     def fetch_and_process(self):
         s = sandbox.Sandbox()
+        s.add_running_env(sandbox.python_env)
 
         count = 0
 
