@@ -3,8 +3,7 @@
 var initExercise = function(exerciseId) {
 
     // Unpublish exercise
-    params = { exercise_id: exerciseId };
-    apiCall('/api/exercise/unpublish', 'POST', params, function(data) {
+    apiCall('/api/exercise/'+ exerciseId + '/unpublish', 'POST', {}, function(data) {
         if(!data.ok) {
             notification.error("Failed to unpublish exercise: " + data.result);
         }
@@ -129,9 +128,9 @@ $(document).ready(function() {
     var exerciseId = $exercise.data('id');
     var boilerplateCode = $exercise.data('boilerplate-code');
     var referenceCode   = $exercise.data('reference-code');
-    apiCall('/api/tags', 'POST', {exercise_id : exerciseId}, function(data) {
+    apiCall('/api/exercise/' + exerciseId + '/tags', 'GET', {}, function(data) {
         tags = data.result;
-        // initialize exercise's tags
+        // Initialize exercise's tags
         for (var i = 0; i < tags.length; i++) {
             $(".tagsManager").tagsManager('pushTag',tags[i]);
         }
