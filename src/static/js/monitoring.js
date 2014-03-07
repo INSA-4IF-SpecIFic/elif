@@ -10,7 +10,7 @@ var updateMonitored = function() {
     $('.exercises li:not(.selected)').each(function (i, exercise) {
         var exerciseId = $(exercise).data('exercise-id');
         var ix = $('.progress-table th[data-exercise-id="' + exerciseId + '"]').index();
-        $('.progress-table').find('td:nth-child(' + ix + '),th:nth-child(' + ix + ')').hide();
+        $('.progress-table').find('td:nth-child(' + (ix + 1) + '),th:nth-child(' + (ix + 1) + ')').hide();
     });
 }
 
