@@ -23,6 +23,27 @@ class TestResult(mongoengine.Document):
     cpu_time = mongoengine.FloatField(default=0.0)  # seconds
     memory_used = mongoengine.FloatField(default=0.0)  # kilobytes * ticks-of-execution
 
+    @property
+    def score(self):
+        """Compute the test score"""
+        if not self.passed:
+            return 0.0
+
+        time_score = 0.0
+        memory_score = 0.0
+
+        if self.cpu_time == 0:
+            time_score = 1.0
+        else:
+            time_score = min(float(self.test.cpu_time) / float(self.cpu_time), 1.0)
+
+        if self.memory_used == 0:
+            memory_score = 1.0
+        else:
+            memory_score = min(float(self.test.memory_used) / float(self.memory_used), 1.0)
+
+        return time_score * memory_score
+
 
 class Exercise(mongoengine.Document):
     author = mongoengine.ReferenceField(User, required=True)
@@ -57,10 +78,36 @@ class ExerciseProgress(mongoengine.Document):
 
         last_results = last_submission.test_results
         last_completion = self.calculate_completion(last_results)
-        if self.completion < last_completion:
+        last_score = self.compute_score(last_results)
+
+        if last_completion > self.completion or (last_completion == self.completion and last_score > self.score):
             self.completion = last_completion
-            self.score = last_completion * self.exercise.score
             self.best_results = last_results
+            self.score = last_score
 
     def calculate_completion(self, results):
-        return 0.0 if not results else len([t for t in results if t.passed]) / float(len(results))
+        if not results:
+            return 0.0
+
+        assert len(results) <= len(self.exercise.tests)
+
+        completion = 0.0
+
+        for r in results:
+            if r.passed:
+                completion += 1.0
+
+        return completion / float(len(self.exercise.tests))
+
+    def compute_score(self, results):
+        if not results:
+            return 0.0
+
+        assert len(results) <= len(self.exercise.tests)
+
+        score = 0.0
+
+        for r in results:
+            score += r.score
+
+        return float(self.exercise.score) * score / float(len(self.exercise.tests))
