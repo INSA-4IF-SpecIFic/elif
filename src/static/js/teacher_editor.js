@@ -172,6 +172,10 @@ $(document).ready(function() {
         var title = $("#exercise-title").text();
         var description = editor.getElement('editor').body.innerHTML;
         var tags = $('[name="hiddenTagList"]').val();
+        var score = $('#score').val();
+        if (score == "") {
+            score = $('#score').attr('placeholder');
+        }
         var boilerplateCode  = exerciseEditor.getValue();
         var referenceCode = referenceEditor.getValue();
 
@@ -180,9 +184,10 @@ $(document).ready(function() {
         console.log("exercise code : " + boilerplateCode);
         console.log("reference code : " + referenceCode);
         console.log("tags : " + tags);
+        console.log("score : " + score);
 
         params = { title: title, description: description,
-                   boilerplate_code: boilerplateCode, reference_code: referenceCode, published: true, tags: tags};
+                   boilerplate_code: boilerplateCode, reference_code: referenceCode, published: true, tags: tags, score: score};
 
         apiCall('/api/exercise/' + exerciseId, 'POST', params, function(data) {
             if(data.ok) {
