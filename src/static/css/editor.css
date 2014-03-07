@@ -125,3 +125,17 @@
 .errors .message {
   font-style: italic;
 }
+
+input:invalid {
+  border:1px solid red;
+}
+
+.glyphicon-pencil { 
+  display: inline;
+  margin-left: 10px;
+}
+
+#exercise-title {
+  display: inline;
+  width: 90%;
+}

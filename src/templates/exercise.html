@@ -61,18 +61,24 @@
         <div class="tab-content">
 
           <div class="tab-pane active " id="description">
-            <h3 id="exercise-title">{{exercise.title}}</h3>
-            {% if user.editor %}
-            <input type="text" name="tags" placeholder="Tags" class="tagsManager"/>
-            <div class="description" id="description-editor"></div>
-            <textarea id="description-editor-content" style="display:none">
-{{exercise.description}}
-            </textarea>
-            {% else %}
-              <div class="description">
-{{exercise.description}}
+            <div class="panel panel-default">
+              <div class="panel-heading" id="panel-title">
+                <h3 class="panel-title" id="exercise-title">{{exercise.title}}</h3>
               </div>
-            {% endif %}
+              <div class="panel-body">
+              {% if user.editor %}
+                <div class="input-group">
+                  <span class="input-group-addon"><img src="/static/img/coin.png"/></span>
+                  <input type="tel" class="form-control" placeholder="Points">
+                </div>
+                <input type="text" name="tags" placeholder="Tags" class="tagsManager"/>
+                <div class="description" id="description-editor"></div>
+                <textarea id="description-editor-content" style="display:none">{{exercise.description}}</textarea>
+              {% else %}
+                <div class="description">{{exercise.description}}</div>
+              {% endif %}
+              </div>
+              </div>
             </div>
 
 
