@@ -42,8 +42,8 @@
 
 <div class="col-md-8">
 
-    <ul class="exercises">
-    </ul>
+    <ul id="unpublished-list" class="exercises"></ul>
+    <ul id="exercises-list" class="exercises"></ul>
 
 </div>
 
@@ -55,7 +55,6 @@
 <script id="exercise-template" type="text/x-handlebars-template">
 
     <li>
-
         <span class="badge coins pull-left">
             <img src="/static/img/coin.png"/>
             <span class="value">{{score}}</span><br>
@@ -76,7 +75,35 @@
                 </a>
             {{/each}}
             </ul>
+        </div>
+    </li>
 
+</script>
+
+<script id="unpublished-exercise-template" type="text/x-handlebars-template">
+
+    <li>
+        <span class="badge coins pull-left">
+            <img src="/static/img/coin.png"/>
+            <span class="value">{{score}}</span><br>
+            coins
+
+        </span>
+
+        <a href="/exercise/{{_id.$oid}}">
+            <span class="title">{{title}} </span>
+            <span class="label label-danger">Unpublished</span>
+        </a>
+        <div>
+            <img class="tag-icon pull-left" src="/static/img/tag.png"/>
+
+            <ul class="tags">
+            {{#each tags}}
+                <a href="#">
+                    <li class="tag"><span class="name">{{this}}</span></li>
+                </a>
+            {{/each}}
+            </ul>
         </div>
     </li>
 

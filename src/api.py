@@ -26,6 +26,24 @@ def create_user():
     except mongoengine.ValidationError as e:
         return jsonify(ok=False, result=e.message)
 
+# Tags
+
+@rest_api.route('/api/tags', methods = ["GET"])
+def get_tags():
+    tags = set(t for e in Exercise.objects for t in e.tags)
+    return jsonify(ok=True, result=tags)
+
+@rest_api.route('/api/tags', methods = ["POST"])
+def get_tags_exercise():
+    exercise_id = request.json['exercise_id']
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    return jsonify(ok=True, result=exercise.tags)
+
 # Exercises
 
 @rest_api.route('/api/exercise/search', methods=['POST'])
@@ -38,9 +56,35 @@ def search_words():
         exercises = Exercise.objects
     else :
         exercises = Exercise.objects(tags__in=tags)
-    found = list(set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()]))
-    found = [f.to_dict() for f in found]
-    return jsonify(ok=True, result=found)
+    found = set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()])
+    found = [f.to_dict() for f in found if f.published or f.author.id == g.user.id]
+    return jsonify(ok=True, result=found);
+
+@rest_api.route('/api/exercise/publish', methods=['POST'])
+def publish_exercise():
+    exercise_id = request.json['exercise_id']
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    exercise.published = True
+    exercise.save()
+    return jsonify(ok=True, result=utils.dump_exercise(exercise))
+
+@rest_api.route('/api/exercise/unpublish', methods=['POST'])
+def unpublish_exercise():
+    exercise_id = request.json['exercise_id']
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    exercise.published = False
+    exercise.save()
+    return jsonify(ok=True, result=utils.dump_exercise(exercise))
 
 @rest_api.route('/api/exercise/<exercise_id>', methods=['GET'])
 def exercise(exercise_id):
@@ -67,7 +111,9 @@ def update_exercise(exercise_id):
     exercise.description = request.json['description']
     exercise.boilerplate_code = request.json['boilerplate_code']
     exercise.reference_code = request.json['reference_code']
-
+    exercise.published = request.json['published']
+    exercise.tags = map(lambda t : t.lower(), request.json['tags'].split(','))
+    exercise.score = int(request.json['score'])
     exercise.save()
 
     return jsonify(ok=True, result=utils.dump_exercise(exercise))

@@ -1,4 +1,4 @@
-/* \!/ You must include student.js before this file !!! */
+/* \!/ You must include editor.js before this file !!! */
 
 $(document).ready(function() {
     /* Formatting the markdown description */
