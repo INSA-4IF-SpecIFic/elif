@@ -7,7 +7,7 @@ import mongoengine
 
 import config
 from model.user import User
-from model.exercise import Exercise
+from model.exercise import Exercise, ExerciseProgress
 import utils
 from api import rest_api
 
@@ -55,7 +55,7 @@ def index():
     occurrences = {}
     tags = set(t for e in Exercise.objects for t in e.tags)
     for t in tags :
-        occurrences[t] = str(len(Exercise.objects(tags=t)))
+        occurrences[t] = str(len(Exercise.objects(tags=t,published=True)))
     return render_template('index.html', occurrences=occurrences)
 
 @app.route('/login', methods=['GET'])
@@ -86,16 +86,39 @@ def process_signup():
 def welcome():
     return render_template('welcome.html')
 
+@app.route('/monitoring')
+@requires_login
+def monitoring():
+    if not g.user.editor:
+        redirect('/')
+
+    users = User.objects(editor=False)
+    exercises = Exercise.objects()
+    progress = {user: {p.exercise: p for p in ExerciseProgress.objects(user=user)} for user in users}
+
+    return render_template('monitoring.html', users=users, exercises=exercises, progress=progress)
+
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
-    return redirect('/')
+    return redirect('/login')
 
 @app.route('/exercise/<exercise_id>')
 @requires_login
 def exercise(exercise_id):
     exercise = Exercise.objects.get(id=exercise_id)
     return render_template('exercise.html', exercise=exercise)
+
+@app.route('/exercise/delete/<exercise_id>')
+def delete_exercise(exercise_id):
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist:
+        return render_template('exercise.html', ok=False)
+
+    exercise.delete()
+    return render_template('exercise.html', ok=True)
 
 @app.route('/new_exercise', methods=['POST'])
 def new_exercise():

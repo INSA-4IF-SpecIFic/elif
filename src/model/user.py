@@ -24,6 +24,9 @@ class User(mongoengine.Document):
 
     editor = mongoengine.BooleanField(default=False)
 
+    def __hash__(self):
+        return hash(self.email)
+
     @staticmethod
     def new_user(email, username, password, editor=False):
         user = User(email=email, username=username, editor=editor)

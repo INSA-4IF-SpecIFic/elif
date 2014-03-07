@@ -1,0 +1,16 @@
+@import url("main.css");
+@import url("bootstrap.min.css");
+
+#epiceditor-preview img {
+  display: block;
+  width: 80%;
+  margin: 0 auto;
+
+
+  /* Image thumbnail */
+  padding: 6px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+

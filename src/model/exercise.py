@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import mongoengine
-
 from user import User
 
 class Test(mongoengine.Document):
@@ -34,7 +32,34 @@ class Exercise(mongoengine.Document):
     boilerplate_code = mongoengine.StringField(default=str)
     reference_code = mongoengine.StringField(required=True)
 
-    tests = mongoengine.ListField(mongoengine.ReferenceField(Test), default=list)
+    tests = mongoengine.ListField(mongoengine.ReferenceField(Test), required=True)
 
     tags = mongoengine.ListField(mongoengine.StringField())
+    score = mongoengine.IntField(default=42)
+
+    published = mongoengine.BooleanField(default=False);
+
+    def __hash__(self):
+        return hash(self.title)
+
+class ExerciseProgress(mongoengine.Document):
+    user = mongoengine.ReferenceField(User, required=True)
+    exercise = mongoengine.ReferenceField(Exercise, required=True)
+
+    best_results = mongoengine.ListField(mongoengine.ReferenceField(TestResult), default=list)
     score = mongoengine.IntField(default=0)
+    completion = mongoengine.FloatField(default=0.0)
+
+    def update_progress(self, last_submission):
+        if last_submission.compilation_error:
+            return
+
+        last_results = last_submission.test_results
+        last_completion = self.calculate_completion(last_results)
+        if self.completion < last_completion:
+            self.completion = last_completion
+            self.score = last_completion * self.exercise.score
+            self.best_results = last_results
+
+    def calculate_completion(self, results):
+        return 0.0 if not results else len([t for t in results if t.passed]) / float(len(results))

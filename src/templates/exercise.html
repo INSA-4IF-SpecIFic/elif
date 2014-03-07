@@ -40,6 +40,7 @@
         {% endif %}
 
 
+        <button class="btn btn-submit pull-right" id="publish-button">Publish</button>
         <button class="btn btn-submit pull-right" id="test-button">Test</button>
 
     </div>
@@ -60,13 +61,20 @@
         <div class="tab-content">
 
           <div class="tab-pane active " id="description">
-
-          <h3>{{exercise.title}}</h3>
-
-            <div class="description">
+            <h3 id="exercise-title">{{exercise.title}}</h3>
+            {% if user.editor %}
+            <input type="text" name="tags" placeholder="Tags" class="tagsManager"/>
+            <div class="description" id="description-editor"></div>
+            <textarea id="description-editor-content" style="display:none">
 {{exercise.description}}
+            </textarea>
+            {% else %}
+              <div class="description">
+{{exercise.description}}
+              </div>
+            {% endif %}
             </div>
-          </div>
+
 
           {% if user.editor %}
           <div class="tab-pane tests" id="tests">
@@ -111,10 +119,13 @@
 
 
     <h4>Compilation error</h4>
-    <div class="alert label-danger">
-        {{breaklines compilation_log}}
-    </div>
-
+    <ul class="errors">
+      {{#each errors}}
+      <li class="alert label-danger">
+          <span class="type">{{type}}</span> - <span class="line">{{row}}</span>:{{column}} - <span class="message">{{breaklines message}}</span>
+      </li>
+      {{/each}}
+    </ul>
   {{else}}
 
     <h4>Test results</h4>
@@ -163,6 +174,7 @@
 {% block javascript %}
 <script src="/static/js/ace/ace.js"></script>
 <script src="/static/js/editor.js"></script>
+<script src="/static/js/epiceditor.min.js"></script>
 {% if user.editor %}
 <script src="/static/js/teacher_editor.js"></script>
 {% else %}

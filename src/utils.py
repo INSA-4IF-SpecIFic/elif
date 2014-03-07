@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 import json
 import os
 import logging
@@ -52,15 +53,18 @@ def get_logger(name):
 
 def sample_exercise(author):
     exercise = Exercise(author=author,
-                    title="#{} - Sample exercise".format(len(Exercise.objects)),
-                    description="## Just double the freaking number !\n\n* You get a\n* Print a x 2\n![Alt text](/static/img/cat.jpeg)",
-                    boilerplate_code='#include <iostream>\nint main() {\n  int a;\n  std::cin >> a;\n  return 0;\n}',
-                    reference_code='int main() {}',
+                    title="#{} - New exercise".format(len(Exercise.objects)),
+                    description=config.default_description,
+                    boilerplate_code=config.default_boilerplate_code,
+                    reference_code=config.default_boilerplate_code,
                     tags=['algorithms'])
+
     test = Test(input="1\n", output="42", cpu_time="100", memory_used="100").save()
     exercise.tests.append(test)
     test = Test(input="2\n", output="43", cpu_time="100", memory_used="100").save()
+    exercise.published = True
     exercise.tests.append(test)
+
     return exercise
 
 def sample_user():
@@ -81,39 +85,68 @@ def test_db():
     User.new_user(email="dummy@{}".format(config.email_domain),
                   username="dummy_username", password="123456", editor=False).save()
 
+    # Other dummmy users
+    User.new_user(email="dummy1@{}".format(config.email_domain),
+                  username="dummy_username1", password="123456", editor=False).save()
+
+    User.new_user(email="dummy2@{}".format(config.email_domain),
+                  username="dummy_username2", password="123456", editor=False).save()
+
+    User.new_user(email="dummy3@{}".format(config.email_domain),
+                  username="dummy_username3", password="123456", editor=False).save()
+
     # Editor user
     editor = User.new_user(email="editor@{}".format(config.email_domain),
               username="editor_user", password="123456", editor=True).save()
     # Ex 1
+    test1 = Test(input='1\n', output='1').save()
+    test2 = Test(input='3\n', output='2').save()
+
     exercise = Exercise(author=editor, title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
                         boilerplate_code='b', reference_code='#', tags=['sort','trees'])
-
-    test = Test(input='1\n', output='1').save()
-    exercise.tests.append(test)
-
-    test = Test(input='3\n', output='2').save()
-    exercise.tests.append(test)
-
+    exercise.tests.append(test1)
+    exercise.tests.append(test2)
+    exercise.published = True
     exercise.save()
 
     # Ex 2
-    exercise = Exercise(author=editor, title="Another exercise's title",
+    params = dict(author=editor, title="Another exercise's title",
                     description="## This is an exercise\n\n* El1\n* El2\n![Alt text](/static/img/cat.jpeg)",
                     boilerplate_code='int main() {\n}', reference_code='int main() {    // lol   }',
                     tags=['algorithms','trees'])
-
-    test = Test(input='1\n', output='1').save()
-    exercise.tests.append(test)
-
-    test = Test(input='3\n', output='2').save()
-    exercise.tests.append(test)
-
+    exercise = Exercise(**params)
+    exercise.tests.append(test1)
+    exercise.tests.append(test2)
+    exercise.published = True
     exercise.save()
 
-
     # Ex 3
-    exercise = Exercise(author=editor, title="Return n*2",
-                    description="## Just double the freaking number !\n\n* You get a\n* Print a x 2\n![Alt text](/static/img/cat.jpeg)",
+    params['title'] = "Yet another exercise"
+    exercise = Exercise(**params)
+    exercise.tests.append(test1)
+    exercise.tests.append(test2)
+    exercise.published = True
+    exercise.save()
+
+    # Ex 4
+    params['title'] = "And here's another exercise !"
+    exercise = Exercise(**params)
+    exercise.tests.append(test1)
+    exercise.tests.append(test2)
+    exercise.published = True
+    exercise.save()
+
+    # Ex 5
+    params['title'] = "And a last random exercise"
+    exercise = Exercise(**params)
+    exercise.tests.append(test1)
+    exercise.tests.append(test2)
+    exercise.published = True
+    exercise.save()
+
+    # Ex 6
+    exercise = Exercise(author=editor, title="Return n^2",
+                    description="## Return the given number to the 2 !\n\n* You get a\n* Print a²11\n![Alt text](/static/img/cat.jpeg)",
                     boilerplate_code='#include <iostream>\nint main() {\n  int a;\n  std::cin >> a;\n}',
                     reference_code='int main() {}',
                     tags=['algorithms'])
@@ -127,6 +160,7 @@ def test_db():
     test = Test(input='-2\n', output='4').save()
     exercise.tests.append(test)
 
+    exercise.published = True
     exercise.save()
 
 

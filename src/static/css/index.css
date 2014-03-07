@@ -107,5 +107,9 @@ h2 {
 }
 
 .selected {
-    background-color: #E6E8FA;
+    background-color: #F2F9FF;
+}
+
+.unpublished {
+    background-color: #CCE5FF;
 }

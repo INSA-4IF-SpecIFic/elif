@@ -7,13 +7,15 @@
   color: #FFF;
   background: #32477E;
   box-shadow: -1px 1px 0 rgba(0, 0, 0, 0.2);
+  margin-top: 5px;
+  margin-left: 4px;
+  margin-right: 4px;
 }
 
 .btn-submit:hover, .btn-submit:focus, .btn-submit:active {
   color: #FFF;
   background: #2350C8;
 }
-
 
 /* Exercise description */
 /*
@@ -108,4 +110,18 @@
 .test-io {
   max-height: 200px;
   overflow-y: auto;
+}
+
+.errors {
+  padding: 0;
+  list-style: none;
+}
+
+.errors .type {
+  text-transform: capitalize;
+  font-weight: bold;
+}
+
+.errors .message {
+  font-style: italic;
 }

@@ -18,11 +18,13 @@
 
 <div class="col-md-4">
     <div class="form-group">
-        <div class="well" style=\padding: 8px 0;>
+        <div class="well">
+
             <div class="left-inner-addon" >
                 <i class="glyphicon glyphicon-search"></i>
                 <input type="text" class="form-control" id="search" placeholder="Search" name="search">
             </div>
+
             <ul class="tagsmenu">
                 {% for key, value in occurrences.iteritems() %}
                 <li class="list-group-item tag">
@@ -33,18 +35,15 @@
                 </li>
                 {% endfor %}
             </ul>
+
         </div>
     </div>
 </div>
 
 <div class="col-md-8">
-    <!-- Tab panes -->
-    <div class="tab-content">
 
-        <ul class="exercises">
-        </ul>
-
-    </div>
+    <ul class="exercises">
+    </ul>
 
 </div>
 
@@ -55,8 +54,8 @@
 {% raw %}
 <script id="exercise-template" type="text/x-handlebars-template">
 
+    {{#if published }}
     <li>
-
         <span class="badge coins pull-left">
             <img src="/static/img/coin.png"/>
             <span class="value">{{score}}</span><br>
@@ -77,9 +76,9 @@
                 </a>
             {{/each}}
             </ul>
-
         </div>
     </li>
+    {{/if}}
 
 </script>
 {% endraw %}
