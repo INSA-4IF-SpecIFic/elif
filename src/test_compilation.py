@@ -77,6 +77,18 @@ def test_stdout():
     assert feedback.return_code == 0
     assert feedback.stdout.read() == "hello world\n"
 
+def test_cpp_in_c():
+    code = '\n'.join([
+        '#include <iostream>',
+        'int main() {',
+        'std::cout << "hello";',
+        'return 0;',
+        '}'
+    ])
+
+    tutil_code(code, 0, 'c++')
+    tutil_code(code, 1, 'c')
+
 def test_python():
     s = sandbox.Sandbox()
     s.add_running_env(sandbox.python_env)
