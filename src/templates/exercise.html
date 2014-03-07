@@ -12,12 +12,12 @@
 
     <!-- Meta-data about the exercise, to be used by JS -->
     <div id="exercise" data-id="{{exercise.id}}" data-boilerplate-code="{{exercise.boilerplate_code}}"
-      {% if user.editor %} data-reference-code="{{exercise.reference_code}}" {% endif %} ></div>
+      {% if exercise.author == user %} data-reference-code="{{exercise.reference_code}}" {% endif %} ></div>
 
     <div class="col-md-8">
         <!-- Text editor -->
 
-        {% if user.editor %}
+        {% if exercise.author == user %}
           <ul class="nav nav-tabs">
             <li class="active"><a href="#reference-editor-tab" data-toggle="tab">Reference code</a></li>
             <li><a href="#exercise-editor-tab" data-toggle="tab">Exercice code</a></li>
@@ -50,7 +50,7 @@
         <!-- Nav tabs -->
         <ul class="nav nav-tabs">
           <li class="active"><a href="#description" data-toggle="tab">Description</a></li>
-          {% if user.editor %}
+          {% if exercise.author == user %}
           <li><a href="#tests" data-toggle="tab">Tests</a></li>
           {% endif %}
           <li><a href="#output" data-toggle="tab">Output</a></li>
@@ -62,7 +62,7 @@
 
           <div class="tab-pane active " id="description">
             <h3 id="exercise-title">{{exercise.title}}</h3>
-            {% if user.editor %}
+            {% if exercise.author == user %}
             <div class="description" id="description-editor"></div>
             <textarea id="description-editor-content" style="display:none">
 {{exercise.description}}
@@ -75,7 +75,7 @@
             </div>
 
 
-          {% if user.editor %}
+          {% if exercise.author == user %}
           <div class="tab-pane tests" id="tests">
 
             <form id ="test-form" class="form-horizontal" role="form">
@@ -174,7 +174,7 @@
 <script src="/static/js/ace/ace.js"></script>
 <script src="/static/js/editor.js"></script>
 <script src="/static/js/epiceditor.min.js"></script>
-{% if user.editor %}
+{% if exercise.author == user %}
 <script src="/static/js/teacher_editor.js"></script>
 {% else %}
 <script src="/static/js/student_editor.js"></script>

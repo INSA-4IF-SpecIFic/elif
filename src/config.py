@@ -8,8 +8,8 @@ length_limit = 90
 min_password_length = 6
 
 # Sample texting
-default_description = """
-### This is your exercise's description.
+
+default_description = """### This is your exercise's description.
 
 Feel free to edit it. It should contain:
 
@@ -29,8 +29,7 @@ Feel free to edit it. It should contain:
         }
 """
 
-default_boilerplate_code = """
-#include <iostream>
+default_boilerplate_code = """#include <iostream>
 
 int main() {
     int n;
