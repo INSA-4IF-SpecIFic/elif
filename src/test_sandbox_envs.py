@@ -5,6 +5,9 @@ import sandbox
 
 def test_python_env():
     s = sandbox.Sandbox()
+
+    print 'sandbox size: {} bytes'.format(s.size())
+
     s.add_running_env(sandbox.python_env)
 
     source_file = s.to_sandbox_basis(s.mktemp(prefix='code_', suffix='.py'))
@@ -20,6 +23,8 @@ def test_python_env():
     assert feedback.ended_correctly == True
     assert feedback.return_code == 0
     assert stdout == 'hello\n'
+
+    print 'sandbox size (with python): {} bytes'.format(s.size())
 
 
 if __name__ == "__main__":
