@@ -90,6 +90,38 @@ var initExercise = function(exerciseId) {
 };
 
 
+var save = function(exerciseId, publish) {
+    //TODO: Edit tags, score ?
+
+    var title = $("#exercise-title").text();
+    var description = descriptionEditor.getElement('editor').body.innerText;
+    var tags = $('[name="hiddenTagList"]').val();
+    var boilerplateCode  = exerciseEditor.getValue();
+    var referenceCode = referenceEditor.getValue();
+
+    console.log("title : " + title);
+    console.log("description : " + description);
+    console.log("exercise code : " + boilerplateCode);
+    console.log("reference code : " + referenceCode);
+    console.log("tags : " + tags);
+
+    params = { title: title, description: description,
+               boilerplate_code: boilerplateCode, reference_code: referenceCode,
+               published: publish, tags: tags};
+
+    apiCall('/api/exercise/' + exerciseId, 'POST', params, function(data) {
+        if(data.ok) {
+            /* Nothing to do */
+        }
+        else {
+            notification.error("Failed to load exercise: " + data.result);
+        }
+    });
+
+
+}
+
+
 $(document).ready(function() {
     /* Getting the current exercise's data */
     var $exercise = $('#exercise');
@@ -111,14 +143,14 @@ $(document).ready(function() {
     initExercise(exerciseId);
 
     /* Editor initialization and configuration */
-    var exerciseEditor = ace.edit("exercise-editor");
+    exerciseEditor = ace.edit("exercise-editor");
     exerciseEditor.setTheme("ace/theme/textmate");
     exerciseEditor.setFontSize(15);
     exerciseEditor.setShowPrintMargin(false);
     exerciseEditor.getSession().setMode("ace/mode/c_cpp");
     exerciseEditor.setValue(boilerplateCode);
 
-    var referenceEditor = ace.edit("main-editor");
+    referenceEditor = ace.edit("main-editor");
     referenceEditor.setValue(referenceCode);
 
     var opts = {
@@ -157,44 +189,25 @@ $(document).ready(function() {
       },
       autogrow: true
     }
-    var editor = new EpicEditor(opts);
-    editor.load();
-    editor._setupTextareaSync();
-    editor.preview();
+
+    descriptionEditor = new EpicEditor(opts);
+    descriptionEditor.load();
+    descriptionEditor._setupTextareaSync();
+    descriptionEditor.preview();
+
+    $('#save-button').click(function() {
+        console.log("Save");
+        var $this = $(this)
+        $this.attr('disabled', 'disabled');
+        save(exerciseId, false);
+        $this.removeAttr('disabled', 'disabled');
+    });
 
     $('#publish-button').click(function() {
         var $this = $(this)
-
         $this.attr('disabled', 'disabled');
-
-        //TODO: Edit tags, score ?
-
-        var title = $("#exercise-title").text();
-        var description = editor.getElement('editor').body.innerText;
-        var tags = $('[name="hiddenTagList"]').val();
-        var boilerplateCode  = exerciseEditor.getValue();
-        var referenceCode = referenceEditor.getValue();
-
-        console.log("title : " + title);
-        console.log("description : " + description);
-        console.log("exercise code : " + boilerplateCode);
-        console.log("reference code : " + referenceCode);
-        console.log("tags : " + tags);
-
-        params = { title: title, description: description,
-                   boilerplate_code: boilerplateCode, reference_code: referenceCode, published: true, tags: tags};
-
-        apiCall('/api/exercise/' + exerciseId, 'POST', params, function(data) {
-            if(data.ok) {
-                /* Nothing to do */
-            }
-            else {
-                notification.error("Failed to load exercise: " + data.result);
-            }
-
-            $this.removeAttr('disabled', 'disabled');
-        });
-
+        save(exerciseId, true);
+        $this.removeAttr('disabled', 'disabled');
         $(location).attr('href', "/");
     });
 
