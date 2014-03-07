@@ -625,7 +625,6 @@ def python_env(sandbox):
         """ Mac OS X specific environment """
 
         sandbox.clone_dir("/System/Library/Frameworks/Python.framework/Versions/2.7/Resources")
-        sandbox.clone_dir("/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7")
         sandbox.clone_bin_dependencies(
             "/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python"
         )
