@@ -91,11 +91,13 @@ var initExercise = function(exerciseId) {
 
 
 var save = function(exerciseId, publish) {
-    //TODO: Edit tags, score ?
-
     var title = $("#exercise-title").text();
-    var description = descriptionEditor.getElement('editor').body.innerText;
+    var description = descriptionEditor.getElement('editor').body.innerHTML;
     var tags = $('[name="hiddenTagList"]').val();
+    var score = $('#score').val();
+    if (score == "") {
+        score = $('#score').attr('placeholder');
+    }
     var boilerplateCode  = exerciseEditor.getValue();
     var referenceCode = referenceEditor.getValue();
 
@@ -104,10 +106,11 @@ var save = function(exerciseId, publish) {
     console.log("exercise code : " + boilerplateCode);
     console.log("reference code : " + referenceCode);
     console.log("tags : " + tags);
+    console.log("score : " + score);
 
     params = { title: title, description: description,
                boilerplate_code: boilerplateCode, reference_code: referenceCode,
-               published: publish, tags: tags};
+               published: publish, tags: tags, score: score};
 
     apiCall('/api/exercise/' + exerciseId, 'POST', params, function(data) {
         if(data.ok) {
@@ -117,8 +120,6 @@ var save = function(exerciseId, publish) {
             notification.error("Failed to load exercise: " + data.result);
         }
     });
-
-
 }
 
 
@@ -196,7 +197,6 @@ $(document).ready(function() {
     descriptionEditor.preview();
 
     $('#save-button').click(function() {
-        console.log("Save");
         var $this = $(this)
         $this.attr('disabled', 'disabled');
         save(exerciseId, false);
@@ -228,4 +228,47 @@ $(document).ready(function() {
         });
     });
 
+    //actions on title field
+    $('#panel-title').on( "mouseleave",function() {
+        var title = $("#exercise-title").val();
+        if (title == "") {
+            title = $("#exercise-title").attr('placeholder');
+        }
+        if (!title) {
+            title = $("#exercise-title").text();
+        }
+        $(this).html('<h3 class="panel-title" id="exercise-title">' + title + '</h3>');
+        $('#exercise-title').on("click", function(){
+            var title = $(this).text();
+            $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="' + title + '">');
+            $("#exercise-title").focus();
+        });
+    });
+
+    $('#panel-title').on( "mouseenter",function() {
+        $(this).append('<p class="glyphicon glyphicon-pencil"></p>');
+    });
+
+    $('#exercise-title').on("click", function(){
+        var title = $(this).text();
+        $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="' + title + '">');
+        $("#exercise-title").focus();
+    });
+
+    //numeric check on score field
+    $('#score').on("keyup", function () {
+        var $element = $(this);
+        var input = $element.val();
+        if (input.match(/^[0-9]+$/) || input == "") {
+            $element.removeClass('invalid');
+            $('#score-check').attr('class', "glyphicon glyphicon-ok");
+            $('#publish-button').removeAttr("disabled");
+        } else {
+            $element.addClass('invalid');
+            $('#score-check').attr('class', "glyphicon glyphicon-remove");
+            $('#publish-button').attr('disabled', 'disabled');
+        }
+    });
+
 });
+

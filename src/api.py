@@ -31,7 +31,6 @@ def create_user():
 @rest_api.route('/api/tags', methods = ["GET"])
 def get_tags():
     tags = set(t for e in Exercise.objects for t in e.tags)
-    tags = [t.to_dict() for t in tags]
     return jsonify(ok=True, result=tags)
 
 @rest_api.route('/api/tags', methods = ["POST"])
@@ -114,6 +113,7 @@ def update_exercise(exercise_id):
     exercise.reference_code = request.json['reference_code']
     exercise.published = request.json['published']
     exercise.tags = map(lambda t : t.lower(), request.json['tags'].split(','))
+    exercise.score = int(request.json['score'])
     exercise.save()
 
     return jsonify(ok=True, result=utils.dump_exercise(exercise))
