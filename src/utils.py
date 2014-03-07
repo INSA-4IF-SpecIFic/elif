@@ -100,10 +100,10 @@ def test_db():
               username="editor_user", password="123456", editor=True).save()
     # Ex 1
     test1 = Test(input='1\n', output='1').save()
-    test2 = Test(input='3\n', output='2').save()
+    test2 = Test(input='2\n', output='4').save()
 
     exercise = Exercise(author=editor, title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
-                        boilerplate_code='b', reference_code='#', tags=['sort','trees'])
+                        boilerplate_code=config.default_boilerplate_code, reference_code=config.default_boilerplate_code, tags=['sort','trees'])
     exercise.tests.append(test1)
     exercise.tests.append(test2)
     exercise.published = True
@@ -112,7 +112,7 @@ def test_db():
     # Ex 2
     params = dict(author=editor, title="Another exercise's title",
                     description="## This is an exercise\n\n* El1\n* El2\n![Alt text](/static/img/cat.jpeg)",
-                    boilerplate_code='int main() {\n}', reference_code='int main() {    // lol   }',
+                    boilerplate_code=config.default_boilerplate_code, reference_code=config.default_boilerplate_code,
                     tags=['algorithms','trees'])
     exercise = Exercise(**params)
     exercise.tests.append(test1)
@@ -147,8 +147,8 @@ def test_db():
     # Ex 6
     exercise = Exercise(author=editor, title="Return n^2",
                     description="## Return the given number to the 2 !\n\n* You get a\n* Print a²11\n![Alt text](/static/img/cat.jpeg)",
-                    boilerplate_code='#include <iostream>\nint main() {\n  int a;\n  std::cin >> a;\n}',
-                    reference_code='int main() {}',
+                    boilerplate_code=config.default_boilerplate_code,
+                    reference_code=config.default_boilerplate_code,
                     tags=['algorithms'])
 
     test = Test(input='1\n', output='1').save()
