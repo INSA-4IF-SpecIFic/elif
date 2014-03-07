@@ -106,7 +106,8 @@ def test_exercise_progress():
     assert progress.best_results[1].passed == True
     assert progress.best_results[2].passed == True
 
-    assert progress.score <= 0
+    assert progress.score <= 42
+
 
 if __name__ == '__main__':
     test_exercise_progress()
