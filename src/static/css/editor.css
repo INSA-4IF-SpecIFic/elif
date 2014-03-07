@@ -126,7 +126,7 @@
   font-style: italic;
 }
 
-input:invalid {
+.invalid {
   border:1px solid red;
 }
 
@@ -167,4 +167,8 @@ input:invalid {
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
+}
+
+.hidden {
+  visibility: hidden;
 }

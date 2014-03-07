@@ -216,33 +216,49 @@ $(document).ready(function() {
             blinkBGColor_2: '#CDE69C',
             hiddenTagListName: 'hiddenTagList'
         });
-    });    
+    }); 
 
-});
+    //actions on title field
+    $('#panel-title').on( "mouseleave",function() {
+        var title = $("#exercise-title").val();
+        if (title == "") {
+            title = $("#exercise-title").attr('placeholder');
+        }
+        if (!title) {
+            title = $("#exercise-title").text();
+        }
+        $(this).html('<h3 class="panel-title" id="exercise-title">' + title + '</h3>');
+        $('#exercise-title').on("click", function(){
+            var title = $(this).text();
+            $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="' + title + '">');
+            $("#exercise-title").focus();
+        });
+    });
 
-$('#panel-title').on( "mouseleave",function() {
-    var title = $("#exercise-title").val();
-    if (title == "") {
-        title = $("#exercise-title").attr('placeholder');
-    }
-    if (!title) {
-        title = $("#exercise-title").text();
-    }
-    $(this).html('<h3 class="panel-title" id="exercise-title">' + title + '</h3>');
+    $('#panel-title').on( "mouseenter",function() {
+        $(this).append('<p class="glyphicon glyphicon-pencil"></p>');
+    });
+
     $('#exercise-title').on("click", function(){
         var title = $(this).text();
         $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="' + title + '">');
         $("#exercise-title").focus();
     });
-});
 
-$('#panel-title').on( "mouseenter",function() {
-    $(this).append('<p class="glyphicon glyphicon-pencil"></p>');
-});
+    //numeric check on score field
+    $('#score').on("keyup", function () {
+        var $element = $(this);
+        var input = $element.val();
+        if (input.match(/^[0-9]+$/) || input == "") {
+            $element.removeClass('invalid');
+            $('#score-check').attr('class', "glyphicon glyphicon-ok");
+            $('#publish-button').removeAttr("disabled");
+        } else {
+            $element.addClass('invalid');
+            $('#score-check').attr('class', "glyphicon glyphicon-remove");
+            $('#publish-button').attr('disabled', 'disabled');
+        }
+    });   
 
-$('#exercise-title').on("click", function(){
-    var title = $(this).text();
-    $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="' + title + '">');
-    $("#exercise-title").focus();
 });
 

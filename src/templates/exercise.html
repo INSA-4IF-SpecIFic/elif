@@ -67,9 +67,10 @@
               </div>
               <div class="panel-body">
               {% if user.editor %}
-                <div class="input-group">
+                <div class="input-group inline">
                   <span class="input-group-addon"><img src="/static/img/coin.png"/></span>
                   <input type="tel" class="form-control" id="score" placeholder="{{exercise.score}}">
+                  <i id='score-check' class="hidden"></i>
                 </div>
                 <input type="text" name="tags" placeholder="Add tags" class="tagsManager"/>
                 <div class="description" id="description-editor"></div>
