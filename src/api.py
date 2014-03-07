@@ -57,8 +57,8 @@ def search_words():
     else :
         exercises = Exercise.objects(tags__in=tags)
     found = set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()])
-    found = [f.to_dict() for f in found]
-    return jsonify(ok=True, result=found)
+    found = [f.to_dict() for f in found if f.published or f.author.id == g.user.id]
+    return jsonify(ok=True, result=found);
 
 @rest_api.route('/api/exercise/publish', methods=['POST'])
 def publish_exercise():

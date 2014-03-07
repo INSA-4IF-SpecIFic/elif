@@ -172,3 +172,8 @@
 .hidden {
   visibility: hidden;
 }
+/* Unpublished warning */
+.unpublished-warn {
+    width: 50%;
+    margin: auto;
+}
