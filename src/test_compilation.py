@@ -5,16 +5,23 @@ import os
 import sandbox
 import compilation
 
-def tutil_code(code, return_code):
+def tutil_code(code, return_code, language='c++'):
     s = sandbox.Sandbox()
-    comp = compilation.create(s, code, 'c++')
+
+    if language == 'python':
+        s.add_running_env(sandbox.python_env)
+
+    comp = compilation.create(s, code, language)
 
     assert comp.return_code == return_code
 
-def tutil_run(code, return_code):
+def tutil_run(code, return_code, language='c++'):
     s = sandbox.Sandbox()
 
-    comp = compilation.create(s, code, 'c++')
+    if language == 'python':
+        s.add_running_env(sandbox.python_env)
+
+    comp = compilation.create(s, code, language)
     assert comp.return_code == 0
 
     feedback = comp.run()
@@ -70,10 +77,31 @@ def test_stdout():
     assert feedback.return_code == 0
     assert feedback.stdout.read() == "hello world\n"
 
+def test_python():
+    s = sandbox.Sandbox()
+    s.add_running_env(sandbox.python_env)
+
+    code0 = '\n'.join([
+        'print "hello"'
+    ])
+
+    comp = compilation.create(s, code0, 'python')
+    assert comp.return_code == 0
+
+    db = comp.run()
+    assert db.return_code == 0
+    assert db.stdout.read() == "hello\n"
+
+    code1 = '\n'.join([
+        'def hello()',
+        '\tpass'
+    ])
+
+    comp = compilation.create(s, code1, 'python')
+    assert comp.return_code != 0
+    assert comp.log != ''
+
 
 if __name__ == "__main__":
-    test_basic_compilation()
-    test_executable_file()
-    test_basic_run()
-    test_stdout()
+    test_python()
 
