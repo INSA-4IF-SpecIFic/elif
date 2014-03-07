@@ -228,6 +228,15 @@ class Sandbox(object):
 
         return None
 
+    def size(self):
+        total_size = 0
+        for dirpath, dirnames, filenames in os.walk(self.root_directory):
+            for f in filenames:
+                fp = os.path.join(dirpath, f)
+                total_size += os.path.getsize(fp)
+
+        return total_size
+
     def isfile(self, path):
         """Tests if a file exists in sandbox
 
