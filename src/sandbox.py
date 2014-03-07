@@ -294,6 +294,18 @@ class Sandbox(object):
 
         return tempfile.mktemp(prefix=prefix, suffix=suffix, dir=self.tmp_directory)
 
+    def mkdtemp(self, prefix='tmp', suffix=''):
+        """Creates a temporary directory name in the /tmp/ directory of the sand box and return its path
+
+        Important: the returned path is in the main basis
+
+        Parameters:
+            - <prefix>: temporary directory's prefix
+            - <suffix>: temporary directory's suffix
+        """
+
+        return tempfile.mkdtemp(prefix=prefix, suffix=suffix, dir=self.tmp_directory)
+
     def clone(self, path_src):
         """Clones a common file to the sandbox
 
