@@ -609,6 +609,9 @@ def python_env(sandbox):
         if '/site-packages/' in (p + '/'):
             continue
 
+        if '/dist-packages/' in (p + '/'):
+            continue
+
         ignored = False
 
         for i in ignores:
@@ -617,6 +620,9 @@ def python_env(sandbox):
                 break
 
         if ignored:
+            continue
+
+        if not os.path.isdir(p):
             continue
 
         sandbox.clone_dir(p)
