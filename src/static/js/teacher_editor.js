@@ -121,6 +121,27 @@ var save = function(exerciseId, publish) {
     });
 }
 
+var deleteExercise = function(exercise_id) {
+    var params = {exercise_id: exercise_id };
+    console.log("delete");
+    apiCall('/api/exercise', 'DELETE', params, function(data) {
+        if(data.ok) {
+            window.location.replace('/');
+        }
+        else {
+            notification.error("Failed to delete exercise: " + data.result);
+        }
+    });
+}
+
+function editTitle() {
+    var title = $(this).text();
+    $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="Edit title">');
+    var $inputExercise = $("#exercise-title");
+    $inputExercise.val(title);
+    $inputExercise.focus();
+}
+
 
 $(document).ready(function() {
     /* Getting the current exercise's data */
@@ -196,19 +217,21 @@ $(document).ready(function() {
     descriptionEditor.preview();
 
     $('#save-button').click(function() {
-        var $this = $(this)
+        var $this = $(this);
         $this.attr('disabled', 'disabled');
         save(exerciseId, false);
         $this.removeAttr('disabled', 'disabled');
     });
 
     $('#publish-button').click(function() {
-        var $this = $(this)
+        var $this = $(this);
         $this.attr('disabled', 'disabled');
         save(exerciseId, true);
         $this.removeAttr('disabled', 'disabled');
         $(location).attr('href', "/");
     });
+
+    $('#delete-button').click(deleteExercise(exerciseId));
 
     //tags input configuration
     $(function () {
@@ -237,22 +260,14 @@ $(document).ready(function() {
             title = $("#exercise-title").text();
         }
         $(this).html('<h3 class="panel-title" id="exercise-title">' + title + '</h3>');
-        $('#exercise-title').on("click", function(){
-            var title = $(this).text();
-            $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="' + title + '">');
-            $("#exercise-title").focus();
-        });
+        $('#exercise-title').on("click", editTitle);
     });
 
     $('#panel-title').on( "mouseenter",function() {
         $(this).append('<p class="glyphicon glyphicon-pencil"></p>');
     });
 
-    $('#exercise-title').on("click", function(){
-        var title = $(this).text();
-        $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="' + title + '">');
-        $("#exercise-title").focus();
-    });
+    $('#exercise-title').on("click", editTitle);
 
     //numeric check on score field
     $('#score').on("keyup", function () {
@@ -262,10 +277,12 @@ $(document).ready(function() {
             $element.removeClass('invalid');
             $('#score-check').attr('class', "glyphicon glyphicon-ok");
             $('#publish-button').removeAttr("disabled");
+            $('#save-button').removeAttr("disabled");
         } else {
             $element.addClass('invalid');
             $('#score-check').attr('class', "glyphicon glyphicon-remove");
             $('#publish-button').attr('disabled', 'disabled');
+            $('#save-button').attr('disabled', 'disabled');
         }
     });
 

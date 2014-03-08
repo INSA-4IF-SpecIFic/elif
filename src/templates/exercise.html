@@ -42,6 +42,7 @@
         {% endif %}
 
         {% if exercise.author == user %}
+        <button class="btn btn-submit pull-left" id="delete-button">Delete</button>
         <button class="btn btn-submit pull-right" id="publish-button">Publish</button>
         <button class="btn btn-submit pull-right" id="save-button">Save</button>
         {% endif %}
@@ -74,7 +75,7 @@
               {% if exercise.author == user %}
                 <div class="input-group inline">
                   <span class="input-group-addon"><img src="/static/img/coin.png"/></span>
-                  <input type="tel" class="form-control" id="score" placeholder="{{exercise.score}}">
+                  <input type="tel" class="form-control" id="score" value="{{exercise.score}}" placeholder="{{exercise.score}}">
                   <i id='score-check' class="hidden"></i>
                 </div>
                 <input type="text" name="tags" placeholder="Add tags" class="tagsManager"/>
