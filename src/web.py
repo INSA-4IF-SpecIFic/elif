@@ -52,11 +52,7 @@ def inject_configuration():
 
 @app.route('/')
 def index():
-    occurrences = {}
-    tags = set(t for e in Exercise.objects(published=True) for t in e.tags)
-    for t in tags :
-        occurrences[t] = str(len(Exercise.objects(tags=t,published=True)))
-    return render_template('index.html', occurrences=occurrences)
+    return render_template('index.html')
 
 @app.route('/login', methods=['GET'])
 def login():

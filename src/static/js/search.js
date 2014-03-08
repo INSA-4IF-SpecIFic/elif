@@ -25,14 +25,29 @@ function searchWords() {
 	});
 }
 
+function getOccurences() {
+	var $menu = $('.tagsmenu');
+	apiCall('/api/occurrences', 'GET', {}, function(data) {
+		var occurrences = data.occurrences;
+		var tags = data.tags;
+		console.log(occurrences);
+		console.log(tags);
+		$menu.html('');
+		for (var i = 0; i < tags.length; i++) {
+			$menu.append(tagTemplate({tag : tags[i], occurrence : occurrences[i]}));
+		}      
+	});
+}
+
 // Delete an exercise
 function deleteExercise(button) {
     var exercise_id = $(button).attr('data-exercise-id');
     var params = {exercise_id: exercise_id };
-    console.log("delete");
     apiCall('/api/exercise', 'DELETE', params, function(data) {
         if(data.ok) {
             searchWords();
+            getOccurences();
+            notification.info("The exercise has been deleted");
         }
         else {
             notification.error("Failed to delete exercise: " + data.result);
@@ -42,9 +57,12 @@ function deleteExercise(button) {
 
 $(document).ready(function() {
 	exerciseTemplate = loadTemplate('#exercise-template');
+	tagTemplate = loadTemplate('#tag-template');
 
 	// Initializing exercises
 	searchWords();
+	// Initalizing tags
+	getOccurences();
 
 	$('#search').on("keyup", searchWords);
 	// Binding the click on a tag

@@ -33,6 +33,14 @@ def get_tags():
     tags = set(t for e in Exercise.objects for t in e.tags)
     return jsonify(ok=True, result=tags)
 
+@rest_api.route('/api/occurrences', methods = ["GET"])
+def get_occurences():
+    occurrences = []
+    tags = list(set(t for e in Exercise.objects(published=True) for t in e.tags))
+    for t in tags :
+        occurrences.append(str(len(Exercise.objects(tags=t,published=True))))
+    return jsonify(ok=True, tags=tags, occurrences=occurrences)
+
 # Exercises
 
 @rest_api.route('/api/exercise/search', methods=['POST'])

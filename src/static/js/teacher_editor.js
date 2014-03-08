@@ -126,7 +126,7 @@ var deleteExercise = function(exercise_id) {
     console.log("delete");
     apiCall('/api/exercise', 'DELETE', params, function(data) {
         if(data.ok) {
-            searchWords();
+            window.location.replace('/');
         }
         else {
             notification.error("Failed to delete exercise: " + data.result);
@@ -231,10 +231,7 @@ $(document).ready(function() {
         $(location).attr('href', "/");
     });
 
-    $('#delete-button').click(function() {
-        deleteExercise(exerciseId);
-        window.location.replace('/');
-    });
+    $('#delete-button').click(deleteExercise(exerciseId));
 
     //tags input configuration
     $(function () {

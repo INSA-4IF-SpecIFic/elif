@@ -26,14 +26,6 @@
             </div>
 
             <ul class="tagsmenu">
-                {% for key, value in occurrences.iteritems() %}
-                <li class="list-group-item tag">
-                    <a href="#">
-                        <span class="name">{{key}}</span>
-                        <span class="badge pull-right">{{value}}</span>
-                    </a>
-                </li>
-                {% endfor %}
             </ul>
 
         </div>
@@ -84,6 +76,18 @@
             {{/each}}
             </ul>
         </div>
+    </li>
+
+</script>
+{% endraw %}
+{% raw %}
+<script id="tag-template" type="text/x-handlebars-template">
+
+    <li class="list-group-item tag">
+        <a href="#">
+            <span class="name">{{tag}}</span>
+            <span class="badge pull-right">{{occurrence}}</span>
+        </a>
     </li>
 
 </script>
