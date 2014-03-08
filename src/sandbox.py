@@ -49,7 +49,7 @@ def lib_dependencies_osx(binary_path, deps):
 def lib_dependencies_linux(binary_path, deps):
     """Get executable's dynamic libraries list (Linux specific code)"""
 
-    otool = subprocess.Popen(['ldd', binary_path], stdout=subprocess.PIPE)
+    otool = subprocess.Popen(['ldd', binary_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     otool.wait()
 
     for l in otool.stdout:
@@ -181,6 +181,7 @@ class Sandbox(object):
         else:
             self.root_directory = root_directory
 
+        self.running_envs = list()
         self.user_name = 'nobody'
         self.env_paths = [
             '/usr/bin',
@@ -226,6 +227,15 @@ class Sandbox(object):
                 return path
 
         return None
+
+    def size(self):
+        total_size = 0
+        for dirpath, dirnames, filenames in os.walk(self.root_directory):
+            for f in filenames:
+                fp = os.path.join(dirpath, f)
+                total_size += os.path.getsize(fp)
+
+        return total_size
 
     def isfile(self, path):
         """Tests if a file exists in sandbox
@@ -284,6 +294,18 @@ class Sandbox(object):
 
         return tempfile.mktemp(prefix=prefix, suffix=suffix, dir=self.tmp_directory)
 
+    def mkdtemp(self, prefix='tmp', suffix=''):
+        """Creates a temporary directory name in the /tmp/ directory of the sand box and return its path
+
+        Important: the returned path is in the main basis
+
+        Parameters:
+            - <prefix>: temporary directory's prefix
+            - <suffix>: temporary directory's suffix
+        """
+
+        return tempfile.mkdtemp(prefix=prefix, suffix=suffix, dir=self.tmp_directory)
+
     def clone(self, path_src):
         """Clones a common file to the sandbox
 
@@ -298,6 +320,21 @@ class Sandbox(object):
         os.chmod(path_dest, 0755)
 
         return True
+
+    def clone_dir(self, path_src):
+        """Clones a directory to the sandbox
+
+        Important:
+            - <path_src> must be in the main basis
+        """
+        assert path_src[0] == '/'
+
+        path_dest = self.to_main_basis(path_src)
+
+        if os.path.exists(path_dest):
+            return
+
+        shutil.copytree(path_src, path_dest)
 
     def clone_bin(self, bin_path_src):
         """Clones a binary file and its dependencies to the sandbox
@@ -506,6 +543,13 @@ class Sandbox(object):
             report=list(report)
         )
 
+    def add_running_env(self, env_callback):
+        assert env_callback not in self.running_envs
+
+        env_callback(self)
+
+        self.running_envs.append(env_callback)
+
     def recover(self):
         """Recover the sandbox from scratch"""
 
@@ -528,6 +572,9 @@ class Sandbox(object):
         self.makedirs('/usr/bin/')
         self.makedirs('/usr/lib/')
 
+        for env_callback in self.running_envs:
+            env_callback(self)
+
         if platform.system() == "Darwin":
             """ Mac OS X specific environment """
 
@@ -536,3 +583,52 @@ class Sandbox(object):
     def _clean(self):
         if os.path.isdir(self.root_directory):
             shutil.rmtree(self.root_directory)
+
+
+def python_env(sandbox):
+    sandbox.clone_bin("python")
+
+    ignores = [
+        '/bin',  # dirty py.test's sys.path
+        '/usr/bin',  # dirty py.test's sys.path
+        '/usr/local/bin',  # dirty py.test's sys.path
+        '/System/Library/Frameworks/Python.framework/Versions/2.7/Extras',
+        '/usr/local/Cellar'  # dirty py.test's sys.path
+    ]
+
+    for p in sys.path:
+        if not p.startswith('/'):
+            continue
+
+        if not os.path.isdir(p):
+            continue
+
+        if __file__.startswith(p):
+            continue
+
+        if '/site-packages/' in (p + '/'):
+            continue
+
+        ignored = False
+
+        for i in ignores:
+            if p.startswith(i):
+                ignored = True
+                break
+
+        if ignored:
+            continue
+
+        sandbox.clone_dir(p)
+
+    if platform.system() == "Darwin":
+        """ Mac OS X specific environment """
+
+        sandbox.clone_dir("/System/Library/Frameworks/Python.framework/Versions/2.7/Resources")
+        sandbox.clone_dir("/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7")
+        sandbox.clone_bin_dependencies(
+            "/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python"
+        )
+
+    else: # Linux
+        sandbox.clone_dir("/usr/include/python2.7")

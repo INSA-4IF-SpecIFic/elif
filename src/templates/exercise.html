@@ -8,18 +8,43 @@
 
 {% include "header.html" %}
 
+<!--<div class="alert alert-warning unpublished-warn">The exercise is now <b>unpublished</b>. Click on the "Publish" button to make it accessible again.</div>-->
+
 <div class="exercise row">
 
     <!-- Meta-data about the exercise, to be used by JS -->
-    <div id="exercise" data-id="{{exercise.id}}" data-boilerplate-code="{{exercise.boilerplate_code}}" ></div>
+    <div id="exercise" data-id="{{exercise.id}}" data-boilerplate-code="{{exercise.boilerplate_code}}"
+      {% if exercise.author == user %} data-reference-code="{{exercise.reference_code}}" {% endif %} ></div>
 
     <div class="col-md-8">
         <!-- Text editor -->
 
+        {% if exercise.author == user %}
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#reference-editor-tab" data-toggle="tab">Reference code</a></li>
+            <li><a href="#exercise-editor-tab" data-toggle="tab">Exercice code</a></li>
+          </ul>
 
-        <div id="editor" class="code-area"></div>
+          <div class="tab-content">
 
+            <div class="tab-pane active" id="reference-editor-tab">
+              <div id="main-editor" class="code-area"></div>
+            </div>
 
+            <div class="tab-pane" id="exercise-editor-tab">
+              <div id="exercise-editor" class="code-area"></div>
+            </div>
+
+          </div>
+
+        {% else %}
+          <div id="main-editor" class="code-area"></div>
+        {% endif %}
+
+        {% if exercise.author == user %}
+        <button class="btn btn-submit pull-right" id="publish-button">Publish</button>
+        <button class="btn btn-submit pull-right" id="save-button">Save</button>
+        {% endif %}
         <button class="btn btn-submit pull-right" id="test-button">Test</button>
 
     </div>
@@ -29,27 +54,62 @@
         <!-- Nav tabs -->
         <ul class="nav nav-tabs">
           <li class="active"><a href="#description" data-toggle="tab">Description</a></li>
-          {% if user.editor %}
+          {% if exercise.author == user %}
           <li><a href="#tests" data-toggle="tab">Tests</a></li>
           {% endif %}
           <li><a href="#output" data-toggle="tab">Output</a></li>
         </ul>
 
         <!-- Tab panes -->
+
         <div class="tab-content">
 
           <div class="tab-pane active " id="description">
 
-          <h3>{{exercise.title}}</h3>
+            <div class="panel panel-default">
+              <div class="panel-heading" id="panel-title">
+                <h3 class="panel-title" id="exercise-title">{{exercise.title}}</h3>
+              </div>
+              <div class="panel-body">
+              {% if exercise.author == user %}
+                <div class="input-group inline">
+                  <span class="input-group-addon"><img src="/static/img/coin.png"/></span>
+                  <input type="tel" class="form-control" id="score" value="{{exercise.score}}" placeholder="{{exercise.score}}">
+                  <i id='score-check' class="hidden"></i>
+                </div>
+                <input type="text" name="tags" placeholder="Add tags" class="tagsManager"/>
+                <div class="description" id="description-editor"></div>
+                <textarea id="description-editor-content" style="display:none">{{exercise.description}}</textarea>
+              {% else %}
+                <div class="description">{{exercise.description}}</div>
+              {% endif %}
+              </div>
 
-<div class="description">
-{{exercise.description}}
-</div>
-          </div>
+              </div>
+            </div>
 
-          {% if user.editor %}
-          <div class="tab-pane" id="tests">
-            Tests here
+
+          {% if exercise.author == user %}
+          <div class="tab-pane tests" id="tests">
+
+            <form id ="test-form" class="form-horizontal" role="form">
+              <div class="form-group">
+                <label for="test-input">Test input</label>
+                <textarea class="form-control" id="test-input" name="test-input" rows="4" placeholder="Test input"></textarea>
+              </diV>
+              <div class="form-group">
+                <label for="test-output">Test output</label>
+                <textarea class="form-control" id="test-output" name="test-output" rows="4" placeholder="Test output"></textarea>
+              </div>
+              <div class="form-group">
+                <button type="button" id="btn-add-test" class="btn btn-primary form-control">Add test</button>
+              </div>
+            </form>
+
+            <ul class="tests-list" id="tests_placeholder">
+              <!-- Populated by JS Handlebars -->
+              Tests here
+            </ul>
           </div>
           {% endif %}
 
@@ -68,18 +128,21 @@
 <!-- Compilation / Execution output's template -->
 {% raw %}
 <script id="output-template" type="text/x-handlebars-template">
-
   {{#if compilation_error}}
 
-    <h4>Compilation error</h4>
-    <div class="alert label-danger">
-        {{breaklines compilation_log}}
-    </div>
 
+    <h4>Compilation error</h4>
+    <ul class="errors">
+      {{#each errors}}
+      <li class="alert label-danger">
+          <span class="type">{{type}}</span> - <span class="line">{{row}}</span>:{{column}} - <span class="message">{{breaklines message}}</span>
+      </li>
+      {{/each}}
+    </ul>
   {{else}}
 
     <h4>Test results</h4>
-    <ul class="tests">
+    <ul class="tests-output">
         {{#each test_results}}
         {{#if passed}}
           <li class="alert label-success">
@@ -99,10 +162,36 @@
 </script>
 {% endraw %}
 
+{% raw %}
+<script id="tests-list-template" type="text/x-handlebars-template">
+  {{#each tests}}
+    <li class="test" data-test-id="{{_id.$oid}}">
+      <div class="heading">
+        <span class="test-id">Test {{@index}}</span>
+        <span class="delete glyphicon glyphicon-remove"></span>
+      </div>
+      <div class="details">
+        <ul class="list-group infos">
+          <li class="list-group-item test-io">{{input}}</li>
+          <li class="list-group-item test-io">{{output}}</li>
+        </ul>
+      </div>
+    </li>
+  {{/each}}
+</script>
+{% endraw %}
+
 {% endblock body %}
 
 
 {% block javascript %}
 <script src="/static/js/ace/ace.js"></script>
 <script src="/static/js/editor.js"></script>
+<script src="/static/js/epiceditor.min.js"></script>
+{% if exercise.author == user %}
+<script src="/static/js/teacher_editor.js"></script>
+{% else %}
+<script src="/static/js/student_editor.js"></script>
+{% endif %}
+
 {% endblock %}

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import mongoengine
+from user import User
 
 class Test(mongoengine.Document):
     input = mongoengine.StringField(required=True)
@@ -23,15 +23,91 @@ class TestResult(mongoengine.Document):
     cpu_time = mongoengine.FloatField(default=0.0)  # seconds
     memory_used = mongoengine.FloatField(default=0.0)  # kilobytes * ticks-of-execution
 
+    @property
+    def score(self):
+        """Compute the test score"""
+        if not self.passed:
+            return 0.0
+
+        time_score = 0.0
+        memory_score = 0.0
+
+        if self.cpu_time == 0:
+            time_score = 1.0
+        else:
+            time_score = min(float(self.test.cpu_time) / float(self.cpu_time), 1.0)
+
+        if self.memory_used == 0:
+            memory_score = 1.0
+        else:
+            memory_score = min(float(self.test.memory_used) / float(self.memory_used), 1.0)
+
+        return time_score * memory_score
+
 
 class Exercise(mongoengine.Document):
+    author = mongoengine.ReferenceField(User, required=True)
     title = mongoengine.StringField(required=True, unique=True)
     description = mongoengine.StringField(required=True)
 
     boilerplate_code = mongoengine.StringField(default=str)
     reference_code = mongoengine.StringField(required=True)
+    code_language = mongoengine.StringField(required=True, default='c++')
 
-    tests = mongoengine.ListField(mongoengine.ReferenceField(Test), default=list)
+    tests = mongoengine.ListField(mongoengine.ReferenceField(Test), required=True)
 
     tags = mongoengine.ListField(mongoengine.StringField())
+    score = mongoengine.IntField(default=42)
+
+    published = mongoengine.BooleanField(default=False);
+
+    def __hash__(self):
+        return hash(self.title)
+
+class ExerciseProgress(mongoengine.Document):
+    user = mongoengine.ReferenceField(User, required=True)
+    exercise = mongoengine.ReferenceField(Exercise, required=True)
+
+    best_results = mongoengine.ListField(mongoengine.ReferenceField(TestResult), default=list)
     score = mongoengine.IntField(default=0)
+    completion = mongoengine.FloatField(default=0.0)
+
+    def update_progress(self, last_submission):
+        if last_submission.compilation_error:
+            return
+
+        last_results = last_submission.test_results
+        last_completion = self.calculate_completion(last_results)
+        last_score = self.compute_score(last_results)
+
+        if last_completion > self.completion or (last_completion == self.completion and last_score > self.score):
+            self.completion = last_completion
+            self.best_results = last_results
+            self.score = last_score
+
+    def calculate_completion(self, results):
+        if not results:
+            return 0.0
+
+        assert len(results) <= len(self.exercise.tests)
+
+        completion = 0.0
+
+        for r in results:
+            if r.passed:
+                completion += 1.0
+
+        return completion / float(len(self.exercise.tests))
+
+    def compute_score(self, results):
+        if not results:
+            return 0.0
+
+        assert len(results) <= len(self.exercise.tests)
+
+        score = 0.0
+
+        for r in results:
+            score += r.score
+
+        return float(self.exercise.score) * score / float(len(self.exercise.tests))

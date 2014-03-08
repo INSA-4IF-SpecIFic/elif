@@ -2,7 +2,6 @@
 
 {% block style %}
 <link href="/static/css/index.css" rel="stylesheet">
-<link href="/static/css/editor.css" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
@@ -18,37 +17,33 @@
 {% endif %}
 
 <div class="col-md-4">
-    <!-- Text editor -->
     <div class="form-group">
-        <div class="well" style=\padding: 8px 0;>
+        <div class="well">
+
             <div class="left-inner-addon" >
                 <i class="glyphicon glyphicon-search"></i>
                 <input type="text" class="form-control" id="search" placeholder="Search" name="search">
             </div>
-            <ul class="tagsmenu">
-                {% for tag in tags %}
 
-                <li class="list-group-item">
+            <ul class="tagsmenu">
+                {% for key, value in occurrences.iteritems() %}
+                <li class="list-group-item tag">
                     <a href="#">
-                        <span class="tag">{{tag}}</span>
-                        <span class="badge pull-right">42</span>
+                        <span class="name">{{key}}</span>
+                        <span class="badge pull-right">{{value}}</span>
                     </a>
                 </li>
-
                 {% endfor %}
             </ul>
+
         </div>
     </div>
 </div>
 
 <div class="col-md-8">
-    <!-- Tab panes -->
-    <div class="tab-content">
 
-        <ul class="exercises">
-        </ul>
-
-    </div>
+    <ul id="unpublished-list" class="exercises"></ul>
+    <ul id="exercises-list" class="exercises"></ul>
 
 </div>
 
@@ -60,7 +55,6 @@
 <script id="exercise-template" type="text/x-handlebars-template">
 
     <li>
-
         <span class="badge coins pull-left">
             <img src="/static/img/coin.png"/>
             <span class="value">{{score}}</span><br>
@@ -68,7 +62,7 @@
 
         </span>
 
-        <a href="/exercise/{{exercise.id}}">
+        <a href="/exercise/{{_id.$oid}}">
             <span class="title">{{title}}</span>
         </a>
         <div>
@@ -76,12 +70,40 @@
 
             <ul class="tags">
             {{#each tags}}
-                <a href="javascript:void(0)">
-                    <li class="tag">{{this}}</li>
+                <a href="#">
+                    <li class="tag"><span class="name">{{this}}</span></li>
                 </a>
             {{/each}}
             </ul>
+        </div>
+    </li>
 
+</script>
+
+<script id="unpublished-exercise-template" type="text/x-handlebars-template">
+
+    <li>
+        <span class="badge coins pull-left">
+            <img src="/static/img/coin.png"/>
+            <span class="value">{{score}}</span><br>
+            coins
+
+        </span>
+
+        <a href="/exercise/{{_id.$oid}}">
+            <span class="title">{{title}} </span>
+            <span class="label label-danger">Unpublished</span>
+        </a>
+        <div>
+            <img class="tag-icon pull-left" src="/static/img/tag.png"/>
+
+            <ul class="tags">
+            {{#each tags}}
+                <a href="#">
+                    <li class="tag"><span class="name">{{this}}</span></li>
+                </a>
+            {{/each}}
+            </ul>
         </div>
     </li>
 

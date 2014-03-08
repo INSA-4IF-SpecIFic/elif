@@ -25,12 +25,26 @@ var submissionState = function(submission_id) {
         // We re-enable the 'Test' button since the code has been processed by the server.
         $('#test-button').removeAttr('disabled');
 
-        $('#output').html(output_template(submission));
+        // Set error anotations
+        var annotations = [];
+        $.each(submission.errors, function(i, error) {
+            annotations.push({
+              row: error.row - 1,
+              column: error.column,
+              text: error.message,
+              type: "error"
+            });
+        });
+        mainEditor.getSession().setAnnotations(annotations);
+
+        // Rendering the output
+        $('#output').html(outputTemplate(submission));
+
+        // Focusing on the output template
         $('.nav-tabs a[href="#output"]').tab('show');
     });
 
 }
-
 
 $(document).ready(function() {
     /* Getting the current exercise's data */
@@ -39,21 +53,16 @@ $(document).ready(function() {
     var boilerplateCode = $exercise.data('boilerplate-code');
 
     /* Getting Handlebar templates */
-    output_template = loadTemplate('#output-template');
+    outputTemplate = loadTemplate('#output-template');
 
     /* Editor initialization and configuration */
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/textmate");
-    editor.setFontSize(15);
-    editor.setShowPrintMargin(false);
-    editor.getSession().setMode("ace/mode/c_cpp");
+    mainEditor = ace.edit("main-editor");
+    mainEditor.setTheme("ace/theme/textmate");
+    mainEditor.setFontSize(15);
+    mainEditor.setShowPrintMargin(false);
+    mainEditor.getSession().setMode("ace/mode/c_cpp");
 
-    editor.setValue(boilerplateCode);
-
-    /* Formatting the markdown description */
-    var description_markdown = $('.description').text();
-    var description_html = markdown.makeHtml(description_markdown);
-    $('.description').html(description_html);
+    mainEditor.setValue(boilerplateCode);
 
     /* Binding tabs */
     $('.nav-tab a').click(function (e) {
@@ -62,12 +71,10 @@ $(document).ready(function() {
     })
 
     /* Binding the submit button */
-    $('.btn-submit').click(function() {
+    $('#test-button').click(function() {
         $(this).attr('disabled', 'disabled');
 
-        var code = editor.getValue();
+        var code = mainEditor.getValue();
         submitCode(exerciseId, code);
-
     });
-
 });

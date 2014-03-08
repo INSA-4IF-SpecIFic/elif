@@ -1,50 +1,82 @@
 {% extends "base.html" %}
 
 {% block style %}
-<link href="/static/css/index.css" rel="stylesheet">
+<link href="/static/css/login.css" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
 
 {% include "header.html" %}
 
-<div class="container">
-    <p>
-        Dummy login / pwd:
-        <ul>
-            <li>dummy@insa-lyon.fr</li>
-            <li>123456</li>
-        </ul>
-    </p>
+<div class="container login">
 
-    <p>
-        For an editor (teacher) account:
-        <ul>
-            <li>editor@insa-lyon.fr</li>
-            <li>123456</li>
-        </ul>
-    </p>
 
-    {%if error%}
-        <div class="alert alert-danger">
-            Wrong email or password !
+
+
+    <div class="loginbox mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="panel-title">Sign In</div>
+            </div>
+
+            <div class="panel-body" >
+
+                {%if error%}
+                     <div  id="login-alert" class="alert alert-danger col-sm-12">
+                        Wrong email or password !
+                    </div>
+                {%endif%}
+
+                <form class="form-horizontal loginform" action="login" method="post" role="form">
+
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                        <input id="login-email" type="email" class="form-control" name="email" placeholder="Email">
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                        <input id="login-password" type="password" class="form-control" name="password" placeholder="password">
+                    </div>
+
+                    <div class="form-group">
+                        <!-- Button -->
+
+                        <div class="col-sm-12 controls">
+                          <button id="btn-login" class="btn btn-success" type="submit">Login  </button>
+                          <a id="btn-signup" href="/signup" class="btn btn-primary">Sign-up</a>
+
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
         </div>
-    {%endif%}
 
-    <form action="/login" method="post" autocomplete="on">
+        <div class="dummy">
+            <p>
+                Dummy login / pwd:
+                <ul>
+                    <li>dummy@insa-lyon.fr</li>
+                    <li>123456</li>
+                </ul>
+            </p>
 
-        <div class="form-group">
-            <label for="email-input">Email address</label>
-            <input type="text" class="form-control" name="email" value="{{email}}" />
+            <p>
+                For an editor (teacher) account:
+                <ul>
+                    <li>editor@insa-lyon.fr</li>
+                    <li>123456</li>
+                </ul>
+            </p>
         </div>
 
-        <div class="form-group">
-            <label for="password-input">Password</label>
-            <input type="password" class="form-control" name="password" />
-        </div>
 
-        <input class="form-control" type="submit" value="Login" />
-    </form>
+    </div>
+
+
+
 
 
 </div>

@@ -2,20 +2,18 @@
 # -*- coding: utf-8 -*-
 from functools import wraps
 
-from flask import Flask, request, session, render_template, redirect
+from flask import Flask, request, session, render_template, redirect, g
 import mongoengine
 
 import config
 from model.user import User
-from model.exercise import Exercise
+from model.exercise import Exercise, ExerciseProgress
 import utils
 from api import rest_api
 
 # \ ! / Monkey patching mongoengine to make json dumping easier
 mongoengine.Document.to_dict = utils.to_dict
 
-# Static tags
-tags = ["algorithms", "trees", "sort"]
 # Initializing the web app and the database
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -26,7 +24,7 @@ db = mongoengine.connect(config.db_name)
 app.register_blueprint(rest_api)
 
 def requires_login(f):
-    """  Decorator for views that requires the user to be logged in """
+    """  Decorator for views that requires the user to be logged-in """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in', None):
@@ -37,21 +35,32 @@ def requires_login(f):
 
 @app.context_processor
 def inject_user():
-    """ Injects a 'user' variable in templates' context when a user is logged in """
+    """ Injects a 'user' variable in templates' context when a user is logged-in """
     if session.get('logged_in', None):
         return dict(user=User.objects.get(email=session['logged_in']))
     else:
         return dict(user=None)
 
+@app.before_request
+def load_user():
+    """ Injects the current logged-in user (if any) to the request context """
+    g.user = User.objects(email=session.get('logged_in')).first()
+
+@app.context_processor
+def inject_configuration():
+    return dict(config=config)
+
 @app.route('/')
 def index():
-    exercises = Exercise.objects
-    tags = set(t for e in Exercise.objects for t in e.tags)
-    return render_template('index.html', exercises=exercises, tags=tags)
+    occurrences = {}
+    tags = set(t for e in Exercise.objects(published=True) for t in e.tags)
+    for t in tags :
+        occurrences[t] = str(len(Exercise.objects(tags=t,published=True)))
+    return render_template('index.html', occurrences=occurrences)
 
 @app.route('/login', methods=['GET'])
 def login():
-    return render_template('login.html', error=False)
+    return render_template('login.html', error=None)
 
 @app.route('/login', methods=['POST'])
 def process_login():
@@ -59,27 +68,40 @@ def process_login():
     user = User.objects(email=email).first()
     if user is None or not user.valid_password(password):
         app.logger.warning("Couldn't login : {}".format(user))
-        return render_template('login.html', error=True, email=email)
+        return render_template('login.html', error="Wrong password or username.", email=email)
     else:
         session['logged_in'] = user.email
         return redirect('/')
 
-@app.route('/sign', methods=['GET'])
-def sign():
-    return render_template('sign.html')
+@app.route('/signup', methods=['GET'])
+def signup():
+    return render_template('signup.html')
 
-@app.route('/sign', methods=['POST'])
-def process_sign():
-    return render_template('sign.html')
+@app.route('/signup', methods=['POST'])
+def process_signup():
+    # TODO : create a new user
+    return render_template('signup.html')
 
 @app.route('/welcome')
 def welcome():
     return render_template('welcome.html')
 
+@app.route('/monitoring')
+@requires_login
+def monitoring():
+    if not g.user.editor:
+        redirect('/')
+
+    users = User.objects(editor=False)
+    exercises = Exercise.objects()
+    progress = {user: {p.exercise: p for p in ExerciseProgress.objects(user=user)} for user in users}
+
+    return render_template('monitoring.html', users=users, exercises=exercises, progress=progress)
+
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
-    return redirect('/')
+    return redirect('/login')
 
 @app.route('/exercise/<exercise_id>')
 @requires_login
@@ -87,9 +109,20 @@ def exercise(exercise_id):
     exercise = Exercise.objects.get(id=exercise_id)
     return render_template('exercise.html', exercise=exercise)
 
+@app.route('/exercise/delete/<exercise_id>')
+def delete_exercise(exercise_id):
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist:
+        return render_template('exercise.html', ok=False)
+
+    exercise.delete()
+    return render_template('exercise.html', ok=True)
+
 @app.route('/new_exercise', methods=['POST'])
 def new_exercise():
-    sample_exercise = utils.sample_exercise()
+    sample_exercise = utils.sample_exercise(g.user)
     sample_exercise.save()
     return render_template('exercise.html', exercise=sample_exercise)
 

@@ -3,9 +3,9 @@
 
 import mongoengine
 
-from flask import request, session, jsonify, Blueprint, g
+from flask import request, jsonify, Blueprint, g
 from model.user import User
-from model.exercise import Exercise
+from model.exercise import Exercise, Test
 from job import Submission
 import utils
 
@@ -13,11 +13,6 @@ rest_api = Blueprint('rest_api', __name__)
 
 # \ ! / Monkey patching mongoengine to make json dumping easier
 mongoengine.Document.to_dict = utils.to_dict
-
-@rest_api.before_request
-def load_user():
-    """ Injects the current logged in user (if any) to the request context """
-    g.user = User.objects(email=session.get('logged_in')).first()
 
 # Users
 
@@ -31,21 +26,134 @@ def create_user():
     except mongoengine.ValidationError as e:
         return jsonify(ok=False, result=e.message)
 
+# Tags
+
+@rest_api.route('/api/tags', methods = ["GET"])
+def get_tags():
+    tags = set(t for e in Exercise.objects for t in e.tags)
+    return jsonify(ok=True, result=tags)
+
 # Exercises
 
 @rest_api.route('/api/exercise/search', methods=['POST'])
 def search_words():
     words = request.json['words']
-    tag = request.json['tags']
+    tags = request.json['tags'].split()
     words = words.lower()
     find = [words] + words.split()
-    if tag == "" :
+    if tags == [] :
         exercises = Exercise.objects
     else :
-        exercises = Exercise.objects(tags=tag)
-    found = list(set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()]))
-    found = [f.to_dict() for f in found]
-    return jsonify(ok=True, result=found)
+        exercises = Exercise.objects(tags__in=tags)
+    found = set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()])
+    found = [f.to_dict() for f in found if f.published or f.author.id == g.user.id]
+    return jsonify(ok=True, result=found);
+
+@rest_api.route('/api/exercise/<exercise_id>/publish', methods=['POST'])
+def publish_exercise(exercise_id):
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+        exercise.published = True
+        exercise.save()
+        return jsonify(ok=True, result=utils.dump_exercise(exercise))
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+@rest_api.route('/api/exercise/<exercise_id>/unpublish', methods=['POST'])
+def unpublish_exercise(exercise_id):
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+        exercise.published = False
+        exercise.save()
+        return jsonify(ok=True, result=utils.dump_exercise(exercise))
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+@rest_api.route('/api/exercise/<exercise_id>/tags')
+def get_tags_exercise(exercise_id):
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+        return jsonify(ok=True, result=exercise.tags)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+
+
+@rest_api.route('/api/exercise/<exercise_id>', methods=['GET'])
+def exercise(exercise_id):
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    if request.method == 'GET':
+        return jsonify(ok=True, result=utils.dump_exercise(exercise))
+    #elif request.method == 'DELETE':
+        #pass
+
+@rest_api.route('/api/exercise/<exercise_id>', methods=['POST'])
+def update_exercise(exercise_id):
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    exercise.title = request.json['title']
+    exercise.description = request.json['description']
+    exercise.boilerplate_code = request.json['boilerplate_code']
+    exercise.reference_code = request.json['reference_code']
+    exercise.published = request.json['published']
+    exercise.tags = map(lambda t : t.lower(), request.json['tags'].split(','))
+    exercise.score = int(request.json['score'])
+    exercise.save()
+
+    return jsonify(ok=True, result=utils.dump_exercise(exercise))
+
+
+# Tests
+
+@rest_api.route('/api/test/', methods=['POST'])
+def new_test():
+    input = request.json['input']
+    output = request.json['output']
+    exercise_id = request.json['exercise_id']
+
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    test = Test(input=input, output=output)
+    test.save()
+    exercise.tests.append(test)
+    exercise.save()
+
+    return jsonify(ok=True, result=utils.dump_exercise(exercise))
+
+@rest_api.route('/api/test/<test_id>', methods=['DELETE'])
+def test(test_id):
+    test = None
+    try:
+        test = Test.objects.get(id=test_id)
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    if request.method == 'DELETE':
+        exercise = None
+        try:
+            exercise = Exercise.objects.get(id=request.json['exercise_id'])
+        except mongoengine.DoesNotExist as e:
+            return jsonify(ok=False, result=e.message)
+
+        exercise.tests.remove(test)
+        exercise.save()
+
+        test.delete()
+
+        return jsonify(ok=True, result=utils.dump_exercise(exercise))
 
 # Submissions
 

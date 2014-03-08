@@ -1,0 +1,275 @@
+/* \!/ You must include editor.js before this file !!! */
+
+var initExercise = function(exerciseId) {
+
+    // Unpublish exercise
+    apiCall('/api/exercise/'+ exerciseId + '/unpublish', 'POST', {}, function(data) {
+        if(!data.ok) {
+            notification.error("Failed to unpublish exercise: " + data.result);
+        }
+    });
+
+
+    // Disable add button
+    $('#btn-add-test').attr('disabled', 'disabled');
+
+    // Load the exercise's test list
+    apiCall('/api/exercise/' + exerciseId, 'GET', {}, function(data) {
+        if(data.ok) {
+            var exercise = data.result;
+            $('#tests_placeholder').html(testsListTemplate(exercise));
+        }
+        else {
+            notification.error("Failed to load exercise: " + data.result);
+        }
+    });
+
+    // Check if the test's input and output are set (not empty) and
+    // enable/disable the "Add test" button accordingly
+    var validateTestParams = function() {
+        if ($('#test-input').val().length > 0 && $('#test-output').val().length > 0) {
+            $('#btn-add-test').removeAttr('disabled');
+        }
+        else {
+            $('#btn-add-test').attr('disabled', 'disabled');
+        }
+    };
+
+    $('#test-input').on('input', validateTestParams);
+    $('#test-output').on('input', validateTestParams);
+
+
+    // Expand a test's view (by clicking on its heading)
+    $('.tests').on('click', 'li .heading', function(e) {
+        $li = $(this).closest('li');
+        $('.tests li').not($li).find('.details').hide(200);
+        $li.find('.details').stop();
+        $li.find('.details').toggle(400);
+    });
+
+    // Add a test
+    $('#btn-add-test').click(function() {
+        var $this = $(this)
+        var input  = $("#test-input").val();
+        var output = $("#test-output").val();
+        var exerciseId = $('#exercise').attr('data-id');
+
+        var params = { input: input, output: output, exercise_id: exerciseId };
+
+        apiCall('/api/test/', 'POST', params, function(data) {
+            if(data.ok) {
+                var exercise = data.result
+                $('#tests_placeholder').html(testsListTemplate(exercise));
+            }
+            else {
+                notification.error("Failed to add test: " + data.result);
+            }
+        });
+    });
+
+
+    // Delete a test
+    $('.tests').on('click', '.heading .delete', function(e) {
+        $this = $(this).closest('li');
+        var test_id = $this.attr('data-test-id');
+
+        var exerciseId = $('#exercise').attr('data-id');
+
+        var params = {exercise_id: exerciseId };
+
+        apiCall('/api/test/' + test_id, 'DELETE', params, function(data) {
+            $this.hide(200, function() {
+                $this.remove();
+            });
+        });
+
+        // Avoid triggering an event on the parent li
+        e.stopPropagation();
+    });
+};
+
+
+var save = function(exerciseId, publish) {
+    var title = $("#exercise-title").text();
+    var description = descriptionEditor.getElement('editor').body.innerHTML;
+    var tags = $('[name="hiddenTagList"]').val();
+    var score = $('#score').val();
+    if (score == "") {
+        score = $('#score').attr('placeholder');
+    }
+    var boilerplateCode  = exerciseEditor.getValue();
+    var referenceCode = referenceEditor.getValue();
+
+    console.log("title : " + title);
+    console.log("description : " + description);
+    console.log("exercise code : " + boilerplateCode);
+    console.log("reference code : " + referenceCode);
+    console.log("tags : " + tags);
+    console.log("score : " + score);
+
+    params = { title: title, description: description,
+               boilerplate_code: boilerplateCode, reference_code: referenceCode,
+               published: publish, tags: tags, score: score};
+
+    apiCall('/api/exercise/' + exerciseId, 'POST', params, function(data) {
+        if(data.ok) {
+            /* Nothing to do */
+        }
+        else {
+            notification.error("Failed to load exercise: " + data.result);
+        }
+    });
+}
+
+function editTitle() {
+    var title = $(this).text();
+    $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="Edit title">');
+    var $inputExercise = $("#exercise-title");
+    $inputExercise.val(title);
+    $inputExercise.focus();
+}
+
+
+$(document).ready(function() {
+    /* Getting the current exercise's data */
+    var $exercise = $('#exercise');
+    var exerciseId = $exercise.data('id');
+    var boilerplateCode = $exercise.data('boilerplate-code');
+    var referenceCode   = $exercise.data('reference-code');
+    apiCall('/api/exercise/' + exerciseId + '/tags', 'GET', {}, function(data) {
+        tags = data.result;
+        // Initialize exercise's tags
+        for (var i = 0; i < tags.length; i++) {
+            $(".tagsManager").tagsManager('pushTag',tags[i]);
+        }
+    });
+
+    /* Getting Handlebar templates */
+    testsListTemplate = loadTemplate('#tests-list-template');
+
+    /* Initialize tests interface */
+    initExercise(exerciseId);
+
+    /* Editor initialization and configuration */
+    exerciseEditor = ace.edit("exercise-editor");
+    exerciseEditor.setTheme("ace/theme/textmate");
+    exerciseEditor.setFontSize(15);
+    exerciseEditor.setShowPrintMargin(false);
+    exerciseEditor.getSession().setMode("ace/mode/c_cpp");
+    exerciseEditor.setValue(boilerplateCode);
+
+    referenceEditor = ace.edit("main-editor");
+    referenceEditor.setValue(referenceCode);
+
+    var opts = {
+      container: 'description-editor',
+      textarea: 'description-editor-content',
+      basePath: '/static/css/',
+      clientSideStorage: true,
+      localStorageName: 'description-editor',
+      useNativeFullscreen: true,
+      parser: marked,
+      file: {
+        name: 'description-editor',
+        defaultContent: '',
+        autoSave: 100
+      },
+      theme: {
+        base: 'epiceditor/base/epiceditor.css',
+        preview: 'description-editor.css',
+        editor: 'epiceditor/editor/epic-light.css'
+      },
+      button: {
+        preview: true,
+        fullscreen: true,
+        bar: "auto"
+      },
+      focusOnLoad: false,
+      shortcut: {
+        modifier: 18,
+        fullscreen: 70,
+        preview: 80
+      },
+      string: {
+        togglePreview: 'Toggle Preview Mode',
+        toggleEdit: 'Toggle Edit Mode',
+        toggleFullscreen: 'Enter Fullscreen'
+      },
+      autogrow: true
+    }
+
+    descriptionEditor = new EpicEditor(opts);
+    descriptionEditor.load();
+    descriptionEditor._setupTextareaSync();
+    descriptionEditor.preview();
+
+    $('#save-button').click(function() {
+        var $this = $(this)
+        $this.attr('disabled', 'disabled');
+        save(exerciseId, false);
+        $this.removeAttr('disabled', 'disabled');
+    });
+
+    $('#publish-button').click(function() {
+        var $this = $(this)
+        $this.attr('disabled', 'disabled');
+        save(exerciseId, true);
+        $this.removeAttr('disabled', 'disabled');
+        $(location).attr('href', "/");
+    });
+
+    //tags input configuration
+    $(function () {
+        $(".tagsManager").tagsManager({
+            prefilled: null,
+            CapitalizeFirstLetter: true,
+            preventSubmitOnEnter: true,
+            typeahead: true,
+            typeaheadAjaxSource: "/api/tags",
+            typeaheadSource: ["Algorithms","Trees","Sort"],
+            delimiters: [9, 13, 44], // tab, enter, comma
+            backspace: [8],
+            blinkBGColor_1: '#FFFF9C',
+            blinkBGColor_2: '#CDE69C',
+            hiddenTagListName: 'hiddenTagList'
+        });
+    });
+
+    //actions on title field
+    $('#panel-title').on( "mouseleave",function() {
+        var title = $("#exercise-title").val();
+        if (title == "") {
+            title = $("#exercise-title").attr('placeholder');
+        }
+        if (!title) {
+            title = $("#exercise-title").text();
+        }
+        $(this).html('<h3 class="panel-title" id="exercise-title">' + title + '</h3>');
+        $('#exercise-title').on("click", editTitle);
+    });
+
+    $('#panel-title').on( "mouseenter",function() {
+        $(this).append('<p class="glyphicon glyphicon-pencil"></p>');
+    });
+
+    $('#exercise-title').on("click", editTitle);
+
+    //numeric check on score field
+    $('#score').on("keyup", function () {
+        var $element = $(this);
+        var input = $element.val();
+        if (input.match(/^[0-9]+$/) || input == "") {
+            $element.removeClass('invalid');
+            $('#score-check').attr('class', "glyphicon glyphicon-ok");
+            $('#publish-button').removeAttr("disabled");
+            $('#save-button').removeAttr("disabled");
+        } else {
+            $element.addClass('invalid');
+            $('#score-check').attr('class', "glyphicon glyphicon-remove");
+            $('#publish-button').attr('disabled', 'disabled');
+            $('#save-button').attr('disabled', 'disabled');
+        }
+    });
+
+});
+

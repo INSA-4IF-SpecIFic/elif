@@ -8,9 +8,6 @@ import config
 import sandbox
 import job
 
-# Initializing Greedy's logger
-logger = utils.get_logger('greedy')
-
 class Thread(threading.Thread):
     """Greedy thread"""
 
@@ -18,14 +15,19 @@ class Thread(threading.Thread):
         threading.Thread.__init__(self)
 
         self.sandbox = sandbox.Sandbox()
+        self.sandbox.add_running_env(sandbox.python_env)
         self.dirty_sandbox = False
         self.greedy = greedy
         self.job = None
 
-        logger.info("Creating thread {}".format(self.sandbox.root_directory))
+        self.logger.info("Creating thread {}".format(self.sandbox.root_directory))
+
+    @property
+    def logger(self):
+        return self.greedy.logger
 
     def __del__(self):
-        logger.info("Deleting thread {}".format(self.sandbox.root_directory))
+        self.logger.info("Deleting thread {}".format(self.sandbox.root_directory))
         del self.sandbox
 
     def get_job(self):
@@ -50,16 +52,14 @@ class Thread(threading.Thread):
         return self.job
 
     def process_job(self, j):
-        logger.info("Processing {}".format(j))
-
-        j.process(self.sandbox)
+        j.process(self.sandbox, self.logger)
         j.processed = True
         j.save()
 
-        logger.info("{} processed !".format(j))
+        self.logger.info("{} processed !".format(j))
 
     def run(self):
-        logger.info("Running thread {}".format(self.sandbox.root_directory))
+        self.logger.info("Running thread {}".format(self.sandbox.root_directory))
 
         while True:
             j = self.get_job()
@@ -69,7 +69,7 @@ class Thread(threading.Thread):
 
             self.process_job(j)
 
-        logger.info("Stoping thread {}".format(self.sandbox.root_directory))
+        self.logger.info("Stoping thread {}".format(self.sandbox.root_directory))
 
         return True
 
@@ -84,20 +84,22 @@ class Greedy(object):
         self.job_queue_sem = threading.Semaphore(0)
         self.processing = list()
         self.quiting = False
+        self.logger = utils.get_logger('greedy')
 
     def fetch_and_process(self):
         s = sandbox.Sandbox()
+        s.add_running_env(sandbox.python_env)
 
         count = 0
 
         for j in job.Job.objects(processed=False):
-            logger.info("Processing {}".format(j))
+            self.logger.info("Processing {}".format(j))
 
-            j.process(s)
+            j.process(s, self.logger)
             j.processed = True
             j.save()
 
-            logger.info("{} processed !".format(j))
+            self.logger.info("{} processed !".format(j))
 
             count += 1
 
@@ -122,7 +124,7 @@ class Greedy(object):
             elif j in self.job_queue:
                 continue
 
-            logger.info("Fetching {}".format(j))
+            self.logger.info("Fetching {}".format(j))
             self.job_queue.append(j)
             self.job_queue_sem.release()
 
@@ -133,7 +135,7 @@ class Greedy(object):
         return count
 
     def run(self):
-        logger.info("Running greedy ...")
+        self.logger.info("Running greedy ...")
 
         assert len(self.processing) == 0
 
