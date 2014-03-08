@@ -5,6 +5,7 @@ function searchWords() {
 		var name = $(".name", this).text();
 		tags += name + " ";
 	})
+
 	apiCall('/api/exercise/search', 'POST', {words : search, tags: tags}, function(data) {
 		var exercises = data.result;
 		var userID = data.user;
