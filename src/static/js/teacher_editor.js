@@ -121,6 +121,14 @@ var save = function(exerciseId, publish) {
     });
 }
 
+function editTitle() {
+    var title = $(this).text();
+    $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="Edit title">');
+    var $inputExercise = $("#exercise-title");
+    $inputExercise.val(title);
+    $inputExercise.focus();
+}
+
 
 $(document).ready(function() {
     /* Getting the current exercise's data */
@@ -237,22 +245,14 @@ $(document).ready(function() {
             title = $("#exercise-title").text();
         }
         $(this).html('<h3 class="panel-title" id="exercise-title">' + title + '</h3>');
-        $('#exercise-title').on("click", function(){
-            var title = $(this).text();
-            $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="' + title + '">');
-            $("#exercise-title").focus();
-        });
+        $('#exercise-title').on("click", editTitle);
     });
 
     $('#panel-title').on( "mouseenter",function() {
         $(this).append('<p class="glyphicon glyphicon-pencil"></p>');
     });
 
-    $('#exercise-title').on("click", function(){
-        var title = $(this).text();
-        $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="' + title + '">');
-        $("#exercise-title").focus();
-    });
+    $('#exercise-title').on("click", editTitle);
 
     //numeric check on score field
     $('#score').on("keyup", function () {
@@ -262,10 +262,12 @@ $(document).ready(function() {
             $element.removeClass('invalid');
             $('#score-check').attr('class', "glyphicon glyphicon-ok");
             $('#publish-button').removeAttr("disabled");
+            $('#save-button').removeAttr("disabled");
         } else {
             $element.addClass('invalid');
             $('#score-check').attr('class', "glyphicon glyphicon-remove");
             $('#publish-button').attr('disabled', 'disabled');
+            $('#save-button').attr('disabled', 'disabled');
         }
     });
 

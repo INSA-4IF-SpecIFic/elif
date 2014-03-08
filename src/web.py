@@ -53,7 +53,7 @@ def inject_configuration():
 @app.route('/')
 def index():
     occurrences = {}
-    tags = set(t for e in Exercise.objects for t in e.tags)
+    tags = set(t for e in Exercise.objects(published=True) for t in e.tags)
     for t in tags :
         occurrences[t] = str(len(Exercise.objects(tags=t,published=True)))
     return render_template('index.html', occurrences=occurrences)
