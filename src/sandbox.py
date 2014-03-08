@@ -328,13 +328,40 @@ class Sandbox(object):
             - <path_src> must be in the main basis
         """
         assert path_src[0] == '/'
+        assert os.path.isdir(path_src)
 
         path_dest = self.to_main_basis(path_src)
 
         if os.path.exists(path_dest):
             return
 
-        shutil.copytree(path_src, path_dest)
+        def clone_dir(path_src, path_dest):
+            if not path_src.endswith('/'):
+                path_src += '/'
+
+            if not path_dest.endswith('/'):
+                path_dest += '/'
+
+            os.makedirs(path_dest)
+
+            names = os.listdir(path_src)
+
+            for name in names:
+                src = os.path.join(path_src, name)
+                dst = os.path.join(path_dest, name)
+
+                if os.path.islink(src):
+                    src = os.readlink(src)
+
+                if os.path.isfile(src):
+                    shutil.copy2(src, dst)
+
+                elif os.path.isdir(src):
+                    clone_dir(src, dst)
+
+            return True
+
+        return clone_dir(path_src, path_dest)
 
     def clone_bin(self, bin_path_src):
         """Clones a binary file and its dependencies to the sandbox
