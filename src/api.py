@@ -45,9 +45,13 @@ def search_words():
         exercises = Exercise.objects
     else :
         exercises = Exercise.objects(tags__in=tags)
+    try:
+        user_id = g.user.id
+    except:
+        user_id = None
     found = set([e for e in exercises for w in find if w in e.title.lower() or w in e.description.lower()])
-    found = [f.to_dict() for f in found if f.published or f.author.id == g.user.id]
-    return jsonify(ok=True, result=found);
+    found = [f.to_dict() for f in found if f.published or f.author.id == user_id]
+    return jsonify(ok=True, result=found, user=user_id)
 
 @rest_api.route('/api/exercise/<exercise_id>/publish', methods=['POST'])
 def publish_exercise(exercise_id):
@@ -110,6 +114,18 @@ def update_exercise(exercise_id):
     exercise.save()
 
     return jsonify(ok=True, result=utils.dump_exercise(exercise))
+
+@rest_api.route('/api/exercise', methods=['DELETE'])
+def delete_exercise():
+    exercise = None
+    try:
+        exercise = Exercise.objects.get(id=request.json['exercise_id'])
+    except mongoengine.DoesNotExist as e:
+        return jsonify(ok=False, result=e.message)
+
+    exercise.delete()
+
+    return jsonify(ok=True)
 
 
 # Tests

@@ -57,48 +57,27 @@
     <li>
         <span class="badge coins pull-left">
             <img src="/static/img/coin.png"/>
-            <span class="value">{{score}}</span><br>
+            <span class="value">{{exercise.score}}</span><br>
             coins
 
         </span>
 
-        <a href="/exercise/{{_id.$oid}}">
-            <span class="title">{{title}}</span>
-        </a>
-        <div>
-            <img class="tag-icon pull-left" src="/static/img/tag.png"/>
-
-            <ul class="tags">
-            {{#each tags}}
-                <a href="#">
-                    <li class="tag"><span class="name">{{this}}</span></li>
-                </a>
-            {{/each}}
-            </ul>
-        </div>
-    </li>
-
-</script>
-
-<script id="unpublished-exercise-template" type="text/x-handlebars-template">
-
-    <li>
-        <span class="badge coins pull-left">
-            <img src="/static/img/coin.png"/>
-            <span class="value">{{score}}</span><br>
-            coins
-
-        </span>
-
-        <a href="/exercise/{{_id.$oid}}">
-            <span class="title">{{title}} </span>
+        <a href="/exercise/{{exercise._id.$oid}}">
+            <span class="title">{{exercise.title}}</span>
+            {{#unless exercise.published}}
             <span class="label label-danger">Unpublished</span>
+            {{/unless}}
         </a>
+        {{#if editor}}
+        <button type="button" onclick="deleteExercise(this)" data-exercise-id="{{exercise._id.$oid}}" class="btn btn-default pull-right">
+            <span class="glyphicon glyphicon-trash"></span>
+        </button>
+        {{/if}}
         <div>
             <img class="tag-icon pull-left" src="/static/img/tag.png"/>
 
             <ul class="tags">
-            {{#each tags}}
+            {{#each exercise.tags}}
                 <a href="#">
                     <li class="tag"><span class="name">{{this}}</span></li>
                 </a>
