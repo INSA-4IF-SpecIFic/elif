@@ -5,11 +5,13 @@ function searchWords() {
 		var name = $(".name", this).text();
 		tags += name + " ";
 	})
+
 	apiCall('/api/exercise/search', 'POST', {words : search, tags: tags}, function(data) {
 		var exercises = data.result;
 		var $exercises = $("#exercises-list");
 		var $unpublished = $("#unpublished-list");
 		$exercises.html('');
+		$unpublished.html('');
 		for (var i = 0; i < exercises.length; i++) {
             if(exercises[i].published) {
                 $exercises.append(exerciseTemplate(exercises[i]));
