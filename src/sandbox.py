@@ -631,10 +631,10 @@ def python_env(sandbox):
         if os.path.isdir(src_path):
             return False
 
-        if not src_path.endswith('.py'):
-            return True
+        if src_path.endswith('.pyc') or src_path.endswith('.pyo'):
+            return False
 
-        return False
+        return True
 
     for p in sys.path:
         if not p.startswith('/'):
