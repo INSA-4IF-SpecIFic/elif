@@ -11,6 +11,7 @@ function searchWords() {
 		var $exercises = $("#exercises-list");
 		var $unpublished = $("#unpublished-list");
 		$exercises.html('');
+		$unpublished.html('');
 		for (var i = 0; i < exercises.length; i++) {
 			var editor = (userID == exercises[i].author);
 			var context = {exercise: exercises[i], editor: editor};
@@ -28,7 +29,7 @@ function searchWords() {
 function deleteExercise(button) {
     var exercise_id = $(button).attr('data-exercise-id');
     var params = {exercise_id: exercise_id };
-
+    console.log("delete");
     apiCall('/api/exercise', 'DELETE', params, function(data) {
         if(data.ok) {
             searchWords();

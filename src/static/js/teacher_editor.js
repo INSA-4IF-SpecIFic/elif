@@ -121,6 +121,19 @@ var save = function(exerciseId, publish) {
     });
 }
 
+var deleteExercise = function(exercise_id) {
+    var params = {exercise_id: exercise_id };
+    console.log("delete");
+    apiCall('/api/exercise', 'DELETE', params, function(data) {
+        if(data.ok) {
+            searchWords();
+        }
+        else {
+            notification.error("Failed to delete exercise: " + data.result);
+        }
+    });
+}
+
 function editTitle() {
     var title = $(this).text();
     $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="Edit title">');
@@ -204,18 +217,23 @@ $(document).ready(function() {
     descriptionEditor.preview();
 
     $('#save-button').click(function() {
-        var $this = $(this)
+        var $this = $(this);
         $this.attr('disabled', 'disabled');
         save(exerciseId, false);
         $this.removeAttr('disabled', 'disabled');
     });
 
     $('#publish-button').click(function() {
-        var $this = $(this)
+        var $this = $(this);
         $this.attr('disabled', 'disabled');
         save(exerciseId, true);
         $this.removeAttr('disabled', 'disabled');
         $(location).attr('href', "/");
+    });
+
+    $('#delete-button').click(function() {
+        deleteExercise(exerciseId);
+        window.location.replace('/');
     });
 
     //tags input configuration
