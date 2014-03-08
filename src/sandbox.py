@@ -321,7 +321,7 @@ class Sandbox(object):
 
         return True
 
-    def clone_dir(self, path_src):
+    def clone_dir(self, path_src, filter=None):
         """Clones a directory to the sandbox
 
         Important:
@@ -335,7 +335,7 @@ class Sandbox(object):
         if os.path.exists(path_dest):
             return
 
-        def clone_dir(path_src, path_dest):
+        def clone_dir(path_src, path_dest, filter):
             if not path_src.endswith('/'):
                 path_src += '/'
 
@@ -348,6 +348,10 @@ class Sandbox(object):
 
             for name in names:
                 src = os.path.join(path_src, name)
+
+                if filter != None and filter(src):
+                    continue
+
                 dst = os.path.join(path_dest, name)
 
                 if os.path.islink(src):
@@ -357,11 +361,11 @@ class Sandbox(object):
                     shutil.copy2(src, dst)
 
                 elif os.path.isdir(src):
-                    clone_dir(src, dst)
+                    clone_dir(src, dst, filter=filter)
 
             return True
 
-        return clone_dir(path_src, path_dest)
+        return clone_dir(path_src, path_dest, filter)
 
     def clone_bin(self, bin_path_src):
         """Clones a binary file and its dependencies to the sandbox
@@ -623,6 +627,15 @@ def python_env(sandbox):
         '/usr/local/Cellar'  # dirty py.test's sys.path
     ]
 
+    def filter(src_path):
+        if os.path.isdir(src_path):
+            return False
+
+        if not src_path.endswith('.py'):
+            return True
+
+        return False
+
     for p in sys.path:
         if not p.startswith('/'):
             continue
@@ -634,9 +647,6 @@ def python_env(sandbox):
             continue
 
         if '/site-packages/' in (p + '/'):
-            continue
-
-        if '/dist-packages/' in (p + '/'):
             continue
 
         ignored = False
@@ -652,7 +662,7 @@ def python_env(sandbox):
         if not os.path.isdir(p):
             continue
 
-        sandbox.clone_dir(p)
+        sandbox.clone_dir(p, filter=filter)
 
     if platform.system() == "Darwin":
         """ Mac OS X specific environment """
