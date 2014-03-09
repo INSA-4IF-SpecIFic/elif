@@ -108,6 +108,83 @@ def test_exercise_progress():
 
     assert progress.score <= 42
 
+def test_exercise_delection():
+
+    db = mongoengine.connect(config.db_name)
+    db.drop_database(config.db_name)
+
+    # Editor user
+    u = utils.sample_user()
+    u.save()
+
+    exe = model.exercise.Exercise(author=u, title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
+                        boilerplate_code='b', reference_code='#', tags=['sort','trees'])
+
+    test = model.exercise.Test(input='1\n', output='1')
+    test.save()
+    exe.tests.append(test)
+
+    test = model.exercise.Test(input='2\n', output='2')
+    test.save()
+    exe.tests.append(test)
+
+    test = model.exercise.Test(input='3\n', output='3')
+    test.save()
+    exe.tests.append(test)
+
+    exe.save()
+
+    wrong_code = '\n'.join([
+        '#include <iostream>',
+        '',
+        'int main() {',
+        'int i;',
+        'std::cin >> i;',
+        'if (i > 2) std::cout << i;',
+        'return 0;',
+        '}'
+    ])
+
+    working_code = '\n'.join([
+        '#include <iostream>',
+        '',
+        'int main() {',
+        'int i;',
+        'std::cin >> i;',
+        'std::cout << i;',
+        'return 0;',
+        '}'
+    ])
+
+    u = model.user.User(email='test@{}'.format(config.email_domain), username='test', secret_hash='hash', salt='salt')
+    u.save()
+
+    submission = job.Submission(exercise=exe, code=wrong_code, user=u)
+    submission.save()
+
+    submission = job.Submission(exercise=exe, code=working_code, user=u)
+    submission.save()
+
+    submission = job.Submission(exercise=exe, code="nothing at all", user=u)
+    submission.save()
+
+    greedy_app = Greedy(db)
+    greedy_app.fetch_and_process()
+
+    # Progression for this user
+    progress, created = model.exercise.ExerciseProgress.objects.get_or_create(user=u, exercise=exe)
+
+    exe.delete_exercise()
+
+    tests = model.exercise.Test.objects
+    submissions = job.Submission.objects
+    progress = model.exercise.ExerciseProgress.objects
+    results = model.exercise.TestResult.objects
+
+    assert len(tests) == 0
+    assert len(submissions) == 0
+    assert len(progress) == 0
+    assert len(results) == 0    
 
 if __name__ == '__main__':
-    test_exercise_progress()
+    test_exercise_delection()
