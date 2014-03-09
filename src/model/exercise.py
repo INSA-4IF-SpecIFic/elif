@@ -11,7 +11,7 @@ class Test(mongoengine.Document):
 
 
 class TestResult(mongoengine.Document):
-    test = mongoengine.ReferenceField(Test, required=True)
+    test = mongoengine.ReferenceField(Test, required=True, reverse_delete_rule=mongoengine.CASCADE)
     stdout = mongoengine.StringField(default=str)
     stderr = mongoengine.StringField(default=str)
     passed = mongoengine.BooleanField(default=True)
@@ -54,7 +54,7 @@ class Exercise(mongoengine.Document):
     reference_code = mongoengine.StringField(required=True)
     code_language = mongoengine.StringField(required=True, default='c++')
 
-    tests = mongoengine.ListField(mongoengine.ReferenceField(Test), required=True)
+    tests = mongoengine.ListField(mongoengine.ReferenceField(Test, reverse_delete_rule=mongoengine.NULLIFY), required=True)
 
     tags = mongoengine.ListField(mongoengine.StringField())
     score = mongoengine.IntField(default=42)
@@ -64,9 +64,14 @@ class Exercise(mongoengine.Document):
     def __hash__(self):
         return hash(self.title)
 
+    def delete_exercise(self):
+        for t in self.tests:
+            t.delete()
+        self.delete()
+
 class ExerciseProgress(mongoengine.Document):
     user = mongoengine.ReferenceField(User, required=True)
-    exercise = mongoengine.ReferenceField(Exercise, required=True)
+    exercise = mongoengine.ReferenceField(Exercise, required=True, reverse_delete_rule=mongoengine.CASCADE)
 
     best_results = mongoengine.ListField(mongoengine.ReferenceField(TestResult), default=list)
     score = mongoengine.IntField(default=0)

@@ -28,7 +28,7 @@ class Job(mongoengine.Document):
 class Submission(Job):
     """Abtract submission class factorising compilation and test execution"""
 
-    exercise = mongoengine.ReferenceField(Exercise, required=True)
+    exercise = mongoengine.ReferenceField(Exercise, required=True, reverse_delete_rule=mongoengine.CASCADE)
     code = mongoengine.StringField(required=True)
     user = mongoengine.ReferenceField(User, required=True)
 

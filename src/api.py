@@ -131,7 +131,7 @@ def delete_exercise():
     except mongoengine.DoesNotExist as e:
         return jsonify(ok=False, result=e.message)
 
-    exercise.delete()
+    exercise.delete_exercise()
 
     return jsonify(ok=True)
 
