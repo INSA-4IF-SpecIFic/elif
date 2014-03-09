@@ -81,87 +81,52 @@ def test_db():
     db = mongoengine.connect(config.db_name)
     db.drop_database(config.db_name)
 
-    # Dummy user
+    # Dummy users
     User.new_user(email="dummy@{}".format(config.email_domain),
-                  username="dummy_username", password="123456", editor=False).save()
+                  username="dummy_user", password="123456", editor=False).save()
 
     # Other dummmy users
-    User.new_user(email="dummy1@{}".format(config.email_domain),
-                  username="dummy_username1", password="123456", editor=False).save()
-
-    User.new_user(email="dummy2@{}".format(config.email_domain),
-                  username="dummy_username2", password="123456", editor=False).save()
-
-    User.new_user(email="dummy3@{}".format(config.email_domain),
-                  username="dummy_username3", password="123456", editor=False).save()
+    for i in xrange(8):
+        User.new_user(email="dummy{}@{}".format(i + 1, config.email_domain),
+                      username="dummy_user{}".format(i+1), password="123456", editor=False).save()
 
     # Editor user
     editor = User.new_user(email="editor@{}".format(config.email_domain),
               username="editor_user", password="123456", editor=True).save()
-    # Ex 1
-    test1 = Test(input='1\n', output='1').save()
-    test2 = Test(input='2\n', output='4').save()
 
-    exercise = Exercise(author=editor, title="An exercise's title", description="## This is an exercise\n\n* El1\n* El2",
-                        boilerplate_code=config.default_boilerplate_code, reference_code=config.default_boilerplate_code, tags=['sort','trees'])
-    exercise.tests.append(test1)
-    exercise.tests.append(test2)
-    exercise.published = True
-    exercise.save()
+    # Other editor users
+    for i in xrange(8):
+        User.new_user(email="editor{}@{}".format(i + 1, config.email_domain),
+                      username="editor_user{}".format(i+1), password="123456", editor=True).save()
 
-    # Ex 2
-    params = dict(author=editor, title="Another exercise's title",
-                    description="## This is an exercise\n\n* El1\n* El2\n![Alt text](/static/img/cat.jpeg)",
-                    boilerplate_code=config.default_boilerplate_code, reference_code=config.default_boilerplate_code,
-                    tags=['algorithms','trees'])
-    exercise = Exercise(**params)
-    exercise.tests.append(test1)
-    exercise.tests.append(test2)
-    exercise.published = True
-    exercise.save()
 
-    # Ex 3
-    params['title'] = "Yet another exercise"
-    exercise = Exercise(**params)
-    exercise.tests.append(test1)
-    exercise.tests.append(test2)
-    exercise.published = True
-    exercise.save()
+    # Dummy exercises
+    for i in xrange(8):
+        test1 = Test(input='1\n', output='1').save()
+        test2 = Test(input='2\n', output='2').save()
+        test3 = Test(input='2\n', output='2').save()
 
-    # Ex 4
-    params['title'] = "And here's another exercise !"
-    exercise = Exercise(**params)
-    exercise.tests.append(test1)
-    exercise.tests.append(test2)
-    exercise.published = True
-    exercise.save()
+        exercise = Exercise(author=editor, title="Dummy exercise {}".format(i), description="## This is an exercise\n\n* El1\n* El2",
+                            boilerplate_code=config.default_boilerplate_code, reference_code=config.default_boilerplate_code, tags=['sort','trees'])
 
-    # Ex 5
-    params['title'] = "And a last random exercise"
-    exercise = Exercise(**params)
-    exercise.tests.append(test1)
-    exercise.tests.append(test2)
-    exercise.published = True
-    exercise.save()
+        exercise.tests = [test1, test2, test3]
+        exercise.published = True
+        exercise.save()
 
-    # Ex 6
+    # "Doable" exercise
     exercise = Exercise(author=editor, title="Return n^2",
                     description="## Return the given number to the 2 !\n\n* You get a\n* Print a²11\n![Alt text](/static/img/cat.jpeg)",
                     boilerplate_code=config.default_boilerplate_code,
                     reference_code=config.default_boilerplate_code,
                     tags=['algorithms'])
 
-    test = Test(input='1\n', output='1').save()
-    exercise.tests.append(test)
+    test1 = Test(input='1\n', output='1').save()
+    test2 = Test(input='2\n', output='4').save()
+    test3 = Test(input='-2\n', output='4').save()
 
-    test = Test(input='2\n', output='4').save()
-    exercise.tests.append(test)
-
-    test = Test(input='-2\n', output='4').save()
-    exercise.tests.append(test)
+    exercise.tests = [test1, test2, test3]
 
     exercise.published = True
     exercise.save()
-
 
     return exercise
