@@ -121,19 +121,6 @@ var save = function(exerciseId, publish) {
     });
 }
 
-var deleteExercise = function(exercise_id) {
-    var params = {exercise_id: exercise_id };
-    console.log("delete");
-    apiCall('/api/exercise', 'DELETE', params, function(data) {
-        if(data.ok) {
-            window.location.replace('/');
-        }
-        else {
-            notification.error("Failed to delete exercise: " + data.result);
-        }
-    });
-}
-
 function editTitle() {
     var title = $(this).text();
     $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="Edit title">');
@@ -231,7 +218,18 @@ $(document).ready(function() {
         $(location).attr('href', "/");
     });
 
-    $('#delete-button').click(deleteExercise(exerciseId));
+    $('#delete-button').click(function() {
+        var params = {exercise_id: exerciseId };
+        console.log("delete");
+        apiCall('/api/exercise', 'DELETE', params, function(data) {
+            if(data.ok) {
+                window.location.replace('/');
+            }
+            else {
+                notification.error("Failed to delete exercise: " + data.result);
+            }
+        });
+    });
 
     //tags input configuration
     $(function () {
