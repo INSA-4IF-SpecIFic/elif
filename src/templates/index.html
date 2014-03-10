@@ -10,12 +10,6 @@
 
 <h2>Exercises</h2>
 
-{% if user and user.editor %}
-<form action="/new_exercise" method="post">
-    <button role="submit" class="form-control">New exercise</button>
-</form>
-{% endif %}
-
 <div class="col-md-4">
     <div class="form-group">
         <div class="well">
@@ -30,6 +24,12 @@
 
         </div>
     </div>
+
+    {% if user and user.editor %}
+    <form action="/new_exercise" method="post">
+        <button role="submit" class="form-control">New exercise</button>
+    </form>
+    {% endif %}
 </div>
 
 <div class="col-md-8">
