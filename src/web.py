@@ -75,8 +75,13 @@ def signup():
 
 @app.route('/signup', methods=['POST'])
 def process_signup():
-    # TODO : create a new user
-    return render_template('signup.html')
+    email, username, password = request.form['email'].lower(), request.form['username'], request.form['password']
+    user = User.new_user(email=email, username=username, password=password, editor=False)
+    try:
+        user.save()
+    except mongoengine.ValidationError as e:
+        return render_template('signup.html', error=', '.join(e.to_dict().values()))
+    return render_template("welcome.html")
 
 @app.route('/welcome')
 def welcome():

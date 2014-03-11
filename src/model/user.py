@@ -4,6 +4,7 @@ import sys
 sys.path.append('..')
 import os
 import hashlib
+import re
 
 import mongoengine
 
@@ -17,7 +18,7 @@ def hash_password(password, salt):
 
 class User(mongoengine.Document):
     email = mongoengine.StringField(primary_key=True)
-    username = mongoengine.StringField(required=True)
+    username = mongoengine.StringField(required=True, unique=True)
 
     secret_hash = mongoengine.StringField(required=True)
     salt = mongoengine.StringField(required=True)
@@ -41,6 +42,9 @@ class User(mongoengine.Document):
         self.username = self.username.lower()
         self.email = self.email.lower()
 
+        reg = "^[a-z0-9_]+$"
+        if not re.match(reg, self.username):
+            raise mongoengine.ValidationError(dict(username="Username doesn't pass the username restriction"))
         if len(self.username) > config.length_limit:
             raise mongoengine.ValidationError(dict(username="Username is too long (maximum length: {})".format(config.length_limit)))
         if len(self.email) > config.length_limit:
