@@ -121,6 +121,10 @@ def update_exercise(exercise_id):
     exercise.score = int(request.json['score'])
     exercise.save()
 
+    # Saving the compilation/execution job in the database
+    submission = Submission(exercise=exercise, user=exercise.author, code=exercise.reference_code, save_exercise=True)
+    submission.save()
+
     return jsonify(ok=True, result=utils.dump_exercise(exercise))
 
 @rest_api.route('/api/exercise', methods=['DELETE'])
