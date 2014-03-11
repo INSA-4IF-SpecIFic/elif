@@ -130,3 +130,6 @@ def test_db():
     exercise.save()
 
     return exercise
+
+if __name__ == '__main__':
+    test_db()
