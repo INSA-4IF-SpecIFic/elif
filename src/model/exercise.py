@@ -85,15 +85,20 @@ class ExerciseProgress(mongoengine.Document):
         last_completion = self.calculate_completion(last_results)
         last_score = self.compute_score(last_results)
 
-        if last_score > self.score:
+        if last_completion > self.completion or (last_completion == self.completion and last_score > self.score):
             self.completion = last_completion
             self.best_results = last_results
             self.score = last_score
 
-            self.user.score = sum(exercise_p.score for exercise_p in ExerciseProgress.objects(user=self.user))
-            self.user.save()
+        # if last_score > self.score:
+        #     self.completion = last_completion
+        #     self.best_results = last_results
+        #     self.score = last_score
 
-            # ScoreHistory(user=self.user, date=datetime.now(), score=self.user.score).save()
+        #     self.user.score = sum(exercise_p.score for exercise_p in ExerciseProgress.objects(user=self.user))
+        #     self.user.save()
+
+        #     # ScoreHistory(user=self.user, date=datetime.now(), score=self.user.score).save()
 
     def calculate_completion(self, results):
         if not results:
