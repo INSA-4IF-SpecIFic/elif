@@ -22,6 +22,8 @@ class User(mongoengine.Document):
     secret_hash = mongoengine.StringField(required=True)
     salt = mongoengine.StringField(required=True)
 
+    score = mongoengine.IntField(default=0)
+
     editor = mongoengine.BooleanField(default=False)
 
     def __hash__(self):
