@@ -115,7 +115,7 @@ def test_db():
 
     # "Doable" exercise
     exercise = Exercise(author=editor, title="Return n^2",
-                    description="## Return the given number to the 2 !\n\n* You get a\n* Print a²11\n![Alt text](/static/img/cat.jpeg)",
+                    description="## Return the given number to the 2 !\n\n* You get a\n* Print a²\n![Alt text](/static/img/cat.jpeg)",
                     boilerplate_code=config.default_boilerplate_code,
                     reference_code=config.default_boilerplate_code,
                     tags=['algorithms'])
@@ -130,3 +130,6 @@ def test_db():
     exercise.save()
 
     return exercise
+
+if __name__ == '__main__':
+    test_db()
