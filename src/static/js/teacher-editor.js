@@ -91,7 +91,7 @@ var initExercise = function(exerciseId) {
 
 var save = function(exerciseId, publish) {
     var title = $("#exercise-title").text();
-    var description = descriptionEditor.getElement('editor').body.innerHTML;
+    var description = descriptionEditor.getElement('editor').body.innerText;
     var tags = $('[name="hiddenTagList"]').val();
     var score = $('#score').val();
     if (score == "") {
@@ -175,7 +175,7 @@ $(document).ready(function() {
         autoSave: 100
       },
       theme: {
-        base: 'epiceditor/base/epiceditor.css',
+        base: 'teacher-editor.css',
         preview: 'description-editor.css',
         editor: 'epiceditor/editor/epic-light.css'
       },
