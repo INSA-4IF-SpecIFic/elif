@@ -81,15 +81,6 @@ def unpublish_exercise(exercise_id):
     except mongoengine.DoesNotExist as e:
         return jsonify(ok=False, result=e.message)
 
-@rest_api.route('/api/exercise/<exercise_id>/tags')
-def get_tags_exercise(exercise_id):
-    try:
-        exercise = Exercise.objects.get(id=exercise_id)
-        return jsonify(ok=True, result=exercise.tags)
-    except mongoengine.DoesNotExist as e:
-        return jsonify(ok=False, result=e.message)
-
-
 
 @rest_api.route('/api/exercise/<exercise_id>', methods=['GET'])
 def exercise(exercise_id):
