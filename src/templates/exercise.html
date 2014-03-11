@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block style %}
-<link href="/static/css/editor.css" rel="stylesheet">
+<link href="/static/css/editor.css" rel="stylesheet" />
 {% endblock %}
 
 {% block body %}
@@ -186,13 +186,13 @@
 
 
 {% block javascript %}
-<script src="/static/js/ace/ace.js"></script>
-<script src="/static/js/editor.js"></script>
-<script src="/static/js/epiceditor.min.js"></script>
+<script src="/static/js/ace/ace.js" type="text/javascript"></script>
+<script src="/static/js/editor.js" type="text/javascript"></script>
+<script src="/static/js/epiceditor.min.js" type="text/javascript"></script>
 {% if exercise.author == user %}
-<script src="/static/js/teacher_editor.js"></script>
+<script src="/static/js/teacher_editor.js" type="text/javascript"></script>
 {% else %}
-<script src="/static/js/student_editor.js"></script>
+<script src="/static/js/student_editor.js" type="text/javascript"></script>
 {% endif %}
 
 {% endblock %}
