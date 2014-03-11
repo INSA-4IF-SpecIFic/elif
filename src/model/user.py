@@ -6,6 +6,7 @@ import os
 import hashlib
 
 import mongoengine
+from datetime import datetime
 
 import config
 
@@ -53,6 +54,13 @@ class User(mongoengine.Document):
 
     def valid_password(self, password):
         return hash_password(password, self.salt) == self.secret_hash
+
+
+class ScoreHistory(mongoengine.Document):
+    user = mongoengine.ReferenceField(User, required=True)
+    date = mongoengine.DateTimeField(default=datetime.now())
+    score = mongoengine.IntField(required=True)
+
 
 if __name__ == '__main__':
     mongoengine.connect('db_test')
