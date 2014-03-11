@@ -38,6 +38,8 @@ class Submission(Job):
 
     test_results = mongoengine.ListField(mongoengine.ReferenceField(TestResult), default=list)
 
+    save_exercise = mongoengine.BooleanField(default=False)
+
     def test_result(self, comp, test, logger):
         """
             Runs a <test> and starts to fill a result
@@ -55,7 +57,7 @@ class Submission(Job):
         result.memory_used = feedback.resources.ru_ixrss + feedback.resources.ru_idrss
         result.return_code = feedback.return_code
         stdout = feedback.stdout.read()
-        stderr = feedback.stdout.read()
+        stderr = feedback.stderr.read()
 
         result.passed = True
 
@@ -85,6 +87,15 @@ class Submission(Job):
 
         if not feedback.ended_correctly:
             logger.warn("Process of <{}> was killed by signal {}".format(self.user.username, feedback.killing_signal))
+
+        if self.save_exercise:
+            assert self.user.editor == True
+            assert self.user == self.exercise.author
+
+            test.cpu_time = result.cpu_time
+            test.memory_used = result.memory_used
+
+            test.save()
 
         return result
 
