@@ -129,6 +129,5 @@ def new_exercise():
 
 
 if __name__ == "__main__":
-    utils.test_db()
     app.run(debug=True)
 

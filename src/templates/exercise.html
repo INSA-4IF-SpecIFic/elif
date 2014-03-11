@@ -69,15 +69,20 @@
 
             <div class="panel panel-default">
               <div class="panel-heading" id="panel-title">
-                <h3 class="panel-title" id="exercise-title">{{exercise.title}}</h3>
+                <div class='row'>
+                  <span class="badge coins pull-left">
+                    <img src="/static/img/coin.png"/>
+                    <span class="value">{{exercise.score}}</span><br>
+                  </span>
+                  <input type="tel" class="form-control hidden-input" id="score" value="{{exercise.score}}" placeholder="{{exercise.score}}">
+                  <i id='score-check' class="hidden"></i>
+                  <p class="panel-title title" id="exercise-title">{{exercise.title}}</p>
+                  <input type="tel" class="form-control hidden-input" id="title-input" placeholder="Edit title">
+                  <p class="glyphicon glyphicon-pencil"></p>
+                </div>
               </div>
               <div class="panel-body">
               {% if exercise.author == user %}
-                <div class="input-group inline">
-                  <span class="input-group-addon"><img src="/static/img/coin.png"/></span>
-                  <input type="tel" class="form-control" id="score" value="{{exercise.score}}" placeholder="{{exercise.score}}">
-                  <i id='score-check' class="hidden"></i>
-                </div>
                 <input type="text" name="tags" placeholder="Add tags" class="tagsManager"/>
                 <div class="description" id="description-editor"></div>
                 <textarea id="description-editor-content" style="display:none">{{exercise.description}}</textarea>
@@ -190,9 +195,9 @@
 <script src="/static/js/editor.js" type="text/javascript"></script>
 <script src="/static/js/epiceditor.min.js" type="text/javascript"></script>
 {% if exercise.author == user %}
-<script src="/static/js/teacher_editor.js" type="text/javascript"></script>
+<script src="/static/js/teacher-editor.js" type="text/javascript"></script>
 {% else %}
-<script src="/static/js/student_editor.js" type="text/javascript"></script>
+<script src="/static/js/student-editor.js" type="text/javascript"></script>
 {% endif %}
 
 {% endblock %}

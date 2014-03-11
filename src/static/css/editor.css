@@ -135,14 +135,21 @@
   margin-left: 10px;
 }
 
-#exercise-title {
+#title-input {
   display: inline;
-  width: 90%;
+  width: 60%;
 }
 
 #score {
-  width: 60%;
+  display: inline;
+  width: 20%;
 }
+
+#exercise-title {
+  display: inline;
+  padding-left: 10px;
+}
+
 
 .input-group {
   margin-bottom: 10px;
@@ -176,4 +183,20 @@
 .unpublished-warn {
     width: 50%;
     margin: auto;
+}
+
+.panel-heading {
+  padding-left: 5%;
+}
+
+.coins {
+    background: #EBEBEB;
+    color: #3A3A3A;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-align: center;
+    min-width: 60px;
+    font-weight: lighter;
+
+    display: block;
 }

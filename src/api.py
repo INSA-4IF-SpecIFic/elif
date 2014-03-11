@@ -81,15 +81,6 @@ def unpublish_exercise(exercise_id):
     except mongoengine.DoesNotExist as e:
         return jsonify(ok=False, result=e.message)
 
-@rest_api.route('/api/exercise/<exercise_id>/tags')
-def get_tags_exercise(exercise_id):
-    try:
-        exercise = Exercise.objects.get(id=exercise_id)
-        return jsonify(ok=True, result=exercise.tags)
-    except mongoengine.DoesNotExist as e:
-        return jsonify(ok=False, result=e.message)
-
-
 
 @rest_api.route('/api/exercise/<exercise_id>', methods=['GET'])
 def exercise(exercise_id):
@@ -120,6 +111,10 @@ def update_exercise(exercise_id):
     exercise.tags = map(lambda t : t.lower(), request.json['tags'].split(','))
     exercise.score = int(request.json['score'])
     exercise.save()
+
+    # Saving the compilation/execution job in the database
+    submission = Submission(exercise=exercise, user=exercise.author, code=exercise.reference_code, save_exercise=True)
+    submission.save()
 
     return jsonify(ok=True, result=utils.dump_exercise(exercise))
 

@@ -2,6 +2,10 @@
 
 var initExercise = function(exerciseId) {
 
+    //hide edition inputs (title and score)
+    $(".hidden-input").hide();
+    $(".glyphicon-pencil").hide();
+
     // Unpublish exercise
     apiCall('/api/exercise/'+ exerciseId + '/unpublish', 'POST', {}, function(data) {
         if(!data.ok) {
@@ -13,10 +17,29 @@ var initExercise = function(exerciseId) {
     // Disable add button
     $('#btn-add-test').attr('disabled', 'disabled');
 
+    //tags input configuration
+    $(".tagsManager").tagsManager({
+        prefilled: null,
+        CapitalizeFirstLetter: true,
+        preventSubmitOnEnter: true,
+        typeahead: true,
+        typeaheadAjaxSource: "/api/tags",
+        typeaheadSource: ["Algorithms","Trees","Sort"],
+        delimiters: [9, 13, 44], // tab, enter, comma
+        backspace: [8],
+        blinkBGColor_1: '#FFFF9C',
+        blinkBGColor_2: '#CDE69C',
+        hiddenTagListName: 'hiddenTagList'
+    });
+
     // Load the exercise's test list
     apiCall('/api/exercise/' + exerciseId, 'GET', {}, function(data) {
         if(data.ok) {
             var exercise = data.result;
+            var tags = exercise.tags;
+            for (var i = 0; i < tags.length; i++) {
+                $(".tagsManager").tagsManager('pushTag',tags[i]);
+            }
             $('#tests_placeholder').html(testsListTemplate(exercise));
         }
         else {
@@ -91,7 +114,7 @@ var initExercise = function(exerciseId) {
 
 var save = function(exerciseId, publish) {
     var title = $("#exercise-title").text();
-    var description = descriptionEditor.getElement('editor').body.innerHTML;
+    var description = descriptionEditor.getElement('editor').body.innerText;
     var tags = $('[name="hiddenTagList"]').val();
     var score = $('#score').val();
     if (score == "") {
@@ -123,10 +146,21 @@ var save = function(exerciseId, publish) {
 
 function editTitle() {
     var title = $(this).text();
-    $("#panel-title").html('<input type="tel" class="form-control" id="exercise-title" placeholder="Edit title">');
-    var $inputExercise = $("#exercise-title");
+    $(this).hide();
+    var $inputExercise = $("#title-input");
     $inputExercise.val(title);
+    $inputExercise.show();
     $inputExercise.focus();
+}
+
+function editScore() {
+    var score = $(this).find(".value").text();
+    $(this).hide();
+    var $inputScore = $("#score");
+    $inputScore.val(score);
+    $inputScore.show();
+    $('#score-check').show();
+    $inputScore.focus();
 }
 
 
@@ -136,13 +170,6 @@ $(document).ready(function() {
     var exerciseId = $exercise.data('id');
     var boilerplateCode = $exercise.data('boilerplate-code');
     var referenceCode   = $exercise.data('reference-code');
-    apiCall('/api/exercise/' + exerciseId + '/tags', 'GET', {}, function(data) {
-        tags = data.result;
-        // Initialize exercise's tags
-        for (var i = 0; i < tags.length; i++) {
-            $(".tagsManager").tagsManager('pushTag',tags[i]);
-        }
-    });
 
     /* Getting Handlebar templates */
     testsListTemplate = loadTemplate('#tests-list-template');
@@ -175,7 +202,7 @@ $(document).ready(function() {
         autoSave: 100
       },
       theme: {
-        base: 'epiceditor/base/epiceditor.css',
+        base: 'teacher-editor.css',
         preview: 'description-editor.css',
         editor: 'epiceditor/editor/epic-light.css'
       },
@@ -231,41 +258,38 @@ $(document).ready(function() {
         });
     });
 
-    //tags input configuration
-    $(function () {
-        $(".tagsManager").tagsManager({
-            prefilled: null,
-            CapitalizeFirstLetter: true,
-            preventSubmitOnEnter: true,
-            typeahead: true,
-            typeaheadAjaxSource: "/api/tags",
-            typeaheadSource: ["Algorithms","Trees","Sort"],
-            delimiters: [9, 13, 44], // tab, enter, comma
-            backspace: [8],
-            blinkBGColor_1: '#FFFF9C',
-            blinkBGColor_2: '#CDE69C',
-            hiddenTagListName: 'hiddenTagList'
-        });
-    });
-
-    //actions on title field
+    //actions on title and score fields
     $('#panel-title').on( "mouseleave",function() {
-        var title = $("#exercise-title").val();
-        if (title == "") {
-            title = $("#exercise-title").attr('placeholder');
+        var $titleInput = $("#title-input");
+        var $titleField = $('#exercise-title');
+        $titleInput.hide();
+        var title = $titleInput.val();
+        if (title != "") {
+            $titleField.text(title);
         }
-        if (!title) {
-            title = $("#exercise-title").text();
+        $titleField.show();
+
+        var $score = $('#score');
+        if (!$score.hasClass('invalid')) {
+            var score = $score.val();
+            if (score == "") {
+                score = $score.attr('placeholder');
+            }
+            $('#score-check').hide();
+            $(".coins").show();
+            $(".coins").find(".value").text(score);
+            $score.hide();
+            $(".glyphicon-pencil").hide();
         }
-        $(this).html('<h3 class="panel-title" id="exercise-title">' + title + '</h3>');
-        $('#exercise-title').on("click", editTitle);
     });
 
     $('#panel-title').on( "mouseenter",function() {
-        $(this).append('<p class="glyphicon glyphicon-pencil"></p>');
+        $(".glyphicon-pencil").show();
     });
 
     $('#exercise-title').on("click", editTitle);
+
+    $('.coins').on("click", editScore);
 
     //numeric check on score field
     $('#score').on("keyup", function () {
