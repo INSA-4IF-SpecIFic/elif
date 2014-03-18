@@ -61,6 +61,7 @@ $(document).ready(function() {
     mainEditor.setFontSize(15);
     mainEditor.setShowPrintMargin(false);
     mainEditor.getSession().setMode("ace/mode/c_cpp");
+    mainEditor.setOption("dragEnabled", true);
 
     mainEditor.setValue(boilerplateCode);
 

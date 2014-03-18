@@ -136,7 +136,10 @@ var save = function(exerciseId, publish) {
 
     apiCall('/api/exercise/' + exerciseId, 'POST', params, function(data) {
         if(data.ok) {
-            /* Nothing to do */
+            if (publish) {
+                $('#publish-button').removeAttr('disabled', 'disabled');
+                $(location).attr('href', "/");
+            }
         }
         else {
             notification.error("Failed to load exercise: " + data.result);
@@ -241,8 +244,6 @@ $(document).ready(function() {
         var $this = $(this);
         $this.attr('disabled', 'disabled');
         save(exerciseId, true);
-        $this.removeAttr('disabled', 'disabled');
-        $(location).attr('href', "/");
     });
 
     $('#delete-button').click(function() {
