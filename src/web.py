@@ -8,6 +8,7 @@ import mongoengine
 import config
 from model.user import User
 from model.exercise import Exercise, ExerciseProgress
+from job import Submission
 import utils
 from api import rest_api
 
@@ -108,7 +109,12 @@ def logout():
 @requires_login
 def exercise(exercise_id):
     exercise = Exercise.objects.get(id=exercise_id)
-    return render_template('exercise.html', exercise=exercise)
+    try :
+        submission = Submission.objects(user=g.user,exercise=exercise).order_by('-date_created').first()
+        sub_code = submission.code
+    except :
+        sub_code = ""
+    return render_template('exercise.html', exercise=exercise, code=sub_code)
 
 @app.route('/exercise/delete/<exercise_id>')
 def delete_exercise(exercise_id):

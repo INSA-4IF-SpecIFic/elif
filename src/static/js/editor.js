@@ -50,8 +50,7 @@ $(document).ready(function() {
     /* Getting the current exercise's data */
     var $exercise = $('#exercise');
     var exerciseId = $exercise.data('id');
-    var boilerplateCode = $exercise.data('boilerplate-code');
-
+    
     /* Getting Handlebar templates */
     outputTemplate = loadTemplate('#output-template');
 
@@ -61,8 +60,6 @@ $(document).ready(function() {
     mainEditor.setFontSize(15);
     mainEditor.setShowPrintMargin(false);
     mainEditor.getSession().setMode("ace/mode/c_cpp");
-
-    mainEditor.setValue(boilerplateCode);
 
     /* Binding tabs */
     $('.nav-tab a').click(function (e) {

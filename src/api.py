@@ -5,7 +5,7 @@ import mongoengine
 
 from flask import request, jsonify, Blueprint, g
 from model.user import User
-from model.exercise import Exercise, Test
+from model.exercise import Exercise, Test, ExerciseProgress
 from job import Submission
 import utils
 
@@ -23,6 +23,15 @@ def create_user():
         user = User.new_user(email=email, username=username, password=password).save()
         # TODO : restrict information returned ? (security)
         return jsonify(ok=True, result=user.to_dict())
+    except mongoengine.ValidationError as e:
+        return jsonify(ok=False, result=e.message)
+
+@rest_api.route('/api/user/progress/<exercise_id>', methods=['GET'])
+def get_progress(exercise_id):
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+        progress = ExerciseProgress.objects.get(user=g.user,exercise=exercise)
+        return jsonify(ok=True, result=progress.to_dict())
     except mongoengine.ValidationError as e:
         return jsonify(ok=False, result=e.message)
 
