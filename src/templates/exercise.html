@@ -14,7 +14,9 @@
 
     <!-- Meta-data about the exercise, to be used by JS -->
     <div id="exercise" data-id="{{exercise.id}}" data-boilerplate-code="{{exercise.boilerplate_code}}"
-      {% if exercise.author == user %} data-reference-code="{{exercise.reference_code}}" {% endif %} ></div>
+      {% if exercise.author == user %} data-reference-code="{{exercise.reference_code}}" 
+      {% else %} data-submission-code="{{code}}"
+      {% endif %} ></div>
 
     <div class="col-md-8">
         <!-- Text editor -->

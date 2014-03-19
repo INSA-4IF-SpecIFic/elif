@@ -28,7 +28,7 @@ class ClangCompilation(Compilation):
 
     language_cmds = {
         'c': ['clang', '-x', 'c'],
-        'c++': ['clang++', '-x', 'c++'],
+        'c++': ['clang++', '-x', 'c++', '-std=c++11'],
     }
 
     def __init__(self, sandbox, code, language):

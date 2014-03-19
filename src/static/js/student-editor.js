@@ -8,4 +8,7 @@ $(document).ready(function() {
     var description_markdown = $('.description').text();
     var description_html = markdown.makeHtml(description_markdown);
     $('.description').html(description_html);
+
+    var lastSubmissionCode = $('#exercise').data('submission-code');
+	mainEditor.setValue(lastSubmissionCode);
 });
