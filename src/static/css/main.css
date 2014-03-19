@@ -92,8 +92,9 @@ a:href {
 }
 
 .header .sitename {
-  font-size: 20px;
-  margin: 5px 10px;
+  font-size: 28px;
+  font-family: "Cabin";
+  margin: 7px 0 -5px 8px;
   display: inline-block;
 }
 
@@ -101,7 +102,10 @@ a:href {
   font-size: 14px;
   display: inline-block;
   float: right;
-  margin: 7px 10px;
+  margin: -2px 5px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px 11px;
+  border-radius: 4px;
 }
 
 .right-link .glyphicon {
@@ -110,7 +114,7 @@ a:href {
 }
 
 .right-link:hover .glyphicon {
-  color: #DA0C15;
+  color: #DF2B15;
 }
 
 .header .username {
