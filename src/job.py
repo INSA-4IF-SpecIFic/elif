@@ -59,6 +59,18 @@ class Submission(Job):
         stdout = feedback.stdout.read()
         stderr = feedback.stderr.read()
 
+        print 'stdin is:'
+        print test.input
+
+        print 'stdout is:'
+        print stdout
+
+        print 'stdout should be:'
+        print test.output
+
+        print 'stderr is:'
+        print stderr
+
         result.passed = True
 
         if not feedback.ended_correctly:

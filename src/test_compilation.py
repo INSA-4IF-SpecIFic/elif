@@ -77,6 +77,26 @@ def test_stdout():
     assert feedback.return_code == 0
     assert feedback.stdout.read() == "hello world\n"
 
+def test_stdin():
+    code = '\n'.join([
+        '#include <iostream>',
+        'int main() {',
+        'int a = 0;'
+        'std::cin >> a;',
+        'std::cout << a;',
+        'return 0;',
+        '}'
+    ])
+
+    s = sandbox.Sandbox()
+    comp = compilation.create(s, code, 'c++')
+    assert comp.return_code == 0
+
+    feedback = comp.run(stdin="42")
+    assert feedback.ended_correctly
+    assert feedback.return_code == 0
+    assert feedback.stdout.read() == "42"
+
 def test_cpp_in_c():
     code = '\n'.join([
         '#include <iostream>',
