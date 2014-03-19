@@ -50,9 +50,9 @@ class TestResult(mongoengine.Document):
 
 
 class Exercise(mongoengine.Document):
-    author = mongoengine.ReferenceField(User, required=True)
     title = mongoengine.StringField(required=True, unique=True)
     description = mongoengine.StringField(required=True)
+    author = mongoengine.ReferenceField(User, required=True)
 
     boilerplate_code = mongoengine.StringField(default=str)
     reference_code = mongoengine.StringField(required=True)
@@ -96,9 +96,15 @@ class ExerciseProgress(mongoengine.Document):
             self.completion = new_completion
             self.best_results = new_results
             self.score = new_score
+            # Saving the current progress
+            self.save()
 
+            print 'Old score = ', self.user.score
             self.user.score = sum(exercise_p.score for exercise_p in ExerciseProgress.objects(user=self.user))
             self.user.save()
+
+            print 'New score = ', self.user.score
+            print ''
 
             ScoreHistory(user=self.user, date=datetime.now(), score=self.user.score).save()
 
