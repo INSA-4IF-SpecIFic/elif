@@ -23,6 +23,7 @@ var submissionState = function(submission_id) {
         }
 
         // We re-enable the 'Test' button since the code has been processed by the server.
+        $('#test-button .spinner').hide();
         $('#test-button').removeAttr('disabled');
 
         // Set error anotations
@@ -50,7 +51,7 @@ $(document).ready(function() {
     /* Getting the current exercise's data */
     var $exercise = $('#exercise');
     var exerciseId = $exercise.data('id');
-    
+
     /* Getting Handlebar templates */
     outputTemplate = loadTemplate('#output-template');
 
@@ -70,6 +71,7 @@ $(document).ready(function() {
 
     /* Binding the submit button */
     $('#test-button').click(function() {
+        $(this).find('.spinner').css('display', 'inline-block');
         $(this).attr('disabled', 'disabled');
 
         var code = mainEditor.getValue();

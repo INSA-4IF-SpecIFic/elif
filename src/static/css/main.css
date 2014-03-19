@@ -92,7 +92,7 @@ a:href {
   width: 100%;
   padding: 10px;
 
-  background: #32477E;
+  background: #2249B1;
   color: #FFF;
   text-shadow: -1px 1px 0px rgba(0, 0, 0, 0.5);
 }
@@ -109,8 +109,12 @@ a:href {
 .header .sitename {
   font-size: 28px;
   font-family: "Cabin";
-  margin: 7px 0 -5px 8px;
+  margin: 4px 0 -3px 8px;
   display: inline-block;
+}
+
+.header .sitename .icon {
+  font-size: 20px;
 }
 
 .right-link {
@@ -118,7 +122,7 @@ a:href {
   display: inline-block;
   float: right;
   margin: -2px 5px;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.25);
   padding: 8px 11px;
   border-radius: 4px;
 }
@@ -139,4 +143,49 @@ a:href {
 
 .breadcrumb {
   margin: 0;
+}
+
+
+/* Loading CSS spinner */
+
+.spinner {
+  width: 12px;
+  height: 12px;
+
+  position: relative;
+  display: none;
+}
+
+.double-bounce1, .double-bounce2 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #FFF;
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  -webkit-animation: bounce 2.0s infinite ease-in-out;
+  animation: bounce 2.0s infinite ease-in-out;
+}
+
+.double-bounce2 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+@-webkit-keyframes bounce {
+  0%, 100% { -webkit-transform: scale(0.0) }
+  50% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(0.0);
+    -webkit-transform: scale(0.0);
+  } 50% {
+    transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+  }
 }

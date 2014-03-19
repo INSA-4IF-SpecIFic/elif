@@ -5,7 +5,7 @@
 
 .btn-submit {
   color: #FFF;
-  background: #32477E;
+  background: #2249B1;
   box-shadow: -1px 1px 0 rgba(0, 0, 0, 0.2);
   margin-top: 5px;
   margin-left: 4px;
@@ -130,7 +130,7 @@
   border:1px solid red;
 }
 
-.glyphicon-pencil { 
+.glyphicon-pencil {
   display: inline;
   margin-left: 10px;
 }
