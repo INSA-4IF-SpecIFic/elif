@@ -43,9 +43,11 @@ var submissionState = function(submission_id) {
         var newScore = data.user_score;
 
         $('#user-score').text(newScore);
-        // Aaaaand a little "flashing" effect if the score changed
+        // Aaaaand a little "flashing" effect and a notification if the score changed
+        // TODO : Which one should we keep ? Both feels like too much.
         if (newScore != oldScore) {
             $('.username').fadeOut(350).fadeIn(350).fadeOut(350).fadeIn(200);
+            setTimeout(function() {notification.success("Congratulations ! Your total score is now " + newScore + " !")}, 1000);
         }
 
         // Rendering the output
