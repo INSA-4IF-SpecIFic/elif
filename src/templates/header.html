@@ -15,7 +15,7 @@
         {% endif %}
 
         <span class="username right-link">
-            {{user.username}}
+            <span class="glyphicon glyphicon-user"></span> {{user.username}} ({{user.score}})
         </span>
     {% else %}
         <span class="login right-link">
