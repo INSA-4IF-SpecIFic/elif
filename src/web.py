@@ -53,11 +53,13 @@ def inject_configuration():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    breadcrumbs = [('Home', None)]
+    return render_template('index.html', breadcrumbs=breadcrumbs)
 
 @app.route('/login', methods=['GET'])
 def login():
-    return render_template('login.html', error=None)
+    breadcrumbs = [('Home', '/'), ('Login', None)]
+    return render_template('login.html', error=None, breadcrumbs=breadcrumbs)
 
 @app.route('/login', methods=['POST'])
 def process_login():
@@ -72,7 +74,8 @@ def process_login():
 
 @app.route('/signup', methods=['GET'])
 def signup():
-    return render_template('signup.html')
+    breadcrumbs = [('Home', '/'), ('Sign-up', None)]
+    return render_template('singup.html', error=None, breadcrumbs=breadcrumbs)
 
 @app.route('/signup', methods=['POST'])
 def process_signup():
@@ -86,7 +89,8 @@ def process_signup():
 
 @app.route('/welcome')
 def welcome():
-    return render_template('welcome.html')
+    breadcrumbs = [('Welcome page', None)]
+    return render_template('welcome.html', breadcrumbs=breadcrumbs)
 
 @app.route('/monitoring')
 @requires_login
@@ -98,7 +102,8 @@ def monitoring():
     exercises = Exercise.objects()
     progress = {user: {p.exercise: p for p in ExerciseProgress.objects(user=user)} for user in users}
 
-    return render_template('monitoring.html', users=users, exercises=exercises, progress=progress)
+    breadcrumbs = [('Home', '/'), ('Monitoring', None)]
+    return render_template('monitoring.html', users=users, exercises=exercises, progress=progress, breadcrumbs=breadcrumbs)
 
 @app.route('/logout')
 def logout():
@@ -111,7 +116,9 @@ def exercise(exercise_id):
     exercise = Exercise.objects.get(id=exercise_id)
     submission = Submission.objects(user=g.user,exercise=exercise).order_by('-date_created').first()
     sub_code = submission.code if submission else ""
-    return render_template('exercise.html', exercise=exercise, last_submission_code=sub_code)
+
+    breadcrumbs = [('Home', '/'), ('Exercises', '#'), (exercise.title, None)]
+    return render_template('exercise.html', exercise=exercise, last_submission_code=sub_code, breadcrumbs=breadcrumbs)
 
 @app.route('/exercise/delete/<exercise_id>')
 def delete_exercise(exercise_id):
@@ -128,7 +135,8 @@ def delete_exercise(exercise_id):
 def new_exercise():
     sample_exercise = utils.sample_exercise(g.user)
     sample_exercise.save()
-    return render_template('exercise.html', exercise=sample_exercise)
+    breadcrumbs = [('Home', '/'), ('New exercise', None)]
+    return render_template('exercise.html', exercise=sample_exercise, breadcrumbs=breadcrumbs)
 
 
 if __name__ == "__main__":

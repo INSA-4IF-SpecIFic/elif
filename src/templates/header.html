@@ -27,8 +27,21 @@
     {% endif %}
 </div>
 
+{% if breadcrumbs %}
 <ol class="breadcrumb">
-  <li><a href="#">Home</a></li>
-  <li><a href="#">Introduction to Algorithmics</a></li>
-  <li class="active">FizzBuzz</li>
+    {% for crumb in g.breadcrumbs %}
+    <li>
+    <a href="{{ crumb.path }}">{{ crumb.title }}</a>
+    {% if not loop.last %}&raquo;{% endif %}
+    {% endfor %}
+
+    {% for crumb in breadcrumbs %}
+        {% if loop.last %}
+            <li class="active">{{crumb[0]}}</li>
+        {% else %}
+            <li><a href="{{crumb[1]}}">{{crumb[0]}}</a></li>
+        {% endif %}
+    {% endfor %}
+
 </ol>
+{% endif %}
