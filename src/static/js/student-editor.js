@@ -9,6 +9,14 @@ $(document).ready(function() {
     var description_html = markdown.makeHtml(description_markdown);
     $('.description').html(description_html);
 
+    var boilerplateCode = $('#exercise').data('boilerplate-code');
     var lastSubmissionCode = $('#exercise').data('submission-code');
-	mainEditor.setValue(lastSubmissionCode);
+
+    if (lastSubmissionCode.length != 0) {
+        mainEditor.setValue(lastSubmissionCode);
+    }
+    else {
+        mainEditor.setValue(boilerplateCode);
+    }
+
 });

@@ -117,7 +117,7 @@ class Submission(Job):
             self.test_results.append(test_result)
 
         # Updating best performance
-        progress,_ = ExerciseProgress.objects.get_or_create(user=self.user, exercise=self.exercise)
+        progress, _ = ExerciseProgress.objects.get_or_create(user=self.user, exercise=self.exercise)
         progress.update_progress(self)
         progress.save()
 

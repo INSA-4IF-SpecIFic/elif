@@ -184,7 +184,6 @@ def test(test_id):
         return jsonify(ok=True, result=utils.dump_exercise(exercise))
 
 # Submissions
-
 @rest_api.route('/api/submission', methods=['POST'])
 def submit_code():
     code = request.json['code']

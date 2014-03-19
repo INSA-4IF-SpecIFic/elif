@@ -38,6 +38,9 @@ class User(mongoengine.Document):
         user.salt = generate_salt()
         user.secret_hash = hash_password(password, user.salt)
 
+        # Initializing the user's score history
+        ScoreHistory(user=user, date=datetime.now(), score=0).save()
+
         return user
 
     def clean(self):

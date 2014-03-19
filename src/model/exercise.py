@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+from datetime import datetime
+
 import mongoengine
-from user import User
+
+from user import User, ScoreHistory
 
 class Test(mongoengine.Document):
     input = mongoengine.StringField(required=True)
@@ -24,7 +28,7 @@ class TestResult(mongoengine.Document):
     memory_used = mongoengine.FloatField(default=0.0)  # kilobytes * ticks-of-execution
 
     @property
-    def score(self):
+    def ratio(self):
         """Compute the test score"""
         if not self.passed:
             return 0.0
@@ -32,7 +36,7 @@ class TestResult(mongoengine.Document):
         time_score = 0.0
         memory_score = 0.0
 
-        if self.cpu_time == 0:
+        if self.cpu_time == 0 or self.test.cpu_time == 0:
             time_score = 1.0
         else:
             time_score = min(float(self.test.cpu_time) / float(self.cpu_time), 1.0)
@@ -77,23 +81,21 @@ class ExerciseProgress(mongoengine.Document):
     score = mongoengine.IntField(default=0)
     completion = mongoengine.FloatField(default=0.0)
 
-    def update_progress(self, last_submission):
-        if last_submission.compilation_error:
+    def update_progress(self, new_submission):
+        if new_submission.compilation_error:
             return
 
-        last_results = last_submission.test_results
-        last_completion = self.calculate_completion(last_results)
-        last_score = self.compute_score(last_results)
+        new_results = new_submission.test_results
+        new_completion = self.calculate_completion(new_results)
+        new_score = self.compute_score(new_results)
 
-        if last_completion > self.completion or (last_completion == self.completion and last_score > self.score):
-            self.completion = last_completion
-            self.best_results = last_results
-            self.score = last_score
+        print 'completion = ', new_completion
+        print 'new_score = ', new_score
 
-        if last_score > self.score:
-            self.completion = last_completion
-            self.best_results = last_results
-            self.score = last_score
+        if new_score > self.score:
+            self.completion = new_completion
+            self.best_results = new_results
+            self.score = new_score
 
             self.user.score = sum(exercise_p.score for exercise_p in ExerciseProgress.objects(user=self.user))
             self.user.save()
@@ -101,28 +103,13 @@ class ExerciseProgress(mongoengine.Document):
             ScoreHistory(user=self.user, date=datetime.now(), score=self.user.score).save()
 
     def calculate_completion(self, results):
-        if not results:
+        passed_results = [r for r in results if r.passed]
+
+        if passed_results:
+            return float(len(passed_results)) / len(self.exercise.tests)
+        else:
             return 0.0
-
-        assert len(results) <= len(self.exercise.tests)
-
-        completion = 0.0
-
-        for r in results:
-            if r.passed:
-                completion += 1.0
-
-        return completion / float(len(self.exercise.tests))
 
     def compute_score(self, results):
-        if not results:
-            return 0.0
-
-        assert len(results) <= len(self.exercise.tests)
-
-        score = 0.0
-
-        for r in results:
-            score += r.score
-
-        return float(self.exercise.score) * score / float(len(self.exercise.tests))
+        score_ratio = float(self.exercise.score) / len(self.exercise.tests)
+        return sum(r.ratio * score_ratio for r in results)
