@@ -223,20 +223,30 @@ int main() {
     """
 
     exercise = Exercise(author=editor, title="Palindrome",
-                description="### Trouver les plaindromes !\n\n" +
+                description="### Trouver les palindromes !\n\n" +
                             "* Chaque ligne de l'entrée standard comprend des entiers séparés par des espaces.\n" +
                             "* Il faut transformer chaque ligne en une liste chaînée et déterminer si c'est un palindrome.\n" +
                             "* A chaque ligne de l'entrée standard doit correspondre une ligne de la sortie standard avec un 1 dans le cas d'un palindrome et un 0 sinon.\n" +
-
-                            "![Alt text](http://onapo.files.wordpress.com/2009/04/palyndrome1.gif)",
+                            "![Alt text](http://onapo.files.wordpress.com/2009/04/palyndrome1.gif)\n\n" +
+                            "**Exemples**\n\n" +
+                            "Entrée :\n\n" +
+                            "    1 2 3 3 2 1\n" +
+                            "Sortie attendue :\n\n" +
+                            "    1\n\n" +
+                            "Entrée :\n\n" +
+                            "    1 2 3 4 2 1\n" +
+                            "    1 2 3 2 1\n\n" +
+                            "Sortie attendue :\n\n" +
+                            "    0\n" +
+                            "    1\n\n",
                 boilerplate_code=boilerplate_code,
                 reference_code=reference_code,
                 tags=['algorithms', 'strings', 'data-structures'],
                 score=42)
 
-    test1 = Test(input='lol', output='1\n').save()
-    test2 = Test(input='car\nracecar', output='0\n1\n').save()
-    test3 = Test(input='car\nracecar'*100, output='0\n1\n'*100).save()
+    test1 = Test(input='1 2 3 3 2 1', output='1\n').save()
+    test2 = Test(input='1 2 3 4 2 1\n1 2 3 2 1', output='0\n1\n').save()
+    test3 = Test(input='1 2 3 2 1' * 100, output='1\n').save()
     exercise.tests = [test1, test2, test3]
     exercise.published = True
     exercise.save()
