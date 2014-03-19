@@ -210,6 +210,8 @@ def submissions():
 def submission_state(submission_id):
     try:
         submission = Submission.objects.get(id=submission_id)
-        return jsonify(ok=True, result=submission.to_dict())
+        # User's score. Added because it's helpful to follow the evolution of a user's score
+        user_score = g.user.score
+        return jsonify(ok=True, result=submission.to_dict(), user_score=user_score)
     except mongoengine.DoesNotExist as e:
         return jsonify(ok=False, result=e.message)

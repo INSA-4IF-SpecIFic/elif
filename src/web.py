@@ -109,12 +109,9 @@ def logout():
 @requires_login
 def exercise(exercise_id):
     exercise = Exercise.objects.get(id=exercise_id)
-    try :
-        submission = Submission.objects(user=g.user,exercise=exercise).order_by('-date_created').first()
-        sub_code = submission.code
-    except :
-        sub_code = ""
-    return render_template('exercise.html', exercise=exercise, code=sub_code)
+    submission = Submission.objects(user=g.user,exercise=exercise).order_by('-date_created').first()
+    sub_code = submission.code if submission else ""
+    return render_template('exercise.html', exercise=exercise, last_submission_code=sub_code)
 
 @app.route('/exercise/delete/<exercise_id>')
 def delete_exercise(exercise_id):

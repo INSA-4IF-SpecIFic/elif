@@ -22,11 +22,11 @@ var submissionState = function(submission_id) {
             return;
         }
 
-        // We re-enable the 'Test' button since the code has been processed by the server.
+        // We re-enable the 'Test' button and hide the loading spinner since the code has been processed by the server.
         $('#test-button .spinner').hide();
         $('#test-button').removeAttr('disabled');
 
-        // Set error anotations
+        // We set error anotations in the code editor
         var annotations = [];
         $.each(submission.errors, function(i, error) {
             annotations.push({
@@ -37,6 +37,16 @@ var submissionState = function(submission_id) {
             });
         });
         mainEditor.getSession().setAnnotations(annotations);
+
+        // We update the user's score
+        var oldScore = parseInt($('#user-score').text());
+        var newScore = data.user_score;
+
+        $('#user-score').text(newScore);
+        // Aaaaand a little "flashing" effect if the score changed
+        if (newScore != oldScore) {
+            $('.username').fadeOut(350).fadeIn(350).fadeOut(350).fadeIn(200);
+        }
 
         // Rendering the output
         $('#output').html(outputTemplate(submission));

@@ -29,7 +29,10 @@ class TestResult(mongoengine.Document):
 
     @property
     def ratio(self):
-        """Compute the test score"""
+        """
+            Compute's the result's 'ratio'.
+            Ex: 0.75 means the user should get 75% of the test's score
+        """
         if not self.passed:
             return 0.0
 
