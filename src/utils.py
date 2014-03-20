@@ -186,46 +186,34 @@ int main() {
 
     boilerplate_code = """
 #include <iostream>
-#include <stack>
 #include <sstream>
+
 using namespace std;
 
-struct node {
-    node* next;
-    int data;
-    explicit node(int data):node(nullptr,data){}
-    node(node* head,int data):next(head),data(data){}
-};
-
-node* insert(node* head,int data){
-    return new node(head,data);
-}
-
-bool is_palindrome(node* head){
-    // Your code here
-}
-
 int main() {
-    string line;
-    while(getline(cin,line)){
-        istringstream iss(line);
-        int value;
-        if(iss >> value){
-            auto l = insert(nullptr,value);
-            while(iss >> value){
-                l = insert(l,value);
-            }
-            cout << is_palindrome(l) << endl;
-        }
-    }
-    return 0;
+	string line;
+	while(getline(cin,line)){
+		istringstream iss(line);
+		int value;
+		if(iss >> value){
+
+            /* Your code here */
+
+			while(iss >> value){
+                /* Your code here */
+			}
+
+			cout << /* Your code here */ endl;
+		}
+	}
+	return 0;
 }
     """
 
     exercise = Exercise(author=editor, title="Palindrome",
                 description="### Trouver les palindromes !\n\n" +
                             "* Chaque ligne de l'entrée standard comprend des entiers séparés par des espaces.\n" +
-                            "* Il faut transformer chaque ligne en une liste chaînée et déterminer si c'est un palindrome.\n" +
+                            "* Il s'agit de déterminer si chaque liste d'entiers est un palindrome ou non.\n" +
                             "* A chaque ligne de l'entrée standard doit correspondre une ligne de la sortie standard avec un 1 dans le cas d'un palindrome et un 0 sinon.\n" +
                             "![Alt text](http://onapo.files.wordpress.com/2009/04/palyndrome1.gif)\n\n" +
                             "**Exemples**\n\n" +
