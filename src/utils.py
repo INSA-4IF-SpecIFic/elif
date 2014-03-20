@@ -234,7 +234,7 @@ int main() {
 
     test1 = Test(input='1 2 3 3 2 1', output='1\n').save()
     test2 = Test(input='1 2 3 4 2 1\n1 2 3 2 1', output='0\n1\n').save()
-    test3 = Test(input='1 2 3 2 1' * 100, output='1\n').save()
+    test3 = Test(input=(('1 2 3 2 1' * 100000 + '\n') * 15)[:-1], output='1\n' * 15).save()
     exercise.tests = [test1, test2, test3]
     exercise.published = True
     exercise.save()
