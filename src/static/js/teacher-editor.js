@@ -187,9 +187,11 @@ $(document).ready(function() {
     exerciseEditor.setShowPrintMargin(false);
     exerciseEditor.getSession().setMode("ace/mode/c_cpp");
     exerciseEditor.setValue(boilerplateCode);
+    exerciseEditor.setOption("dragEnabled", true);
 
     referenceEditor = ace.edit("main-editor");
     referenceEditor.setValue(referenceCode);
+    referenceEditor.setOption("dragEnabled", true);
 
     var opts = {
       container: 'description-editor',
