@@ -7,6 +7,10 @@ logs_dir = 'logs'
 length_limit = 90
 min_password_length = 6
 
+sandbox_max_cpu_time = 10  # seconds
+sandbox_max_duration = 20  # seconds
+sandbox_max_heap_size = 16 # M bytes
+
 # Sample texting
 
 default_description = """### This is your exercise's description.
