@@ -181,14 +181,10 @@ $(document).ready(function() {
     initExercise(exerciseId);
 
     /* Editor initialization and configuration */
-    exerciseEditor = ace.edit("exercise-editor");
-    exerciseEditor.setTheme("ace/theme/textmate");
-    exerciseEditor.setFontSize(15);
-    exerciseEditor.setShowPrintMargin(false);
-    exerciseEditor.getSession().setMode("ace/mode/c_cpp");
+    exerciseEditor = initializeEditor("exercise-editor");
     exerciseEditor.setValue(boilerplateCode);
 
-    referenceEditor = ace.edit("main-editor");
+    referenceEditor = initializeEditor("main-editor");
     referenceEditor.setValue(referenceCode);
 
     var opts = {

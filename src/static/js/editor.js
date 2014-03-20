@@ -59,6 +59,16 @@ var submissionState = function(submission_id) {
 
 }
 
+initializeEditor = function(editor_id) {
+    var editor = ace.edit(editor_id);
+    editor.setTheme("ace/theme/textmate");
+    editor.setFontSize(15);
+    editor.setShowPrintMargin(false);
+    editor.getSession().setMode("ace/mode/c_cpp");
+    editor.setOption("dragEnabled", true);
+    return editor
+}
+
 $(document).ready(function() {
     /* Getting the current exercise's data */
     var $exercise = $('#exercise');
@@ -68,12 +78,7 @@ $(document).ready(function() {
     outputTemplate = loadTemplate('#output-template');
 
     /* Editor initialization and configuration */
-    mainEditor = ace.edit("main-editor");
-    mainEditor.setTheme("ace/theme/textmate");
-    mainEditor.setFontSize(15);
-    mainEditor.setShowPrintMargin(false);
-    mainEditor.getSession().setMode("ace/mode/c_cpp");
-    mainEditor.setOption("dragEnabled", true);
+    mainEditor = initializeEditor("main-editor");
 
     /* Binding tabs */
     $('.nav-tab a').click(function (e) {

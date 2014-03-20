@@ -19,11 +19,13 @@
 
                 <div class="panel-body" >
 
-                    {%if error%}
-                         <div  id="login-alert" class="alert alert-danger col-sm-12">
-                            {{error}}
+                    {% for f, e in error.iteritems() %}
+                         <div class="alert alert-danger col-sm-12">
+                            {{e}}
                         </div>
-                    {%endif%}
+                    {% endfor %}
+
+                    <div class="alert alert-info">Signups are restricted to users possessing "{{config.email_domain}}" emails</div>
 
                     <form class="form-horizontal loginform" action="/signup" method="post" role="form" autocomplete="off">
                         <div class="input-group">

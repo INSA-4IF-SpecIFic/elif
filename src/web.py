@@ -24,6 +24,7 @@ db = mongoengine.connect(config.db_name)
 # Adding the REST API to our web app
 app.register_blueprint(rest_api)
 
+# Decorators and instructions used to inject info into the context
 def requires_login(f):
     """  Decorator for views that requires the user to be logged-in """
     @wraps(f)
@@ -51,46 +52,29 @@ def load_user():
 def inject_configuration():
     return dict(config=config)
 
+# Pages
 @app.route('/')
 def index():
-    breadcrumbs = [('Home', None)]
+    if g.user:
+        return redirect('/exercises')
+    breadcrumbs = [('Welcome page', None)]
     return render_template('index.html', breadcrumbs=breadcrumbs)
+
+@app.route('/exercises')
+@requires_login
+def exercises():
+    breadcrumbs = [('Home', '/'), ('Exercises', None)]
+    return render_template('exercises.html', breadcrumbs=breadcrumbs)
 
 @app.route('/login', methods=['GET'])
 def login():
     breadcrumbs = [('Home', '/'), ('Login', None)]
     return render_template('login.html', error=None, breadcrumbs=breadcrumbs)
 
-@app.route('/login', methods=['POST'])
-def process_login():
-    email, password = request.form['email'].lower(), request.form['password']
-    user = User.objects(email=email).first()
-    if user is None or not user.valid_password(password):
-        app.logger.warning("Couldn't login : {}".format(user))
-        return render_template('login.html', error="Wrong password or username.", email=email)
-    else:
-        session['logged_in'] = user.email
-        return redirect('/')
-
 @app.route('/signup', methods=['GET'])
 def signup():
     breadcrumbs = [('Home', '/'), ('Sign-up', None)]
-    return render_template('singup.html', error=None, breadcrumbs=breadcrumbs)
-
-@app.route('/signup', methods=['POST'])
-def process_signup():
-    email, username, password = request.form['email'].lower(), request.form['username'], request.form['password']
-    user = User.new_user(email=email, username=username, password=password, editor=False)
-    try:
-        user.save()
-    except mongoengine.ValidationError as e:
-        return render_template('signup.html', error=', '.join(e.to_dict().values()))
-    return render_template("welcome.html")
-
-@app.route('/welcome')
-def welcome():
-    breadcrumbs = [('Welcome page', None)]
-    return render_template('welcome.html', breadcrumbs=breadcrumbs)
+    return render_template('signup.html', error=None, breadcrumbs=breadcrumbs)
 
 @app.route('/monitoring')
 @requires_login
@@ -108,11 +92,11 @@ def monitoring():
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
-    return redirect('/login')
+    return redirect('/')
 
 @app.route('/exercise/<exercise_id>')
 @requires_login
-def exercise(exercise_id):
+def exercise_page(exercise_id):
     exercise = Exercise.objects.get(id=exercise_id)
     submission = Submission.objects(user=g.user,exercise=exercise).order_by('-date_created').first()
     sub_code = submission.code if submission else ""
@@ -137,6 +121,34 @@ def new_exercise():
     sample_exercise.save()
     breadcrumbs = [('Home', '/'), ('New exercise', None)]
     return render_template('exercise.html', exercise=sample_exercise, breadcrumbs=breadcrumbs)
+
+# Processing login/signup
+
+@app.route('/login', methods=['POST'])
+def process_login():
+    email, password = request.form['email'].lower(), request.form['password']
+    user = User.objects(email=email).first()
+    if user is None or not user.valid_password(password):
+        app.logger.warning("Couldn't login : {}".format(user))
+        return render_template('login.html', error="Wrong password or username.", email=email)
+    else:
+        session['logged_in'] = user.email
+        inject_user()
+        load_user()
+        return redirect('/')
+
+@app.route('/signup', methods=['POST'])
+def process_signup():
+    email, username, password = request.form['email'].lower(), request.form['username'], request.form['password']
+    user = User.new_user(email=email, username=username, password=password, editor=False)
+    try:
+        user.save()
+        session['logged_in'] = user.email
+        inject_user()
+        load_user()
+        return redirect('/')
+    except mongoengine.ValidationError as e:
+        return render_template('signup.html', error=e.to_dict())
 
 
 if __name__ == "__main__":

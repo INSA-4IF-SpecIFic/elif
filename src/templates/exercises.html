@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block style %}
+<link href="/static/css/index.css" rel="stylesheet" />
+{% endblock %}
+
+{% block body %}
+
+{% include "header.html" %}
+
+<h2>Exercises</h2>
+
+<div class="col-md-4">
+    <div class="form-group">
+        <div class="well">
+
+            <div class="left-inner-addon" >
+                <i class="glyphicon glyphicon-search"></i>
+                <input type="text" class="form-control" id="search" placeholder="Search" name="search">
+            </div>
+
+            <ul class="tagsmenu">
+            </ul>
+
+        </div>
+    </div>
+
+    {% if user and user.editor %}
+    <form action="/new_exercise" method="post">
+        <button role="submit" class="form-control">New exercise</button>
+    </form>
+    {% endif %}
+</div>
+
+<div class="col-md-8">
+
+    <ul id="unpublished-list" class="exercises"></ul>
+    <ul id="exercises-list" class="exercises"></ul>
+
+</div>
+
+{% endblock body %}
+
+
+{% block javascript %}
+{% raw %}
+<script id="exercise-template" type="text/x-handlebars-template">
+
+    <li>
+        <span class="badge coins pull-left">
+            <img src="/static/img/coin.png"/>
+            <span class="value">{{exercise.score}}</span><br>
+            coins
+
+        </span>
+
+        <a href="/exercise/{{exercise._id.$oid}}">
+            <span class="title">{{exercise.title}}</span>
+            {{#unless exercise.published}}
+            <span class="label label-danger">Unpublished</span>
+            {{/unless}}
+        </a>
+        {{#if editor}}
+        <button type="button" onclick="deleteExercise(this)" data-exercise-id="{{exercise._id.$oid}}" class="btn btn-default pull-right">
+            <span class="glyphicon glyphicon-trash"></span>
+        </button>
+        {{/if}}
+        <div>
+            <img class="tag-icon pull-left" src="/static/img/tag.png"/>
+
+            <ul class="tags">
+            {{#each exercise.tags}}
+                <a href="#">
+                    <li class="tag"><span class="name">{{this}}</span></li>
+                </a>
+            {{/each}}
+            </ul>
+        </div>
+    </li>
+
+</script>
+{% endraw %}
+{% raw %}
+<script id="tag-template" type="text/x-handlebars-template">
+
+    <li class="list-group-item tag">
+        <a href="#">
+            <span class="name">{{tag}}</span>
+            <span class="badge pull-right">{{occurrence}}</span>
+        </a>
+    </li>
+
+</script>
+{% endraw %}
+
+<script src="/static/js/search.js" type="text/javascript"></script>
+{% endblock %}
