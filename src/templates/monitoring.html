@@ -28,32 +28,34 @@
 <div class="col-md-8">
     <h2>Students progress</h2>
 
-    <table class="table progress-table">
-        <thead>
-            <th>Username</th>
-            {% for exercise in exercises %}
-            <th data-exercise-id="{{exercise.id}}">{{exercise.title}}</th>
-            {% endfor %}
-        </thead>
-
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{user.username}}</td>
+    <div class="table-wrapper">
+        <table class="table progress-table">
+            <thead>
+                <th>Username</th>
                 {% for exercise in exercises %}
-
-                {% set p = progress[user].get(exercise, None) %}
-                {% set status = "none" if not p else "passed" if p.completion == 1 else "partial" if p.completion > 0 else "failed"%}
-
-                <td class="progress-cell {{status}}">
-                    {{status|capitalize}} {% if p and 0 < p.completion < 1 %}<span class="completion">{{(100*p.completion)|round(1)}}%</span>{% endif %}
-                </td>
-
+                <th data-exercise-id="{{exercise.id}}">{{exercise.title}}</th>
                 {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{user.username}}</td>
+                    {% for exercise in exercises %}
+
+                    {% set p = progress[user].get(exercise, None) %}
+                    {% set status = "none" if not p else "passed" if p.completion == 1 else "partial" if p.completion > 0 else "failed"%}
+
+                    <td class="progress-cell {{status}}">
+                        {{status|capitalize}} {% if p and 0 < p.completion < 1 %}<span class="completion">{{(100*p.completion)|round(1)}}%</span>{% endif %}
+                    </td>
+
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 </div>
 

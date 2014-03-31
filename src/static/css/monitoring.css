@@ -25,3 +25,7 @@
   border-color: #2ecc71;
   color: #EDFCEE;
 }
+
+.table-wrapper {
+  overflow: auto;
+}

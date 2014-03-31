@@ -89,6 +89,18 @@ def monitoring():
     breadcrumbs = [('Home', '/'), ('Monitoring', None)]
     return render_template('monitoring.html', users=users, exercises=exercises, progress=progress, breadcrumbs=breadcrumbs)
 
+@app.route('/profile')
+@requires_login
+def profile():
+    exercises_tried = len([e_p for e_p in ExerciseProgress.objects(user=g.user)])
+    exercises_completed = len([e_p for e_p in ExerciseProgress.objects(user=g.user) if e_p.completed])
+    rank = list(User.objects.order_by('-score')).index(g.user) + 1
+    total_exercises = len(Exercise.objects)
+
+    breadcrumbs = [('Home', '/'), ('Profile', None)]
+    return render_template('profile.html', exercises_tried=exercises_tried, exercises_completed=exercises_completed,
+                                           rank=rank, total_exercises=total_exercises, breadcrumbs=breadcrumbs)
+
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)

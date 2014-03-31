@@ -36,7 +36,7 @@ function getOccurences() {
 		$menu.html('');
 		for (var i = 0; i < tags.length; i++) {
 			$menu.append(tagTemplate({tag : tags[i], occurrence : occurrences[i]}));
-		}      
+		}
 	});
 }
 
@@ -65,9 +65,9 @@ $(document).ready(function() {
 	// Initalizing tags
 	getOccurences();
 
-	$('#search').on("keyup", searchWords);
+	$('#search').on('keydown', searchWords);
 	// Binding the click on a tag
-	$(document).on("click", '.tag', function()  {
+	$(document).on('click', '.tag', function()  {
 		$('#search').val('');
 		$element = $(this);
 		if ($element.hasClass('selected')) {

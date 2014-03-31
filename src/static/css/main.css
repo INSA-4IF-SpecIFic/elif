@@ -145,7 +145,6 @@ a:href {
   margin: 0;
 }
 
-
 /* Loading CSS spinner */
 
 .spinner {
@@ -188,4 +187,17 @@ a:href {
     transform: scale(1.0);
     -webkit-transform: scale(1.0);
   }
+}
+
+/* Some colors */
+.cool-blue {
+  color: #395DC9;
+}
+
+.cool-green {
+  color: #3DB425;
+}
+
+.cool-yellow {
+  color: #FFB025;
 }

@@ -183,9 +183,11 @@ $(document).ready(function() {
     /* Editor initialization and configuration */
     exerciseEditor = initializeEditor("exercise-editor");
     exerciseEditor.setValue(boilerplateCode);
+    exerciseEditor.setOption("dragEnabled", true);
 
     referenceEditor = initializeEditor("main-editor");
     referenceEditor.setValue(referenceCode);
+    referenceEditor.setOption("dragEnabled", true);
 
     var opts = {
       container: 'description-editor',

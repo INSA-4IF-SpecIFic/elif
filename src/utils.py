@@ -186,6 +186,125 @@ int main() {
 
     boilerplate_code = """
 #include <iostream>
+#include <stack>
+#include <sstream>
+using namespace std;
+
+struct node {
+    node* next;
+    int data;
+    explicit node(int data):node(nullptr,data){}
+    node(node* head,int data):next(head),data(data){}
+};
+
+node* insert(node* head,int data){
+    return new node(head,data);
+}
+
+bool is_palindrome(node* head){
+    // Your code here
+}
+
+int main() {
+    string line;
+    while(getline(cin,line)){
+        istringstream iss(line);
+        int value;
+        if(iss >> value){
+            auto l = insert(nullptr,value);
+            while(iss >> value){
+                l = insert(l,value);
+            }
+            cout << is_palindrome(l) << endl;
+        }
+    }
+    return 0;
+}
+    """
+
+    exercise = Exercise(author=editor, title="Palindrome",
+                description="### Trouver les palindromes !\n\n" +
+                            "* Chaque ligne de l'entrée standard comprend des entiers séparés par des espaces.\n" +
+                            "* Il faut transformer chaque ligne en une **liste chaînée** et déterminer si c'est un palindrome.\n" +
+                            "* A chaque ligne de l'entrée standard doit correspondre une ligne de la sortie standard avec un 1 dans le cas d'un palindrome et un 0 sinon.\n" +
+                            "![Alt text](http://onapo.files.wordpress.com/2009/04/palyndrome1.gif)\n\n" +
+                            "**Exemples**\n\n" +
+                            "Entrée :\n\n" +
+                            "    1 2 3 3 2 1\n" +
+                            "Sortie attendue :\n\n" +
+                            "    1\n\n" +
+                            "Entrée :\n\n" +
+                            "    1 2 3 4 2 1\n" +
+                            "    1 2 3 2 1\n\n" +
+                            "Sortie attendue :\n\n" +
+                            "    0\n" +
+                            "    1\n\n",
+                boilerplate_code=boilerplate_code,
+                reference_code=reference_code,
+                tags=['algorithms', 'strings', 'data-structures'],
+                score=42)
+
+    test1 = Test(input='1 2 3 3 2 1', output='1\n').save()
+    test2 = Test(input='1 2 3 4 2 1\n1 2 3 2 1', output='0\n1\n').save()
+    test3 = Test(input=(('1 2 3 2 1' * 10000 + '\n') * 15)[:-1], output='1\n' * 15).save()
+    exercise.tests = [test1, test2, test3]
+    exercise.published = True
+    exercise.save()
+
+    # Palindrome exercise with std
+    reference_code = """
+#include <iostream>
+#include <stack>
+#include <sstream>
+using namespace std;
+
+struct node {
+    node* next;
+    int data;
+    explicit node(int data):node(nullptr,data){}
+    node(node* head,int data):next(head),data(data){}
+};
+
+node* insert(node* head,int data){
+    return new node(head,data);
+}
+
+bool is_palindrome(node* head){
+    auto temp = head;
+    std::stack<node*> s;
+    while(nullptr != temp){
+        s.push(temp);
+        temp = temp->next;
+    }
+    while(!s.empty()){
+        if(head->data != s.top()->data){
+            return false;
+        }
+        s.pop();
+        head = head->next;
+    }
+    return true;
+}
+
+int main() {
+    string line;
+    while(getline(cin,line)){
+        istringstream iss(line);
+        int value;
+        if(iss >> value){
+            auto l = insert(nullptr,value);
+            while(iss >> value){
+                l = insert(l,value);
+            }
+            cout << is_palindrome(l) << endl;
+        }
+    }
+    return 0;
+}
+    """
+
+    boilerplate_code = """
+#include <iostream>
 #include <sstream>
 
 using namespace std;
@@ -210,7 +329,7 @@ int main() {
 }
     """
 
-    exercise = Exercise(author=editor, title="Palindrome",
+    exercise = Exercise(author=editor, title="Palindrome - Le retour",
                 description="### Trouver les palindromes !\n\n" +
                             "* Chaque ligne de l'entrée standard comprend des entiers séparés par des espaces.\n" +
                             "* Il s'agit de déterminer si chaque liste d'entiers est un palindrome ou non.\n" +
@@ -234,10 +353,14 @@ int main() {
 
     test1 = Test(input='1 2 3 3 2 1', output='1\n').save()
     test2 = Test(input='1 2 3 4 2 1\n1 2 3 2 1', output='0\n1\n').save()
-    test3 = Test(input='1 2 3 2 1' * 10000, output='1\n').save()
+    test3 = Test(input=(('1 2 3 2 1' * 100000 + '\n') * 15)[:-1], output='1\n' * 15).save()
     exercise.tests = [test1, test2, test3]
     exercise.published = True
     exercise.save()
+
+    return exercise
+
+
 
     return exercise
 

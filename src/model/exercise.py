@@ -115,3 +115,7 @@ class ExerciseProgress(mongoengine.Document):
     def compute_score(self, results):
         score_ratio = float(self.exercise.score) / len(self.exercise.tests)
         return sum(r.ratio * score_ratio for r in results)
+
+    @property
+    def completed(self):
+        return self.completion == 1

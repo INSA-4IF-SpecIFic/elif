@@ -3,6 +3,11 @@ h2 {
     font-size: 25px;
 }
 
+
+.label-unpublished {
+  font-size: 9px ;
+}
+
 .exercises {
     list-style: none;
     padding: 0;
@@ -84,6 +89,7 @@ h2 {
 
 .tags {
     padding: 0;
+    margin-top: 5px;
 }
 
 .pull-left {

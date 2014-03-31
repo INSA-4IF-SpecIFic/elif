@@ -13,10 +13,11 @@
             <a href="/monitoring"><span class="glyphicon glyphicon-cog"></span> Monitoring</a>
         </span>
         {% endif %}
-
-        <span class="username right-link">
-            <span class="glyphicon glyphicon-user"></span> {{user.username}} (<span id="user-score">{{user.score}}</span>)
-        </span>
+        <a href="/profile">
+            <span class="username right-link">
+                    <span class="glyphicon glyphicon-user"></span> {{user.username}} (<span id="user-score">{{user.score}}</span>)
+            </span>
+        </a>
     {% else %}
         <span class="login right-link">
             <a href="/login"><span class="glyphicon glyphicon-user"></span> Login</a>

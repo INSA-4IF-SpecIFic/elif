@@ -10,6 +10,8 @@ import pwd
 import time
 import signal
 
+import config
+
 
 def which(file):
     """Locates a program <file> in the user's path"""
@@ -124,9 +126,9 @@ class Profile(object):
         return value
 
     default_values = {
-        'max_cpu_time': 10,
-        'max_duration': 20,
-        'max_heap_size': 16 * 1024 * 1024,
+        'max_cpu_time': config.sandbox_max_cpu_time,
+        'max_duration': config.sandbox_max_duration,
+        'max_heap_size': config.sandbox_max_heap_size * 1024 * 1024,
         'max_stack_size': 32 * 1024,
         'max_processes': 0,
     }

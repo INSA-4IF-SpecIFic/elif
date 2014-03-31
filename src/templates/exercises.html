@@ -27,7 +27,7 @@
 
     {% if user and user.editor %}
     <form action="/new_exercise" method="post">
-        <button role="submit" class="form-control">New exercise</button>
+        <button role="submit" class="form-control btn btn-success">New exercise</button>
     </form>
     {% endif %}
 </div>
@@ -57,7 +57,7 @@
         <a href="/exercise/{{exercise._id.$oid}}">
             <span class="title">{{exercise.title}}</span>
             {{#unless exercise.published}}
-            <span class="label label-danger">Unpublished</span>
+            <span class="label label-danger label-unpublished">Unpublished</span>
             {{/unless}}
         </a>
         {{#if editor}}
