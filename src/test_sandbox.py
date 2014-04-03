@@ -399,6 +399,18 @@ def test_run_time_context():
     assert r0['max_heap_size'] == Profile.default_values['max_heap_size']
     assert r1['max_heap_size'] == 2
 
+def test_sigpipe():
+    s = Sandbox()
+    s.clone_bin("wc")
+
+    stdin = 'hello world !!\n' * 1000000
+
+    feedback = s.process(["wc"], stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    assert True # no crashes
+
+    del s
+
+
 
 if __name__ == "__main__":
     pass

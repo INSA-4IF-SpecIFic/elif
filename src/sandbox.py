@@ -416,143 +416,155 @@ class Sandbox(object):
         """
         assert len(cmd) >= 1
 
-        cmd_exec = cmd[0]
+        report = set()
+        pid = 0
 
-        if not cmd_exec.startswith('/'):
-            cmd_exec = self.which(cmd_exec)
+        try:
+            cmd_exec = cmd[0]
 
-            assert cmd_exec  # unable to find cmd[0]
+            if not cmd_exec.startswith('/'):
+                cmd_exec = self.which(cmd_exec)
 
-        if profile == None:
-            profile = Profile()
+                assert cmd_exec  # unable to find cmd[0]
 
-        stdin_r = None
-        stdin_w = None
+            if profile == None:
+                profile = Profile()
 
-        if isinstance(stdin, str):
-            stdin_r, stdin_w = os.pipe()
+            stdin_r = None
+            stdin_w = None
 
-        stdout_r = None
-        stdout_w = None
+            if isinstance(stdin, str):
+                stdin_r, stdin_w = os.pipe()
 
-        if stdout == subprocess.PIPE:
-            stdout_r, stdout_w = os.pipe()
+            stdout_r = None
+            stdout_w = None
 
-        stderr_r = None
-        stderr_w = None
-
-        if stderr == subprocess.PIPE:
-            stderr_r, stderr_w = os.pipe()
-
-        elif stderr == subprocess.STDOUT:
             if stdout == subprocess.PIPE:
-                stderr_w = stdout_w
+                stdout_r, stdout_w = os.pipe()
 
-            else:
-                stdout_r, stderr_w = os.pipe()
+            stderr_r = None
+            stderr_w = None
 
-        pid = os.fork()
+            if stderr == subprocess.PIPE:
+                stderr_r, stderr_w = os.pipe()
 
-        if pid == 0:
-            # children process
-            uid = pwd.getpwnam(self.user_name).pw_uid
+            elif stderr == subprocess.STDOUT:
+                if stdout == subprocess.PIPE:
+                    stderr_w = stdout_w
+
+                else:
+                    stdout_r, stderr_w = os.pipe()
+
+            pid = os.fork()
+
+            if pid == 0:
+                # children process
+                uid = pwd.getpwnam(self.user_name).pw_uid
+
+                # stdin setup
+                if stdin_r:
+                    sys.stdin = os.fdopen(stdin_r, 'r')
+                    os.dup2(sys.stdin.fileno(), 0)
+
+                if stdin_w:
+                    os.close(stdin_w)
+
+
+                # stdout setup
+                if stdout_r:
+                    os.close(stdout_r)
+
+                if stdout_w:
+                    sys.stdout = os.fdopen(stdout_w, 'w')
+                    os.dup2(sys.stdout.fileno(), 1)
+
+
+                # stderr setup
+                if stderr_r:
+                    os.close(stderr_r)
+
+                if stderr_w:
+                    sys.stderr = os.fdopen(stderr_w, 'w')
+                    os.dup2(sys.stderr.fileno(), 2)
+
+                # changes root
+                os.chroot(self.root_directory)
+                os.chdir('/')
+
+                resource.setrlimit(resource.RLIMIT_CPU, (profile['max_cpu_time'], profile['max_cpu_time'] + 2))
+                resource.setrlimit(resource.RLIMIT_DATA, (profile['max_heap_size'], profile['max_heap_size']))
+                resource.setrlimit(resource.RLIMIT_STACK, (profile['max_stack_size'], profile['max_stack_size']))
+
+                # os.setuid() mights create pseverals threads on linux, then we limit processes after
+                os.setuid(uid)
+                resource.setrlimit(resource.RLIMIT_NPROC, (profile['max_processes'], profile['max_processes']))
+
+                # launch executable
+                os.execve(cmd_exec, cmd, self.shell_environment)
 
             # stdin setup
             if stdin_r:
-                sys.stdin = os.fdopen(stdin_r, 'r')
-                os.dup2(sys.stdin.fileno(), 0)
+                os.close(stdin_r)
 
             if stdin_w:
-                os.close(stdin_w)
+                stdin_w = os.fdopen(stdin_w, 'w')
+
+            if isinstance(stdin, str):
+                stdin_w.write(stdin)
+
+            if stdin_w:
+                stdin_w.close()
 
 
-            # stdout setup
+            # stdout/stderr setup
             if stdout_r:
-                os.close(stdout_r)
+                stdout_r = os.fdopen(stdout_r, 'r')
 
             if stdout_w:
-                sys.stdout = os.fdopen(stdout_w, 'w')
-                os.dup2(sys.stdout.fileno(), 1)
+                os.close(stdout_w)
 
-
-            # stderr setup
             if stderr_r:
-                os.close(stderr_r)
+                stderr_r = os.fdopen(stderr_r, 'r')
 
-            if stderr_w:
-                sys.stderr = os.fdopen(stderr_w, 'w')
-                os.dup2(sys.stderr.fileno(), 2)
+            if stderr_w and stderr_w != stdout_w:
+                os.close(stderr_w)
 
-            # changes root
-            os.chroot(self.root_directory)
-            os.chdir('/')
+        except IOError, e:
+            report.add('ioerror_{}'.format(e.errno))
 
-            resource.setrlimit(resource.RLIMIT_CPU, (profile['max_cpu_time'], profile['max_cpu_time'] + 2))
-            resource.setrlimit(resource.RLIMIT_DATA, (profile['max_heap_size'], profile['max_heap_size']))
-            resource.setrlimit(resource.RLIMIT_STACK, (profile['max_stack_size'], profile['max_stack_size']))
+            if pid != 0:
+                os.kill(pid, signal.SIGKILL)
 
-            # os.setuid() mights create pseverals threads on linux, then we limit processes after
-            os.setuid(uid)
-            resource.setrlimit(resource.RLIMIT_NPROC, (profile['max_processes'], profile['max_processes']))
-
-            # launch executable
-            os.execve(cmd_exec, cmd, self.shell_environment)
-
-        # stdin setup
-        if stdin_r:
-            os.close(stdin_r)
-
-        if stdin_w:
-            stdin_w = os.fdopen(stdin_w, 'w')
-
-        if isinstance(stdin, str):
-            stdin_w.write(stdin)
-
-        if stdin_w:
-            stdin_w.close()
-
-
-        # stdout/stderr setup
-        if stdout_r:
-            stdout_r = os.fdopen(stdout_r, 'r')
-
-        if stdout_w:
-            os.close(stdout_w)
-
-        if stderr_r:
-            stderr_r = os.fdopen(stderr_r, 'r')
-
-        if stderr_w and stderr_w != stdout_w:
-            os.close(stderr_w)
-
-        report = set()
         exit_status = None
         resources = None
         duration_quantum = 0.1
         duration = 0.0
         exit_cause = None
+        return_code = 0xFF
+        killing_signal = signal.SIGKILL
 
-        while True:
-            pid_s, exit_status, resources = os.wait4(pid, os.WNOHANG)
+        if pid != 0:
+            while True:
+                pid_s, exit_status, resources = os.wait4(pid, os.WNOHANG)
 
-            if pid_s != 0:
+                if pid_s != 0:
+                    break
+
+                if duration <= profile['max_duration']:
+                    duration += duration_quantum
+                    time.sleep(duration_quantum)
+
+                    continue
+
+                os.kill(pid, signal.SIGKILL)
+                exit_cause = 'max_duration'
+
+                pid_s, exit_status, resources = os.wait4(pid, 0)
+
                 break
 
-            if duration <= profile['max_duration']:
-                duration += duration_quantum
-                time.sleep(duration_quantum)
-
-                continue
-
-            os.kill(pid, signal.SIGKILL)
-            exit_cause = 'max_duration'
-
-            pid_s, exit_status, resources = os.wait4(pid, 0)
-
-            break
-
-        return_code = int((exit_status >> 8) & 0xFF)
-        killing_signal = int(exit_status & 0xFF)
+            return_code = int((exit_status >> 8) & 0xFF)
+            killing_signal = int(exit_status & 0xFF)
 
         if killing_signal == signal.SIGXCPU:
             report.add('max_cpu_time')
