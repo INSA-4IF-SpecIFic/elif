@@ -9,20 +9,40 @@ function searchWords() {
 	apiCall('/api/exercise/search', 'POST', {words : search, tags: tags}, function(data) {
 		var exercises = data.result;
 		var userID = data.user;
+
+        var any_unpublished = false;
+        var any_published = false;
+
 		var $exercises = $("#exercises-list");
 		var $unpublished = $("#unpublished-list");
-		$exercises.html('');
-		$unpublished.html('');
-		for (var i = 0; i < exercises.length; i++) {
+
+        $exercises.html('');
+        $('#published-container').hide();
+
+        $unpublished.html('');
+        $('#unpublished-container').hide();
+
+        for (var i = 0; i < exercises.length; i++) {
 			var editor = (userID == exercises[i].author);
 			var context = {exercise: exercises[i], editor: editor};
             if(exercises[i].published) {
+                any_published = true;
                 $exercises.append(exerciseTemplate(context));
             }
             else {
+                any_unpublished = true;
                 $unpublished.append(exerciseTemplate(context));
             }
 		}
+
+        console.log(any_unpublished);
+        if (any_unpublished) {
+            $('#unpublished-container').show();
+        }
+        if (any_published) {
+           $('#published-container').show();
+        }
+
 	});
 }
 
