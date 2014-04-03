@@ -45,3 +45,7 @@ Then do the following (change 5000 with the port you want to use) :
 ``greedy`` needs to be launched with root privileges, you simply have to do :
 
     sudo python greedy.py
+
+### Misc
+
+You can generate some test data (dummy users, exercises, etc.) by lauching the ``utils.py`` script

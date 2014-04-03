@@ -366,3 +366,4 @@ int main() {
 
 if __name__ == '__main__':
     test_db()
+    print "Test database generated !"
