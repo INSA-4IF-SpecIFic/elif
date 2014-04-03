@@ -1,8 +1,8 @@
 # elif
 
-### Deployment
+### Dependencies
 
-If you're on Ubuntu or Debian (with recent repositories), just launch ``sudo deploy.sh``
+If you're on Ubuntu or Debian (with recent repositories), just launch ``sudo install-dependencies.sh``
 
 Otherwise :
 
@@ -23,3 +23,25 @@ Otherwise :
 
         sudo apt-get install clang
 
+### Deploying
+
+Two different processes need to be launched in order for elif to work : the web server (``web.py``),
+and ``greedy`` (our compilations' job processor)
+
+To deploy elif with a development server, just launch ``web.py`` :
+
+    cd src/
+    python web.py
+
+If you want to launch it with a "real" server, you can use gunicorn :
+
+First install it with ``pip``
+    sudo pip install gunicorn
+
+Then do the following (change 5000 with the port you want to use) :
+
+    gunicorn -b 0.0.0.0:5000 web:app
+
+``greedy`` needs to be launched with root privileges, you simply have to do :
+
+    sudo python greedy.py
