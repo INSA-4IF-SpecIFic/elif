@@ -8,18 +8,18 @@ Otherwise :
 
 * Install Python 2.7
 
-    sudo apt-get install python
+        sudo apt-get install python
 
 * Install Python dependencies
 
-    sudo apt-get install python-pip
-    sudo pip install -r requirements.txt
+        sudo apt-get install python-pip
+        sudo pip install -r requirements.txt
 
 * Install mongodb (may require a reboot)
 
-    sudo apt-get install mongodb
+        sudo apt-get install mongodb
 
 * Install clang
 
-    sudo apt-get install clang
+        sudo apt-get install clang
 
