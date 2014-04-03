@@ -92,6 +92,15 @@ h2 {
     margin-top: 5px;
 }
 
+.tags-container {
+    margin-top: 10px;
+}
+
+.tag-badge {
+    border-radius: 4px;
+    background: #BBB;
+}
+
 .pull-left {
     margin: 0px 8px 0px 0px;
 }

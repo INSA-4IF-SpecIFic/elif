@@ -8,9 +8,7 @@
 
 {% include "header.html" %}
 
-<h2>Exercises</h2>
-
-<div class="col-md-4">
+<div class="col-md-4 tags-container">
     <div class="form-group">
         <div class="well">
 
@@ -34,7 +32,10 @@
 
 <div class="col-md-8">
 
+    <h4>Unpublished exercises</h4>
     <ul id="unpublished-list" class="exercises"></ul>
+
+    <h4>Exercises</h4>
     <ul id="exercises-list" class="exercises"></ul>
 
 </div>
@@ -86,7 +87,7 @@
     <li class="list-group-item tag">
         <a href="#">
             <span class="name">{{tag}}</span>
-            <span class="badge pull-right">{{occurrence}}</span>
+            <span class="badge pull-right tag-badge">{{occurrence}}</span>
         </a>
     </li>
 

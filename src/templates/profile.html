@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block style %}
+<link href="/static/css/editor.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+{% include "header.html" %}
+<div class="container">
+
+    <h1>Profile: <small>{{user.username}}</small></h1>
+
+    <ul class="list-group">
+
+        <li class="list-group-item">
+            <strong>
+                <span class="glyphicon glyphicon-th-list cool-blue"></span> Current rank :
+            </strong>
+
+            {{rank}}
+        </li>
+
+        <li class="list-group-item">
+            <strong>
+                <span class="glyphicon glyphicon-certificate cool-green"></span> Current score :
+            </strong>
+
+            {{user.score}}
+        </li>
+
+
+        <li class="list-group-item">
+            <strong>
+                <span class="glyphicon glyphicon-star-empty cool-yellow"></span> Exercises tried :
+            </strong>
+
+            {{exercises_tried}}/{{total_exercises}}
+        </li>
+
+        <li class="list-group-item">
+            <strong>
+                <span class="glyphicon glyphicon-star cool-yellow"></span> Exercises completed :
+            </strong>
+
+            {{exercises_completed}}/{{exercises_tried}}
+        </li>
+
+    </ul>
+<!--
+    Graph mockup
+    <img src="http://i.imgur.com/6i029Uc.png" />
+ -->
+</div>
+
+{% endblock body %}
+
+
+{% block javascript %}
+{% endblock %}
