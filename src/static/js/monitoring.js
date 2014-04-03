@@ -1,4 +1,4 @@
-var updateMonitored = function() {
+function updateMonitored() {
     $('.progress-table').find('td, th').show();
 
     // If nothing is selected, we show all the exercises

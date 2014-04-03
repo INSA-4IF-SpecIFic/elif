@@ -24,7 +24,7 @@ db = mongoengine.connect(config.db_name)
 # Adding the REST API to our web app
 app.register_blueprint(rest_api)
 
-# Decorators and instructions used to inject info into the context
+# Decorators and instructions used to inject info into the context or restrict access to some pages
 def requires_login(f):
     """  Decorator for views that requires the user to be logged-in """
     @wraps(f)

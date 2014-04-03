@@ -4,7 +4,7 @@
 import mongoengine
 
 from flask import request, jsonify, Blueprint, g
-from model.user import User
+from model.user import User, ScoreHistory
 from model.exercise import Exercise, Test, ExerciseProgress
 from job import Submission
 import utils
@@ -14,8 +14,11 @@ rest_api = Blueprint('rest_api', __name__)
 # \ ! / Monkey patching mongoengine to make json dumping easier
 mongoengine.Document.to_dict = utils.to_dict
 
-# Users
+# Utility function for user-restricted API calls
+def invalid_user(user):
+    return g.user is None or user != g.user and not g.user.editor
 
+# Users
 @rest_api.route('/api/user', methods=['POST'])
 def create_user():
     email, username, password = request.json['email'], request.json['username'], request.json['password']
@@ -26,14 +29,32 @@ def create_user():
     except mongoengine.ValidationError as e:
         return jsonify(ok=False, result=e.message)
 
-@rest_api.route('/api/user/progress/<exercise_id>', methods=['GET'])
-def get_progress(exercise_id):
+@rest_api.route('/api/user/<user_pk>/progress/<exercise_id>')
+def get_progress(user_pk, exercise_id):
+
     try:
+        user = User.objects.get(pk=user_pk)
+        if invalid_user(user):
+            return jsonify(ok=False, result="Cannot access information from the requested user")
         exercise = Exercise.objects.get(id=exercise_id)
         progress = ExerciseProgress.objects.get(user=g.user,exercise=exercise)
         return jsonify(ok=True, result=progress.to_dict())
-    except mongoengine.ValidationError as e:
-        return jsonify(ok=False, result=e.message)
+    except mongoengine.DoesNotExist:
+        return jsonify(ok=False, result="Requested user or exercise does not exist")
+
+@rest_api.route('/api/user/<user_pk>/score_history')
+def user_progress(user_pk):
+    try:
+        user = User.objects.get(pk=user_pk)
+    except mongoengine.DoesNotExist:
+        return jsonify(ok=False, result="User doesn't exist")
+
+    if invalid_user(user):
+        return jsonify(ok=False, result="Cannot access information from the requested user")
+
+    score_history = [sh.to_dict() for sh in ScoreHistory.objects(user=user)]
+
+    return jsonify(ok=True, result=score_history)
 
 # Tags
 
@@ -91,7 +112,7 @@ def unpublish_exercise(exercise_id):
         return jsonify(ok=False, result=e.message)
 
 
-@rest_api.route('/api/exercise/<exercise_id>', methods=['GET'])
+@rest_api.route('/api/exercise/<exercise_id>')
 def exercise(exercise_id):
     exercise = None
     try:
@@ -197,7 +218,7 @@ def submit_code():
 
     return jsonify(ok=True, result=submission.to_dict())
 
-@rest_api.route('/api/submission/', methods=['GET'])
+@rest_api.route('/api/submission/')
 def submissions():
     # Dumping TestResult objects to JSON
     for sub in Submission.objects:
@@ -206,7 +227,7 @@ def submissions():
     return jsonify(ok=True, result=submissions)
 
 
-@rest_api.route('/api/submission/<submission_id>', methods=['GET'])
+@rest_api.route('/api/submission/<submission_id>')
 def submission_state(submission_id):
     try:
         submission = Submission.objects.get(id=submission_id)
